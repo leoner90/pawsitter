@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PawSitter | Home</title>
+
+    <link rel="stylesheet" th:href="@{/css/mainStyle.css}">
+    <link rel="icon" type="image/x-icon" th:href="@{/images/favicon.ico}">
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="page-content">
+    <section class="hero">
+        <h1>Find trusted care for your pet</h1>
+
+        <p>
+            Browse reliable pet sitters, request bookings and manage
+            your pet care in one place.
+        </p>
+
+        <div class="hero-actions">
+            <a th:href="@{/register}" class="button primary-button">
+                Get started
+            </a>
+
+            <a th:href="@{/login}" class="button secondary-button">
+                Log in
+            </a>
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
