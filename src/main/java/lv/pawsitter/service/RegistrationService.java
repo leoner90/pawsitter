@@ -51,6 +51,7 @@ public class RegistrationService
 
         User savedUser = userRepository.save(user);
 
+        //if sitter create record in sitter_profile (empty)
         if (savedUser.getRole() == UserRole.SITTER)
         {
             SitterProfile sitterProfile = new SitterProfile();
@@ -60,6 +61,7 @@ public class RegistrationService
             sitterProfileRepository.save(sitterProfile);
         }
 
+        //if owner create record in owner_profile (empty)
         if (savedUser.getRole() == UserRole.OWNER)
         {
             OwnerProfile ownerProfile = new OwnerProfile();

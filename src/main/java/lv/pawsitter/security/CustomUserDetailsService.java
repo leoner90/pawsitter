@@ -15,6 +15,7 @@ public class CustomUserDetailsService implements UserDetailsService
 {
     private final UserRepository userRepository;
 
+    //todo move to service or leave here as logicly it's just security
     @Override
     public UserDetails loadUserByUsername(@NonNull String email) throws UsernameNotFoundException
     {
