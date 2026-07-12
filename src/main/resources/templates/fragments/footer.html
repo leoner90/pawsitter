@@ -1,20 +1,14 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<body>
-
-<footer th:fragment="footer" class="footer">
+<footer xmlns:th="http://www.thymeleaf.org" th:fragment="footer" class="footer">
     <div class="footer-content">
         <a th:href="@{/}" class="footer-logo">
             <img th:src="@{/images/mainLogo.png}" alt="PawSitter logo" class="footer-logo-image">
         </a>
 
-        <p>
-            Find trusted care for your pets.
-        </p>
+        <p>Find trusted care for your pets.</p>
 
         <div class="footer-links">
             <a th:href="@{/}">Home</a>
-            <a th:href="@{/registration}">Sign In</a>
+            <a th:href="@{/registration}">Register</a>
             <a th:href="@{/login}">Login</a>
         </div>
 
@@ -24,10 +18,5 @@
             &copy; <span th:text="${#dates.year(#dates.createNow())}">2026</span>
             PawSitter. All rights reserved.
         </p>
-
-
     </div>
 </footer>
-
-</body>
-</html>

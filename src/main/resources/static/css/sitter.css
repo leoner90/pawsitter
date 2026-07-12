@@ -1,0 +1,91 @@
+.profile-page {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.profile-card {
+    padding: 32px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+
+.profile-image,
+.pet-image {
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profile-summary h1,
+.profile-summary h2 {
+    margin-top: 0;
+}
+
+.profile-section {
+    margin: 28px 0;
+}
+
+.section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.pet-profile {
+    display: flex;
+    gap: 28px;
+    align-items: flex-start;
+}
+
+.pet-details {
+    flex: 1;
+}
+
+.pet-details h3 {
+    margin-top: 0;
+    font-size: 1.6rem;
+}
+
+.service-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.service-card {
+    padding: 20px;
+    border: 1px solid #d9caca;
+    border-radius: 12px;
+}
+
+.service-card h3 {
+    margin-top: 0;
+}
+
+@media (max-width: 760px) {
+    .profile-header,
+    .pet-profile {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .service-list {
+        grid-template-columns: 1fr;
+    }
+
+    .section-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 14px;
+    }
+}

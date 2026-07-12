@@ -1,0 +1,82 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>PawSitter | Owner Profile</title>
+
+        <link rel="stylesheet" th:href="@{/css/mainStyle.css}">
+        <link rel="icon" type="image/x-icon" th:href="@{/images/favicon.ico}">
+    </head>
+    <body>
+        <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+        <main class="page-content profile-page">
+            <section class="profile-card">
+                <div class="profile-header">
+
+                    <img th:src="${owner.imageUrl != null && !owner.imageUrl.isBlank()
+                                ? owner.imageUrl
+                                : '/images/ownersImages/default-owner.png'}"
+                            alt="Owner profile"
+                            class="profile-image"
+                    >
+
+                    <div class="profile-summary">
+                        <h1>Owner Profile</h1>
+
+                        <h2 th:text="${owner.user.firstName + ' ' + owner.user.lastName}">Owner name</h2>
+
+                        <p>
+                            <strong>Email:</strong>
+                            <span th:text="${owner.user.email}">email@example.com</span>
+                        </p>
+
+                        <p>
+                            <strong>Location:</strong>
+                            <span th:text="${owner.location != null && !owner.location.isBlank()
+                                ? owner.location
+                                : 'Not provided'}">
+                                Not provided
+                            </span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="profile-section">
+                    <h2>About Me</h2>
+
+                    <p th:text="${owner.description != null && !owner.description.isBlank()
+                        ? owner.description
+                        : 'No description provided yet.'}">
+                        No description provided yet.
+                    </p>
+                </div>
+
+                <a class="button secondary-button">
+                    Edit profile
+                </a>
+            </section>
+
+            <section class="profile-card pet-section">
+                <div class="section-heading">
+                    <div>
+                        <h2>My Pets</h2>
+                        <p>Add information about the pets that need care.</p>
+                    </div>
+
+                   <a class="button primary-button">Add pet </a>
+                </div>
+
+                <div class="empty-state">
+                    <h3>No pets added yet</h3>
+                    <p>Your pet profiles will appear here.</p>
+                </div>
+            </section>
+
+        </main>
+
+        <div th:replace="~{fragments/footer :: footer}"></div>
+    </body>
+</html>

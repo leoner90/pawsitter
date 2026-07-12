@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>PawSitter | Sitter Profile</title>
+
+        <link rel="stylesheet" th:href="@{/css/mainStyle.css}">
+        <link rel="icon" type="image/x-icon" th:href="@{/images/favicon.ico}">
+    </head>
+    <body>
+        <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+        <main class="page-content profile-page">
+
+            <section class="profile-card">
+                <div class="profile-header">
+
+                    <img
+                            th:src="${sitter.imageUrl != null && !sitter.imageUrl.isBlank()
+                                ? sitter.imageUrl
+                                : '/images/sittersImages/default-sitter.png'}"
+                            alt="Sitter profile"
+                            class="profile-image"
+                    >
+
+                    <div class="profile-summary">
+                        <h1>Sitter Profile</h1>
+
+                        <h2 th:text="${sitter.user.firstName + ' ' + sitter.user.lastName}"> Sitter name </h2>
+
+                        <p>
+                            <strong>Email:</strong>
+                            <span th:text="${sitter.user.email}"> email@example.com </span>
+                        </p>
+
+                        <p>
+                            <strong>Location:</strong>
+                            <span th:text="${sitter.location != null && !sitter.location.isBlank()
+                                ? sitter.location
+                                : 'Not provided'}">
+                                Not provided
+                            </span>
+                        </p>
+
+                        <p>
+                            <strong>Price:</strong>
+
+                            <span th:if="${sitter.pricePerDay != null}">
+                                €<span th:text="${sitter.pricePerDay}">0.00</span> per day
+                            </span>
+
+                            <span th:if="${sitter.pricePerDay == null}">Not provided</span>
+                        </p>
+
+                        <p>
+                            <strong>Profile status:</strong>
+                            <span th:if="${sitter.published}"> Published</span>
+                            <span th:unless="${sitter.published}">Not published </span>
+                        </p>
+                    </div>
+                </div>
+
+                <div class="profile-section">
+                    <h2>About Me</h2>
+
+                    <p th:text="${sitter.description != null && !sitter.description.isBlank()
+                        ? sitter.description
+                        : 'No description provided yet.'}">
+                        No description provided yet.
+                    </p>
+                </div>
+
+                <a class="button secondary-button"> Edit profile </a>
+            </section>
+        </main>
+
+        <div th:replace="~{fragments/footer :: footer}"></div>
+    </body>
+</html>

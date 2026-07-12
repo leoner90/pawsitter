@@ -1,18 +1,17 @@
-<!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
-<body>
-
-<nav th:fragment="navbar" class="navbar">
-    <a th:href="@{/}" class="logo">
-        <img th:src="@{/images/mainLogo.png}" alt="PawSitter logo" class="footer-logo-image">
+<nav xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security" th:fragment="navbar" class="navbar">
+    <a th:href="@{/}" class="logo-link">
+        <img th:src="@{/images/Mainlogo.png}" alt="PawSitter logo" class="nav-logo">
     </a>
 
     <div class="nav-links">
         <a th:href="@{/}">Home</a>
-        <a th:href="@{/registration}">Sign In</a>
-        <a th:href="@{/login}">Login</a>
+        <a sec:authorize="hasRole('OWNER')" th:href="@{/owner/profile}">My Profile</a>
+        <a sec:authorize="hasRole('SITTER')" th:href="@{/sitter/profile}">My Profile</a>
+        <a sec:authorize="isAnonymous()" th:href="@{/registration}">Register</a>
+        <a sec:authorize="isAnonymous()" th:href="@{/login}">Log In</a>
+
+        <form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post" class="logout-form">
+            <button type="submit" class="nav-link-button">Log out</button>
+        </form>
     </div>
 </nav>
-
-</body>
-</html>

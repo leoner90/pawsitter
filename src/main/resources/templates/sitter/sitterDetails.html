@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>PawSitter | Sitter Profile</title>
+
+        <link rel="stylesheet" th:href="@{/css/mainStyle.css}">
+        <link rel="icon" type="image/x-icon" th:href="@{/images/favicon.ico}">
+    </head>
+    <body>
+        <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+        <main class="page-content profile-page">
+            <section class="profile-card">
+                <div class="profile-header">
+                    <img
+                            th:src="${sitter.imageUrl != null && !sitter.imageUrl.isBlank()
+                            ? '/images/sittersImages/' + sitter.imageUrl
+                            : '/images/sittersImages/default-sitter.png'}"
+                            alt="Sitter profile"
+                            class="profile-image"
+                    >
+
+                    <div class="profile-summary">
+                        <h1 th:text="${sitter.user.firstName + ' ' + sitter.user.lastName}">
+                            Sitter name
+                        </h1>
+
+                        <p>
+                            <strong>Location:</strong>
+                            <span th:text="${sitter.location}">Riga, Latvia</span>
+                        </p>
+
+                        <p>
+                            <strong>Price:</strong>
+                            €<span th:text="${sitter.pricePerDay}">25.00</span>
+                            per day
+                        </p>
+                    </div>
+                </div>
+
+                <div class="profile-section">
+                    <h2>About this sitter</h2>
+
+                    <p th:text="${sitter.description}">
+                        Sitter description
+                    </p>
+                </div>
+
+                <button type="button" class="button primary-button">
+                    Book this sitter
+                </button>
+
+                <a th:href="@{/}" class="button secondary-button">
+                     Back to search
+                </a>
+
+
+            </section>
+        </main>
+
+        <div th:replace="~{fragments/footer :: footer}"></div>
+    </body>
+</html>
