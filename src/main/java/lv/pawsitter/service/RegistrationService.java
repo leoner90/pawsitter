@@ -51,6 +51,7 @@ public class RegistrationService
 
         User savedUser = userRepository.save(user);
 
+ 
         //if sitter create record in sitter_profile (empty)
         if (savedUser.getRole() == UserRole.SITTER)
         {
