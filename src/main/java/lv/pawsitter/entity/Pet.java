@@ -9,7 +9,7 @@ import java.time.LocalDateTime;
 
 //JPA entity, and Hibernate to map Java fields to a SQL
 @Entity
-@Table(name = "pet")
+@Table(name = "pets")
 @Getter
 @Setter
 @NoArgsConstructor
