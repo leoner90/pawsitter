@@ -16,6 +16,7 @@ jobs:
 
     steps:
       - name: Checkout code
+
         uses: actions/checkout@v5
 
       - name: Validate Compose
@@ -33,3 +34,4 @@ jobs:
       - name: Show application logs
         if: always()
         run: docker compose -f compose.yaml logs --tail 100 app
+
