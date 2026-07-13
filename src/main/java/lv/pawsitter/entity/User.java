@@ -47,5 +47,5 @@ public class User
     }
 
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Pets> pets = new ArrayList<>();
+    private List<Pet> pets = new ArrayList<>();
 }
