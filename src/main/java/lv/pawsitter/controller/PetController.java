@@ -29,13 +29,9 @@ public class PetController {
     @GetMapping("/{id}")
     public ResponseEntity<PetResponseDto> getPetById(@PathVariable Long id) {
         log.info("Fetching pet with id {}", id);
-        try {
-            PetResponseDto pet = petService.getById(id);
-            return ResponseEntity.ok(pet);
-        } catch (RuntimeException e) {
-            log.warn("Pet not found with id {}", id);
-            throw e;
-        }
+        PetResponseDto pet = petService.getById(id);
+        log.info("Found pet with id {}", id);
+        return ResponseEntity.ok(pet);
     }
 
     @GetMapping("/owner/{ownerProfileId}")
@@ -50,41 +46,32 @@ public class PetController {
     public ResponseEntity<PetResponseDto> createPet(@PathVariable Long ownerProfileId, @RequestBody PetRequestDto dto)
     {
         log.info("Creating pet for ownerProfileId {}", ownerProfileId);
-        try {
-            PetResponseDto createdPet = petService.createPet(ownerProfileId, dto);
-            log.info("Created pet with id {} for ownerProfileId {}", createdPet.getId(), ownerProfileId);
-            return ResponseEntity.status(HttpStatus.CREATED).body(createdPet);
-        } catch (RuntimeException e) {
-            log.error("Failed to create pet for ownerProfileId {}: {}", ownerProfileId, e.getMessage());
-            throw e;
-        }
+        PetResponseDto createdPet = petService.createPet(ownerProfileId, dto);
+        log.info("Created pet with id {} for ownerProfileId {}", createdPet.getId(), ownerProfileId);
+        return ResponseEntity.status(HttpStatus.CREATED).body(createdPet);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<PetResponseDto> updatePet(@PathVariable Long id, @RequestBody PetRequestDto dto)
     {
         log.info("Updating pet with id {}", id);
-        try {
-            PetResponseDto updatedPet = petService.updatePet(id, dto);
-            log.info("Updated pet with id {}", id);
-            return ResponseEntity.ok(updatedPet);
-        } catch (RuntimeException e) {
-            log.warn("Failed to update pet with id {}: {}", id, e.getMessage());
-            throw e;
-        }
+        PetResponseDto updatedPet = petService.updatePet(id, dto);
+        log.info("Updated pet with id {}", id);
+        return ResponseEntity.ok(updatedPet);
     }
 
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deletePet(@PathVariable Long id)
     {
         log.info("Deleting pet with id {}", id);
-        try {
-            petService.deletePet(id);
-            log.info("Deleted pet with id {}", id);
-            return ResponseEntity.noContent().build();
-        } catch (RuntimeException e) {
-            log.warn("Failed to delete pet with id {}: {}", id, e.getMessage());
-            throw e;
-        }
+        petService.deletePet(id);
+        log.info("Deleted pet with id {}", id);
+        return ResponseEntity.noContent().build();
+    }
+
+    @ExceptionHandler(RuntimeException.class)
+    public ResponseEntity<String> handleNotFound(RuntimeException runtimeException) {
+        log.warn("Request failed: {}", runtimeException.getMessage());
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(runtimeException.getMessage());
     }
 }
