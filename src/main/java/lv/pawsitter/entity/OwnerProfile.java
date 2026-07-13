@@ -35,6 +35,5 @@ public class OwnerProfile
 
     private String imageUrl;
 
-    @OneToMany(mappedBy = "ownerProfile", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Pet> pets = new ArrayList<>();
+
 }
