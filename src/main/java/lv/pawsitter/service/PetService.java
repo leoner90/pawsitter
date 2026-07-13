@@ -1,14 +1,15 @@
 package lv.pawsitter.service;
 
-import lv.pawsitter.entity.Pet;
+import lv.pawsitter.dto.PetRequestDto;
+import lv.pawsitter.dto.PetResponseDto;
 
 import java.util.List;
 
 public interface PetService {
-    public List<Pet> getAllPets();
-    public Pet getById(Long id);
-    public Pet createPet(Long ownerId, Pet pet);
-    public Pet updatePet(Long id, Pet updatedPet);
-    public void deletePet(Long id);
-    public List<Pet> getPetsByOwnerId(Long ownerProfileId);
+    List<PetResponseDto> getAllPets();
+    PetResponseDto getById(Long id);
+    PetResponseDto createPet(Long ownerId, PetRequestDto pet);
+    PetResponseDto updatePet(Long id, PetRequestDto updatedPet);
+    void deletePet(Long id);
+    List<PetResponseDto> getPetsByOwnerId(Long ownerProfileId);
 }

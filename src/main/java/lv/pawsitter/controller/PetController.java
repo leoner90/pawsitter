@@ -3,6 +3,8 @@ package lv.pawsitter.controller;
 import lombok.Getter;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import lv.pawsitter.dto.PetRequestDto;
+import lv.pawsitter.dto.PetResponseDto;
 import lv.pawsitter.entity.Pet;
 import lv.pawsitter.service.PetService;
 import org.springframework.http.HttpStatus;
@@ -19,18 +21,16 @@ public class PetController {
     private final PetService petService;
 
     @GetMapping
-    public ResponseEntity<List<Pet>> getAllPets(){
+    public ResponseEntity<List<PetResponseDto>> getAllPets(){
         log.info("Fetching all pets");
-        List<Pet> pets = petService.getAllPets();
-        log.info("Retrieved {} pets", pets.size());
-        return ResponseEntity.ok(pets);
+        return ResponseEntity.ok(petService.getAllPets());
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<Pet> getPetById(@PathVariable Long id) {
+    public ResponseEntity<PetResponseDto> getPetById(@PathVariable Long id) {
         log.info("Fetching pet with id {}", id);
         try {
-            Pet pet = petService.getById(id);
+            PetResponseDto pet = petService.getById(id);
             return ResponseEntity.ok(pet);
         } catch (RuntimeException e) {
             log.warn("Pet not found with id {}", id);
@@ -39,18 +39,19 @@ public class PetController {
     }
 
     @GetMapping("/owner/{ownerProfileId}")
-    public ResponseEntity<List<Pet>> getPetsByOwner(@PathVariable Long ownerProfileId)
-    {
+    public ResponseEntity<List<PetResponseDto>> getPetsByOwner(@PathVariable Long ownerProfileId) {
         log.info("Fetching pets for ownerProfileId {}", ownerProfileId);
-        return ResponseEntity.ok(petService.getPetsByOwnerId(ownerProfileId));
+        List<PetResponseDto> pets = petService.getPetsByOwnerId(ownerProfileId);
+        log.info("Retrieved {} pets for ownerProfileId {}", pets.size(), ownerProfileId);
+        return ResponseEntity.ok(pets);
     }
 
     @PostMapping("/owner/{ownerProfileId}")
-    public ResponseEntity<Pet> createPet(@PathVariable Long ownerProfileId, @RequestBody Pet pet)
+    public ResponseEntity<PetResponseDto> createPet(@PathVariable Long ownerProfileId, @RequestBody PetRequestDto dto)
     {
         log.info("Creating pet for ownerProfileId {}", ownerProfileId);
         try {
-            Pet createdPet = petService.createPet(ownerProfileId, pet);
+            PetResponseDto createdPet = petService.createPet(ownerProfileId, dto);
             log.info("Created pet with id {} for ownerProfileId {}", createdPet.getId(), ownerProfileId);
             return ResponseEntity.status(HttpStatus.CREATED).body(createdPet);
         } catch (RuntimeException e) {
@@ -60,11 +61,11 @@ public class PetController {
     }
 
     @PutMapping("/{id}")
-    public ResponseEntity<Pet> updatePet(@PathVariable Long id, @RequestBody Pet pet)
+    public ResponseEntity<PetResponseDto> updatePet(@PathVariable Long id, @RequestBody PetRequestDto dto)
     {
         log.info("Updating pet with id {}", id);
         try {
-            Pet updatedPet = petService.updatePet(id, pet);
+            PetResponseDto updatedPet = petService.updatePet(id, dto);
             log.info("Updated pet with id {}", id);
             return ResponseEntity.ok(updatedPet);
         } catch (RuntimeException e) {
