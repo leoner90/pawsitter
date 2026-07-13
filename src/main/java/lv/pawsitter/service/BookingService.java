@@ -17,6 +17,8 @@ import lv.pawsitter.entity.BookingStatus;
 import lv.pawsitter.entity.OwnerProfile;
 import lv.pawsitter.entity.Pet;
 import lv.pawsitter.entity.SitterProfile;
+import lv.pawsitter.exception.BookingNotFoundException;
+import lv.pawsitter.exception.InvalidBookingOperationException;
 import lv.pawsitter.repository.BookingRepository;
 import lv.pawsitter.repository.OwnerProfileRepository;
 import lv.pawsitter.repository.PetRepository;
@@ -33,13 +35,13 @@ public class BookingService {
   @Transactional
   public BookingResponse createBooking(CreateBookingRequest request) {
     OwnerProfile owner = ownerProfileRepository.findById(request.getOwnerId())
-        .orElseThrow(() -> new IllegalArgumentException("Owner profile not found"));
+        .orElseThrow(() -> new InvalidBookingOperationException("Owner profile not found"));
 
     SitterProfile sitter = sitterProfileRepository.findById(request.getSitterId())
-        .orElseThrow(() -> new IllegalArgumentException("Sitter profile not found"));
+        .orElseThrow(() -> new InvalidBookingOperationException("Sitter profile not found"));
 
     if (owner.getUser().getId().equals(sitter.getUser().getId())) {
-      throw new IllegalArgumentException("Owner and sitter cannot be the same user");
+      throw new InvalidBookingOperationException("Owner and sitter cannot be the same user");
     }
 
     List<Pet> pets = request.getPetIds().stream()
@@ -68,14 +70,14 @@ public class BookingService {
     Booking booking = getBooking(bookingId);
 
     if (booking.getStatus() != BookingStatus.REQUESTED) {
-      throw new IllegalArgumentException("Only requested bookings can be updated");
+      throw new InvalidBookingOperationException("Only requested bookings can be updated");
     }
 
     LocalDateTime startDate = request.getStartDate() != null ? request.getStartDate() : booking.getStartDate();
     LocalDateTime endDate = request.getEndDate() != null ? request.getEndDate() : booking.getEndDate();
 
     if (!endDate.isAfter(startDate)) {
-      throw new IllegalArgumentException("End date must be after start date");
+      throw new InvalidBookingOperationException("End date must be after start date");
     }
 
     booking.setStartDate(startDate);
@@ -83,7 +85,7 @@ public class BookingService {
 
     if (request.getPetIds() != null) {
       if (request.getPetIds().isEmpty()) {
-        throw new IllegalArgumentException("Select at least one pet");
+        throw new InvalidBookingOperationException("Select at least one pet");
       }
 
       List<Pet> pets = request.getPetIds().stream()
@@ -152,7 +154,7 @@ public class BookingService {
     Booking booking = getBooking(bookingId);
 
     if (!allowedStatuses.contains(booking.getStatus())) {
-      throw new IllegalArgumentException(errorMessage);
+      throw new InvalidBookingOperationException(errorMessage);
     }
 
     booking.setStatus(newStatus);
@@ -161,16 +163,16 @@ public class BookingService {
 
   private Booking getBooking(Long id) {
     return bookingRepository.findById(id)
-        .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+        .orElseThrow(() -> new BookingNotFoundException("Booking not found"));
   }
 
   // checks if pet exists and belongs to owner
   private Pet getOwnerPet(Long petId, OwnerProfile owner) {
     Pet pet = petRepository.findById(petId)
-        .orElseThrow(() -> new IllegalArgumentException("Pet not found"));
+        .orElseThrow(() -> new InvalidBookingOperationException("Pet not found"));
 
     if (!pet.getUser().getId().equals(owner.getUser().getId())) {
-      throw new IllegalArgumentException("Pet does not belong to this owner");
+      throw new InvalidBookingOperationException("Pet does not belong to this owner");
     }
 
     return pet;
