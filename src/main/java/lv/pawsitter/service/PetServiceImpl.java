@@ -72,4 +72,11 @@ public class PetServiceImpl implements PetService{
         petRepository.delete(pet);
         log.info("Deleted pet with id: {}", id);
     }
+
+    @Override
+    public List<Pet> getPetsByOwnerId(Long ownerProfileId)
+    {
+        log.info("Fetching pets for ownerProfileId {}", ownerProfileId);
+        return petRepository.findByOwnerProfileId(ownerProfileId);
+    }
 }

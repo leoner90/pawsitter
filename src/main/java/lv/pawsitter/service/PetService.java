@@ -10,4 +10,5 @@ public interface PetService {
     public Pet createPet(Long ownerId, Pet pet);
     public Pet updatePet(Long id, Pet updatedPet);
     public void deletePet(Long id);
+    public List<Pet> getPetsByOwnerId(Long ownerProfileId);
 }

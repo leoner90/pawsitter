@@ -38,6 +38,13 @@ public class PetController {
         }
     }
 
+    @GetMapping("/owner/{ownerProfileId}")
+    public ResponseEntity<List<Pet>> getPetsByOwner(@PathVariable Long ownerProfileId)
+    {
+        log.info("Fetching pets for ownerProfileId {}", ownerProfileId);
+        return ResponseEntity.ok(petService.getPetsByOwnerId(ownerProfileId));
+    }
+
     @PostMapping("/owner/{ownerProfileId}")
     public ResponseEntity<Pet> createPet(@PathVariable Long ownerProfileId, @RequestBody Pet pet)
     {
