@@ -5,21 +5,23 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
 
 
 //JPA entity, and Hibernate to map Java fields to a SQL
 @Entity
-@Table(name = "users")
+@Table(name = "pets")
 @Getter
 @Setter
 @NoArgsConstructor
-public class User
+public class Pets
 {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // generate id automatically
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id", nullable = false)
+    private User user;
 
     @Column(nullable = false)
     private String firstName;
@@ -27,15 +29,20 @@ public class User
     @Column(nullable = false)
     private String lastName;
 
-    @Column(nullable = false, unique = true)
-    private String email;
+    @Column(nullable = false)
+    private String nickName;
 
     @Column(nullable = false)
-    private String password;
+    private int age;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
-    private UserRole role;
+    private String description;
+
+    @Column
+    private String specialNeeds;
+
+    @Column
+    private String imageUrl;
 
     @Column(nullable = false)
     private LocalDateTime createdAt;
@@ -45,7 +52,4 @@ public class User
     {
         this.createdAt = LocalDateTime.now();
     }
-
-    @OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-    private List<Pets> pets = new ArrayList<>();
 }
