@@ -29,8 +29,15 @@ public class Pets
     @Column(nullable = false)
     private String lastName;
 
-    @Column(nullable = false)
+    @Column
     private String nickName;
+
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private AnimalTypes animalType;
+
+    @Column
+    private String breed;
 
     @Column(nullable = false)
     private int age;
@@ -38,7 +45,7 @@ public class Pets
     @Column(nullable = false)
     private String description;
 
-    @Column
+    @Column(nullable = false)
     private String specialNeeds;
 
     @Column
