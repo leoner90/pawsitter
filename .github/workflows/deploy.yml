@@ -1,0 +1,28 @@
+name: Deploy PawSitter
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - master
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Stop old containers
+        run: docker compose down
+
+      - name: Build and start PawSitter
+        run: docker compose up -d --build
+
+      - name: Check containers
+        run: docker compose ps
+
+      - name: Show application logs
+        if: always()
+        run: docker compose logs --tail 100 app
