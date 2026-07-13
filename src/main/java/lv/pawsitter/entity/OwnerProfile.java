@@ -34,4 +34,6 @@ public class OwnerProfile
     private String description = "";
 
     private String imageUrl;
+
+
 }
