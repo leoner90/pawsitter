@@ -1,6 +1,5 @@
 package lv.pawsitter.dto;
 
-import lombok.Builder;
 import lv.pawsitter.entity.OwnerProfile;
 import lv.pawsitter.entity.SitterProfile;
 import lv.pawsitter.model.RoleType;

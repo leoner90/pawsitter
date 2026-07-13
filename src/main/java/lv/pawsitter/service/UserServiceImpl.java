@@ -27,7 +27,7 @@ import java.util.Objects;
 @Service
 @RequiredArgsConstructor
 @Slf4j
-public class UserServiceImplementation implements UserService {
+public class UserServiceImpl implements UserService {
     private final UserRepository repository;
 
     private final PasswordEncoder encoder;

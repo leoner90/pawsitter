@@ -11,6 +11,7 @@ import lv.pawsitter.dto.UserCreateDTO;
 import lv.pawsitter.dto.UserDTO;
 import lv.pawsitter.model.RoleType;
 import lv.pawsitter.service.UserService;
+import lv.pawsitter.utility.MaskingUtil;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
@@ -26,13 +27,15 @@ import java.util.List;
 public class UserController {
     private final UserService service;
 
+    private final MaskingUtil masking;
+
 //    private final AuthenticationService authentication;
 
     @PostMapping
     public ResponseEntity<UserDTO> registerUser(@Valid @RequestBody UserCreateDTO dto) {
-        log.debug("registerUser email={}", dto.email());
+        log.debug("registerUser email={}", masking.maskEmail(dto.email()));
         UserDTO created = service.create(dto);
-        log.info("User created id={}, email={}", created.id(), created.email());
+        log.info("User created id={}, email={}", created.id(), masking.maskEmail(created.email()));
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
@@ -48,7 +51,7 @@ public class UserController {
     public ResponseEntity<UserDTO> getUserById(@PathVariable @Positive long id) {
         log.debug("getUserById id={}", id);
         UserDTO dto = service.findById(id);
-        log.info("getUserById succeeded id={}, email={}", id, dto.email());
+        log.info("getUserById succeeded id={}, email={}", id, masking.maskEmail(dto.email()));
         return ResponseEntity.ok(dto);
     }
 
@@ -71,17 +74,17 @@ public class UserController {
 
     @GetMapping("/by-email")
     public ResponseEntity<UserDTO> getUserByEmail(@RequestParam @Email @NotBlank String email) {
-        log.debug("getUserByEmail email={}", email);
+        log.debug("getUserByEmail email={}", masking.maskEmail(email));
         UserDTO dto = service.findByEmail(email);
-        log.info("getUserByEmail succeeded id={}, email={}", dto.id(), dto.email());
+        log.info("getUserByEmail succeeded id={}, email={}", dto.id(), masking.maskEmail(dto.email()));
         return ResponseEntity.ok(dto);
     }
 
 //    @PostMapping("/login")
 //    public JwtAuthenticationResponse login(@Valid @RequestBody SignInRequest requestBody) {
 //        log.debug("login attempt login={}", masking.maskLogin(requestBody.getLogin()));
-//        JwtAuthenticationResponse resp = authentication.authenticate(requestBody);
+//        JwtAuthenticationResponse response = authentication.authenticate(requestBody);
 //        log.info("login succeeded login={}", masking.maskLogin(requestBody.getLogin()));
-//        return resp;
+//        return response;
 //    }
 }
