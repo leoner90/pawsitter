@@ -9,11 +9,11 @@ import java.time.LocalDateTime;
 
 //JPA entity, and Hibernate to map Java fields to a SQL
 @Entity
-@Table(name = "pets")
+@Table(name = "pet")
 @Getter
 @Setter
 @NoArgsConstructor
-public class Pets
+public class Pet
 {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -45,7 +45,7 @@ public class Pets
     @Column(nullable = false)
     private String description;
 
-    @Column(nullable = false)
+    @Column
     private String specialNeeds;
 
     @Column
