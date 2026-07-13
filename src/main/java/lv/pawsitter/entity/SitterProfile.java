@@ -1,5 +1,6 @@
 package lv.pawsitter.entity;
 
+import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import lombok.Getter;
@@ -21,6 +22,10 @@ public class SitterProfile
     @OneToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
     private User user;
+
+    @OneToOne(mappedBy = "sitter_profiles")
+    @JsonManagedReference
+    private AvailabilityCalendar availabilityCalendar;
 
     @Column(nullable = false)
     private String location = "Not provided";
