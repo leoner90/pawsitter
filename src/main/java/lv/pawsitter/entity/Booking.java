@@ -29,41 +29,41 @@ import lombok.Setter;
 @NoArgsConstructor
 public class Booking {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @ManyToOne
-  @JoinColumn(name = "owner_profile_id", nullable = false)
-  private OwnerProfile owner;
+    @ManyToOne
+    @JoinColumn(name = "owner_profile_id", nullable = false)
+    private OwnerProfile owner;
 
-  @ManyToOne
-  @JoinColumn(name = "sitter_profile_id", nullable = false)
-  private SitterProfile sitter;
+    @ManyToOne
+    @JoinColumn(name = "sitter_profile_id", nullable = false)
+    private SitterProfile sitter;
 
-  @Column(nullable = false)
-  private LocalDateTime startDate;
+    @Column(nullable = false)
+    private LocalDateTime startDate;
 
-  @Column(nullable = false)
-  private LocalDateTime endDate;
+    @Column(nullable = false)
+    private LocalDateTime endDate;
 
-  @Column(nullable = false)
-  private LocalDateTime createdAt;
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
 
-  @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
-  private BookingStatus status = BookingStatus.REQUESTED;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private BookingStatus status = BookingStatus.REQUESTED;
 
-  @ManyToMany
-  @JoinTable(name = "booking_pets", joinColumns = @JoinColumn(name = "booking_id"), inverseJoinColumns = @JoinColumn(name = "pet_id"))
-  private List<Pet> pets = new ArrayList<>();
+    @ManyToMany
+    @JoinTable(name = "booking_pets", joinColumns = @JoinColumn(name = "booking_id"), inverseJoinColumns = @JoinColumn(name = "pet_id"))
+    private List<Pet> pets = new ArrayList<>();
 
-  @OneToOne(mappedBy = "booking")
-  private Review review;
+    @OneToOne(mappedBy = "booking")
+    private Review review;
 
-  @PrePersist
-  public void setCreatedAt() {
-    this.createdAt = LocalDateTime.now();
-  }
+    @PrePersist
+    public void setCreatedAt() {
+        this.createdAt = LocalDateTime.now();
+    }
 
 }
