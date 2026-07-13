@@ -23,7 +23,7 @@ public class SecurityConfig {
                                 "/images/**"
                         ).permitAll()
 
-                        .requestMatchers("/owner/**").hasRole("OWNER")
+                        .requestMatchers("/owner/**").hasRole("USER")
                         .requestMatchers("/sitter/**").hasRole("SITTER")
                         .requestMatchers("/admin/**").hasRole("ADMIN")
                         .requestMatchers("/sitters/**").authenticated()
