@@ -8,7 +8,9 @@ import lombok.Setter;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "reviews")
+@Table(name = "reviews", uniqueConstraints = {
+        @UniqueConstraint(columnNames = {"booking_id", "reviewer_id"})
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -18,20 +20,24 @@ public class Review {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    @OneToOne(optional = false)
-    @JoinColumn(name = "booking_id", nullable = false, unique = true)
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "booking_id", nullable = false)
     private Booking booking;
 
     @ManyToOne(optional = false)
     @JoinColumn(name = "reviewer_id", nullable = false)
     private User reviewer;
 
+    @ManyToOne(optional = false)
+    @JoinColumn(name = "reviewee_id", nullable = false)
+    private User reviewee;
+
     @DecimalMin(value = "1", message = "Rating must be at least 1")
     @DecimalMax(value = "5", message = "Rating cannot be more than 5")
     @Column(nullable = false)
     private Integer rating;
 
-    @Column(length = 1000)
+    @Column(length = 1500)
     private String comment = "";
 
     @Column(nullable = false)

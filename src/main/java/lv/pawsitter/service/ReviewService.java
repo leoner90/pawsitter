@@ -10,6 +10,7 @@ import lv.pawsitter.entity.Review;
 import lv.pawsitter.entity.User;
 import lv.pawsitter.repository.ReviewRepository;
 import lv.pawsitter.repository.UserRepository;
+import org.hibernate.type.MapType;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -29,33 +30,48 @@ public class ReviewService {
             throw new IllegalStateException("Only completed bookings can have a review");
         }
 
-        if (reviewRepository.existsByBookingId(booking.getId())) {
-            throw new IllegalStateException("Review for this booking already exists");
-        }
 
         User reviewer = userRepository.findByEmail(reviewerEmail)
                 .orElseThrow(() -> new IllegalArgumentException("Reviewer not found"));
 
-        boolean isBookingUser = booking.getOwner().getUser().getId().equals(reviewer.getId())
-                || booking.getSitter().getUser().getId().equals(reviewer.getId());
+        User ownerUser = booking.getOwner().getUser();
+        User sitterUser = booking.getSitter().getUser();
 
-        if (isBookingUser) {
+        User reviewee;
+
+        if (reviewer.getId().equals(ownerUser.getId()))
+        {
+            reviewee = sitterUser;
+        }
+        else if (reviewer.getId().equals(sitterUser.getId()))
+        {
+            reviewee = ownerUser;
+        }
+        else
+        {
             throw new IllegalStateException("Only the users of this booking can leave a review");
         }
+
+        if (reviewRepository.existsByBookingIdAndReviewerId(booking.getId(), reviewer.getId()))
+        {
+            throw new IllegalStateException("You have already reviewed this booking");
+        }
+
+
 
         Review review = new Review();
         review.setBooking(booking);
         review.setReviewer(reviewer);
+        review.setReviewee(reviewee);
         review.setRating(request.getRating());
         review.setComment(request.getReviewComment());
 
-        Review savedReview = reviewRepository.save(review);
-        return mapToResponse(savedReview);
+        return mapToResponse(reviewRepository.save(review));
 
 
     }
 
-    public ReviewResponse getReviewId(Long id){
+    public ReviewResponse getReviewById(Long id){
 
         return mapToResponse(reviewRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Review not found")));
@@ -63,31 +79,42 @@ public class ReviewService {
 
     public ReviewResponse getReviewByBooking(Long bookingId)
     {
-        return mapToResponse(reviewRepository.findByBookingId(bookingId)
-                .orElseThrow(() -> new IllegalArgumentException("Review not found for this booking")));
+        return (ReviewResponse) reviewRepository.findByBookingId(bookingId)
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
     }
 
-    public List<ReviewResponse> getReviewsByReviewer(Long reviewerId){
+    public List<ReviewResponse> getReviewsReceivedBy(Long userId){
 
-        return reviewRepository.findByReviewerId(reviewerId)
+        return reviewRepository.findByReviewerId(userId)
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
 
     }
 
-    public List<ReviewResponse> getAllReviews(){
-        return reviewRepository.findAll()
+    public List<ReviewResponse> getReviewsWrittenBy(Long userId){
+        return reviewRepository.findByReviewerId(userId)
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
     }
 
-    public ReviewResponse updateReview(Long id, ReviewRequest request, String reviewerEmail) {
+    public List<ReviewResponse> getAllReviews()
+    {
+        return reviewRepository
+                .findAll()
+                .stream()
+                .map(this::mapToResponse)
+                .toList();
+    }
+
+    public ReviewResponse updateReview(Long id, ReviewRequest request, String requesterEmail) {
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Review not found"));
 
-        if (!review.getReviewer().getEmail().equals(reviewerEmail)) {
+        if (!review.getReviewer().getEmail().equals(requesterEmail)) {
             throw new IllegalStateException("only the creator of this comment can edit this review");
         }
 
@@ -97,11 +124,11 @@ public class ReviewService {
         return mapToResponse(reviewRepository.save(review));
     }
 
-    public void deleteReview(Long id, String reqursterEmail) {
+    public void deleteReview(Long id, String requesterEmail) {
         Review review = reviewRepository.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Review not found"));
 
-        if (!review.getReviewer().getEmail().equals(reqursterEmail)) {
+        if (!review.getReviewer().getEmail().equals(requesterEmail)) {
             throw new IllegalStateException("only the creator of this comment can delete this review");
 
         }
@@ -118,6 +145,8 @@ public class ReviewService {
                 review.getBooking().getId(),
                 review.getReviewer().getId(),
                 review.getReviewer().getFirstName() + " " + review.getReviewer().getLastName(),
+                review.getReviewee().getId(),
+                review.getReviewee().getFirstName() + " " + review.getReviewee().getLastName(),
                 review.getRating(),
                 review.getComment(),
                 review.getCreatedAt()

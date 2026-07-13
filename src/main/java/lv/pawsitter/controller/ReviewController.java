@@ -5,7 +5,6 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lv.pawsitter.dto.ReviewRequest;
 import lv.pawsitter.dto.ReviewResponse;
-import lv.pawsitter.entity.Review;
 import lv.pawsitter.service.ReviewService;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -25,13 +24,12 @@ public class ReviewController {
             @Valid @RequestBody ReviewRequest request,
             Authentication authentication)
     {
-        ReviewResponse response = reviewService.createReview(request, authentication.getName());
-        return ResponseEntity.ok(response);
+        return ResponseEntity.ok(reviewService.createReview(request, authentication.getName()));
     }
 
     @GetMapping("/{id}")
-    public ResponseEntity<ReviewResponse> getReview(@PathVariable Long id) {
-        return ResponseEntity.ok(reviewService.getReviewId(id));
+    public ResponseEntity<ReviewResponse> getReviewById(@PathVariable Long id) {
+        return ResponseEntity.ok(reviewService.getReviewById(id));
     }
 
     @GetMapping("/booking/{bookingId}")
@@ -40,10 +38,16 @@ public class ReviewController {
         return ResponseEntity.ok(reviewService.getReviewByBooking(bookingId));
     }
 
-    @GetMapping("/reviewer/{reviewerId}")
-    public ResponseEntity<List<ReviewResponse>> getReviewsByReviewer(@PathVariable Long reviewerId)
+    @GetMapping("/received/{userId}")
+    public ResponseEntity<List<ReviewResponse>> getReviewsByReviewer(@PathVariable Long userId)
     {
-        return ResponseEntity.ok(reviewService.getReviewsByReviewer(reviewerId));
+        return ResponseEntity.ok(reviewService.getReviewsReceivedBy(userId));
+    }
+
+    @GetMapping("/written/{userId}")
+    public ResponseEntity<List<ReviewResponse>> getReviewsWritten(@PathVariable Long userId)
+    {
+        return ResponseEntity.ok(reviewService.getReviewsWrittenBy(userId));
     }
 
     @GetMapping
