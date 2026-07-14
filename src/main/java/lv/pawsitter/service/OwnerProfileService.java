@@ -1,6 +1,6 @@
 package lv.pawsitter.service;
 
-import lombok.RequiredArgsConstructor;
+import lv.pawsitter.dto.OwnerProfileUpdateDTO;
 import lv.pawsitter.entity.OwnerProfile;
 import lv.pawsitter.exception.UserNotFoundException;
 import lv.pawsitter.repository.OwnerProfileRepository;
@@ -17,4 +17,9 @@ public class OwnerProfileService
         return ownerProfileRepository.findByUserEmail(email.trim().toLowerCase())
                 .orElseThrow(() -> new UserNotFoundException("Owner profile not found"));
     }
+}
+
+public interface OwnerProfileService {
+    OwnerProfile getProfileByUserEmail(String email);
+    OwnerProfile updateProfile(String email, OwnerProfileUpdateDTO dto);
 }

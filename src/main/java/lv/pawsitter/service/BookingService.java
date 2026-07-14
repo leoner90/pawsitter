@@ -4,6 +4,7 @@ import java.util.List;
 import lv.pawsitter.dto.BookingResponse;
 import lv.pawsitter.dto.CreateBookingRequest;
 import lv.pawsitter.dto.UpdateBookingRequest;
+import lv.pawsitter.entity.BookingStatus;
 
 public interface BookingService
 {
@@ -13,9 +14,9 @@ public interface BookingService
 
   BookingResponse updateBooking(Long bookingId, String ownerEmail, UpdateBookingRequest request);
 
-  List<BookingResponse> getOwnerBookings(String ownerEmail);
+  List<BookingResponse> getOwnerBookings(String ownerEmail, BookingStatus status);
 
-  List<BookingResponse> getSitterBookings(String sitterEmail);
+  List<BookingResponse> getSitterBookings(String sitterEmail, BookingStatus status);
 
   BookingResponse accept(Long bookingId, String sitterEmail);
 

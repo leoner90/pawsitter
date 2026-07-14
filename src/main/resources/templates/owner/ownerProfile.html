@@ -43,7 +43,7 @@
                         </p>
                     </div>
                 </div>
-
+                <hr>
                 <div class="profile-section">
                     <h2>About Me</h2>
 
@@ -54,7 +54,7 @@
                     </p>
                 </div>
 
-                <a class="button secondary-button">
+                <a th:href="@{/owner/profile/edit}" class="button secondary-button">
                     Edit profile
                 </a>
             </section>
@@ -66,12 +66,21 @@
                         <p>Add information about the pets that need care.</p>
                     </div>
 
-                   <a class="button primary-button">Add pet </a>
+                    <a th:href="@{/owner/pets/add}" class="button primary-button">Add pet</a>
                 </div>
 
-                <div class="empty-state">
+                <div th:if="${#lists.isEmpty(owner.pets)}" class="empty-state">
                     <h3>No pets added yet</h3>
                     <p>Your pet profiles will appear here.</p>
+                </div>
+
+                <div th:if="${!#lists.isEmpty(owner.pets)}" class="pet-grid">
+                    <article class="pet-card" th:each="pet : ${owner.pets}">
+                        <hr>
+                        <h3 th:text="${pet.firstName}">Pet name</h3>
+                        <p th:text="${pet.animalType}">Animal type</p>
+                        <p th:text="${pet.breed}">Breed</p>
+                    </article>
                 </div>
             </section>
 

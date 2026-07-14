@@ -1,5 +1,6 @@
 package lv.pawsitter.dto;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -17,6 +18,8 @@ public record BookingResponse(
         LocalDateTime endDate,
         LocalDateTime createdAt,
         BookingStatus status,
+        String note,
+        BigDecimal pricePerDaySnapshot,
         List<Long> petIds,
         boolean reviewed
 )
@@ -33,6 +36,8 @@ public record BookingResponse(
                 booking.getEndDate(),
                 booking.getCreatedAt(),
                 booking.getStatus(),
+                booking.getNote(),
+                booking.getPricePerDaySnapshot(),
                 booking.getPets().stream()
                         .map(Pet::getId)
                         .collect(Collectors.toList()),

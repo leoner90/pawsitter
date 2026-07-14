@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PawSitter | Edit Owner Profile</title>
+    <link rel="stylesheet" th:href="@{/css/mainStyle.css}">
+    <link rel="icon" type="image/x-icon" th:href="@{/images/favicon.ico}">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="page-content">
+    <section class="form-container">
+        <h1>Edit profile</h1>
+
+        <form th:action="@{/owner/profile/edit}" th:object="${profileRequest}" method="post">
+
+            <label for="firstName">First name</label>
+            <input id="firstName" type="text" th:field="*{firstName}">
+            <p th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}" class="form-error"></p>
+
+            <label for="lastName">Last name</label>
+            <input id="lastName" type="text" th:field="*{lastName}">
+            <p th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}" class="form-error"></p>
+
+            <label for="phoneNumber">Phone number</label>
+            <input id="phoneNumber" type="text" th:field="*{phoneNumber}">
+            <p th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}" class="form-error"></p>
+
+            <label for="location">Location</label>
+            <input id="location" type="text" th:field="*{location}">
+            <p th:if="${#fields.hasErrors('location')}" th:errors="*{location}" class="form-error"></p>
+
+            <label for="description">About me</label>
+            <input id="description" type="text" th:field="*{description}">
+            <p th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="form-error"></p>
+
+            <label for="imageUrl">Profile image URL</label>
+            <input id="imageUrl" type="text" th:field="*{imageUrl}">
+
+            <button type="submit" class="button primary-button">Save changes</button>
+            <a th:href="@{/owner/profile}" class="button secondary-button">Cancel</a>
+        </form>
+    </section>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
