@@ -6,23 +6,31 @@ on:
     branches:
       - master
 
+concurrency:
+  group: pawsitter-deployment
+  cancel-in-progress: true
+
 jobs:
   deploy:
     runs-on: self-hosted
 
     steps:
       - name: Checkout code
-        uses: actions/checkout@v4
+        uses: actions/checkout@v5
+
+      - name: Validate Compose
+        run: docker compose -f compose.yaml config
 
       - name: Stop old containers
-        run: docker compose down
+        run: docker compose -f compose.yaml down --remove-orphans
 
       - name: Build and start PawSitter
-        run: docker compose up -d --build
+        run: docker compose -f compose.yaml up -d --build
 
       - name: Check containers
-        run: docker compose ps
+        run: docker compose -f compose.yaml ps
 
       - name: Show application logs
         if: always()
-        run: docker compose logs --tail 100 app
+        run: docker compose -f compose.yaml logs --tail 100 app
+
