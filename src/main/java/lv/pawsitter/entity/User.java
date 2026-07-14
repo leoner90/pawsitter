@@ -11,7 +11,6 @@ import lv.pawsitter.model.RoleType;
 import java.time.LocalDateTime;
 
 
-//JPA entity, and Hibernate to map Java fields to a SQL
 @Entity
 @Table(name = "users")
 @Getter
@@ -20,7 +19,7 @@ import java.time.LocalDateTime;
 @ToString
 public class User {
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // generate id automatically
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @Column(nullable = false)
@@ -29,6 +28,7 @@ public class User {
     @Column(nullable = false)
     private String lastName;
 
+    @Column(nullable = false, unique = true)
     private String phoneNumber;
 
     @Column(nullable = false, unique = true)
@@ -38,8 +38,8 @@ public class User {
     @Column(nullable = false)
     private String password;
 
-    @Enumerated(EnumType.STRING)
     @Column(nullable = false)
+    @Enumerated(EnumType.STRING)
     private RoleType role;
 
     @OneToOne(mappedBy = "user")
