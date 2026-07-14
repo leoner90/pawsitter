@@ -5,6 +5,7 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -35,10 +36,9 @@ public class BookingServiceImpl implements BookingService
 
   @Override
   @Transactional
-  public BookingResponse createBooking(CreateBookingRequest request)
+  public BookingResponse createBooking(String ownerEmail, CreateBookingRequest request)
   {
-    OwnerProfile owner = ownerProfileRepository.findById(request.getOwnerId())
-        .orElseThrow(() -> new InvalidBookingOperationException("Owner profile not found"));
+    OwnerProfile owner = getOwnerByEmail(ownerEmail);
 
     SitterProfile sitter = sitterProfileRepository.findById(request.getSitterId())
         .orElseThrow(() -> new InvalidBookingOperationException("Sitter profile not found"));
@@ -66,16 +66,20 @@ public class BookingServiceImpl implements BookingService
 
   @Override
   @Transactional(readOnly = true)
-  public BookingResponse getBookingById(Long id)
+  public BookingResponse getBookingById(Long id, String userEmail)
   {
-    return BookingResponse.toResponse(getBooking(id));
+    Booking booking = getBooking(id);
+    requireParticipant(booking, userEmail);
+
+    return BookingResponse.toResponse(booking);
   }
 
   @Override
   @Transactional
-  public BookingResponse updateBooking(Long bookingId, UpdateBookingRequest request)
+  public BookingResponse updateBooking(Long bookingId, String ownerEmail, UpdateBookingRequest request)
   {
     Booking booking = getBooking(bookingId);
+    requireOwner(booking, ownerEmail);
 
     if (booking.getStatus() != BookingStatus.REQUESTED)
     {
@@ -113,27 +117,32 @@ public class BookingServiceImpl implements BookingService
 
   @Override
   @Transactional(readOnly = true)
-  public List<BookingResponse> getOwnerBookings(Long ownerId)
+  public List<BookingResponse> getOwnerBookings(String ownerEmail)
   {
-    return bookingRepository.findByOwnerId(ownerId).stream()
+    OwnerProfile owner = getOwnerByEmail(ownerEmail);
+
+    return bookingRepository.findByOwnerId(owner.getId()).stream()
         .map(BookingResponse::toResponse)
         .collect(Collectors.toList());
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<BookingResponse> getSitterBookings(Long sitterId)
+  public List<BookingResponse> getSitterBookings(String sitterEmail)
   {
-    return bookingRepository.findBySitterId(sitterId).stream()
+    SitterProfile sitter = getSitterByEmail(sitterEmail);
+
+    return bookingRepository.findBySitterId(sitter.getId()).stream()
         .map(BookingResponse::toResponse)
         .collect(Collectors.toList());
   }
 
   @Override
   @Transactional
-  public BookingResponse accept(Long bookingId)
+  public BookingResponse accept(Long bookingId, String sitterEmail)
   {
     Booking booking = getBooking(bookingId);
+    requireSitter(booking, sitterEmail);
 
     if (booking.getStatus() != BookingStatus.REQUESTED)
     {
@@ -151,10 +160,13 @@ public class BookingServiceImpl implements BookingService
 
   @Override
   @Transactional
-  public BookingResponse cancel(Long bookingId)
+  public BookingResponse cancel(Long bookingId, String ownerEmail)
   {
+    Booking booking = getBooking(bookingId);
+    requireOwner(booking, ownerEmail);
+
     return changeStatus(
-        bookingId,
+        booking,
         BookingStatus.CANCELLED,
         EnumSet.of(BookingStatus.REQUESTED, BookingStatus.ACCEPTED),
         "Only requested or accepted bookings can be cancelled");
@@ -162,10 +174,13 @@ public class BookingServiceImpl implements BookingService
 
   @Override
   @Transactional
-  public BookingResponse reject(Long bookingId)
+  public BookingResponse reject(Long bookingId, String sitterEmail)
   {
+    Booking booking = getBooking(bookingId);
+    requireSitter(booking, sitterEmail);
+
     return changeStatus(
-        bookingId,
+        booking,
         BookingStatus.DECLINED,
         EnumSet.of(BookingStatus.REQUESTED),
         "Only requested bookings can be declined");
@@ -173,20 +188,21 @@ public class BookingServiceImpl implements BookingService
 
   @Override
   @Transactional
-  public BookingResponse complete(Long bookingId)
+  public BookingResponse complete(Long bookingId, String sitterEmail)
   {
+    Booking booking = getBooking(bookingId);
+    requireSitter(booking, sitterEmail);
+
     return changeStatus(
-        bookingId,
+        booking,
         BookingStatus.COMPLETED,
         EnumSet.of(BookingStatus.ACCEPTED),
         "Only accepted bookings can be completed");
   }
 
-  private BookingResponse changeStatus(Long bookingId, BookingStatus newStatus, Set<BookingStatus> allowedStatuses,
+  private BookingResponse changeStatus(Booking booking, BookingStatus newStatus, Set<BookingStatus> allowedStatuses,
       String errorMessage)
   {
-    Booking booking = getBooking(bookingId);
-
     if (!allowedStatuses.contains(booking.getStatus()))
     {
       throw new InvalidBookingOperationException(errorMessage);
@@ -200,6 +216,59 @@ public class BookingServiceImpl implements BookingService
   {
     return bookingRepository.findById(id)
         .orElseThrow(() -> new BookingNotFoundException("Booking not found"));
+  }
+
+  private OwnerProfile getOwnerByEmail(String email)
+  {
+    return ownerProfileRepository.findByUserEmail(normalizeEmail(email))
+        .orElseThrow(() -> new InvalidBookingOperationException("Owner profile not found"));
+  }
+
+  private SitterProfile getSitterByEmail(String email)
+  {
+    return sitterProfileRepository.findByUserEmail(normalizeEmail(email))
+        .orElseThrow(() -> new InvalidBookingOperationException("Sitter profile not found"));
+  }
+
+  private void requireParticipant(Booking booking, String email)
+  {
+    String normalizedEmail = normalizeEmail(email);
+
+    if (!isOwner(booking, normalizedEmail) && !isSitter(booking, normalizedEmail))
+    {
+      throw new AccessDeniedException("You cannot access this booking");
+    }
+  }
+
+  private void requireOwner(Booking booking, String email)
+  {
+    if (!isOwner(booking, normalizeEmail(email)))
+    {
+      throw new AccessDeniedException("You cannot manage this owner booking");
+    }
+  }
+
+  private void requireSitter(Booking booking, String email)
+  {
+    if (!isSitter(booking, normalizeEmail(email)))
+    {
+      throw new AccessDeniedException("You cannot manage this sitter booking");
+    }
+  }
+
+  private boolean isOwner(Booking booking, String email)
+  {
+    return booking.getOwner().getUser().getEmail().equalsIgnoreCase(email);
+  }
+
+  private boolean isSitter(Booking booking, String email)
+  {
+    return booking.getSitter().getUser().getEmail().equalsIgnoreCase(email);
+  }
+
+  private String normalizeEmail(String email)
+  {
+    return email.trim().toLowerCase();
   }
 
   private boolean hasAcceptedOverlap(Booking booking)
