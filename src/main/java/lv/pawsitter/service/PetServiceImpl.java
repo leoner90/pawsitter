@@ -6,6 +6,8 @@ import lv.pawsitter.dto.PetRequestDto;
 import lv.pawsitter.dto.PetResponseDto;
 import lv.pawsitter.entity.OwnerProfile;
 import lv.pawsitter.entity.Pet;
+import lv.pawsitter.exception.PetNotFoundException;
+import lv.pawsitter.exception.UserNotFoundException;
 import lv.pawsitter.repository.OwnerProfileRepository;
 import lv.pawsitter.repository.PetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,7 +43,7 @@ public class PetServiceImpl implements PetService{
     @Transactional
     public PetResponseDto createPet(Long ownerId, PetRequestDto dto) {
         OwnerProfile ownerProfile = ownerProfileRepository.findById(ownerId)
-                .orElseThrow(() -> new RuntimeException("Owner not found with the id: " + ownerId));
+                .orElseThrow(() -> new UserNotFoundException("Owner not found with the id: " + ownerId));
 
         Pet pet = new Pet();
         applyDtoToEntity(dto, pet);
@@ -83,7 +85,7 @@ public class PetServiceImpl implements PetService{
 
     private Pet findPetOrThrow(Long id) {
         return petRepository.findById(id)
-                .orElseThrow(() -> new RuntimeException("Pet not found with the id: " + id));
+                .orElseThrow(() -> new PetNotFoundException("Pet not found with the id: " + id));
     }
 
     // Helper methods

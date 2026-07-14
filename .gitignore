@@ -4,6 +4,10 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+### Do not commit images of users ###
+src/main/resources/static/images/sittersImages/*
+!src/main/resources/static/images/sittersImages/default-sitter.png
+
 ### STS ###
 .apt_generated
 .classpath

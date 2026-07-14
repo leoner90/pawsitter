@@ -1,0 +1,46 @@
+<div th:fragment="availabilityForm"
+     xmlns:th="http://www.thymeleaf.org">
+
+    <section class="profile-section">
+        <h2>Availability</h2>
+
+        <form th:action="@{/sitter/profile/availability}"
+              th:object="${availabilityRequest}"
+              method="post">
+
+            <label for="startDate">Available from</label>
+
+            <input id="startDate"
+                   type="date"
+                   th:field="*{startDate}">
+
+            <p th:if="${#fields.hasErrors('startDate')}"
+               th:errors="*{startDate}"
+               class="form-error">
+            </p>
+
+            <label for="endDate">Available until</label>
+
+            <input id="endDate"
+                   type="date"
+                   th:field="*{endDate}">
+
+            <p th:if="${#fields.hasErrors('endDate')}"
+               th:errors="*{endDate}"
+               class="form-error">
+            </p>
+
+            <p th:if="${#fields.hasErrors('dateRangeValid')}"
+               th:errors="*{dateRangeValid}"
+               class="form-error">
+            </p>
+
+            <button type="submit"
+                    class="button primary-button">
+                Add availability
+            </button>
+
+        </form>
+    </section>
+
+</div>

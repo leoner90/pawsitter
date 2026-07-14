@@ -2,9 +2,6 @@ name: Deploy PawSitter
 
 on:
   workflow_dispatch:
-  push:
-    branches:
-      - master
 
 concurrency:
   group: pawsitter-deployment

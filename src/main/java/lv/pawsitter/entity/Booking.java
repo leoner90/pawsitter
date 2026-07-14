@@ -1,5 +1,6 @@
 package lv.pawsitter.entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -53,6 +54,12 @@ public class Booking {
     @Enumerated(EnumType.STRING)
     @Column(nullable = false)
     private BookingStatus status = BookingStatus.REQUESTED;
+
+    @Column(length = 1000)
+    private String note = "";
+
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal pricePerDaySnapshot = BigDecimal.ZERO;
 
     @ManyToMany
     @JoinTable(name = "booking_pets", joinColumns = @JoinColumn(name = "booking_id"), inverseJoinColumns = @JoinColumn(name = "pet_id"))

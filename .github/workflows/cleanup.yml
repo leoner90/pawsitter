@@ -1,0 +1,17 @@
+name: Clean PawSitter Containers
+
+on:
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: self-hosted
+
+    steps:
+      - name: Remove PawSitter containers
+        run: |
+          docker rm -f pawsitter-mysql || true
+          docker rm -f pawsitter-app || true
+
+      - name: Show remaining PawSitter containers
+        run: docker ps -a --filter "name=pawsitter"

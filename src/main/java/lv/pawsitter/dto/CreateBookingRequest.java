@@ -4,6 +4,7 @@ import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotEmpty;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,9 +17,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CreateBookingRequest
 {
-    @NotNull(message = "Owner profile is required")
-    private Long ownerId;
-
     @NotNull(message = "Sitter profile is required")
     private Long sitterId;
 
@@ -31,6 +29,9 @@ public class CreateBookingRequest
 
     @NotEmpty(message = "Select at least one pet")
     private List<@NotNull(message = "Pet id is required") Long> petIds = new ArrayList<>();
+
+    @Size(max = 1000, message = "Note must not exceed 1000 characters")
+    private String note;
 
     @AssertTrue(message = "End date must be after start date")
     public boolean isDateRangeValid()
