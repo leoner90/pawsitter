@@ -1,15 +1,17 @@
 package lv.pawsitter.controller;
 
-import lombok.Getter;
+
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lv.pawsitter.dto.PetRequestDto;
 import lv.pawsitter.dto.PetResponseDto;
-import lv.pawsitter.entity.Pet;
+
 import lv.pawsitter.service.PetService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
+import jakarta.validation.Valid;
 
 import java.util.List;
 
@@ -43,7 +45,7 @@ public class PetController {
     }
 
     @PostMapping("/owner/{ownerProfileId}")
-    public ResponseEntity<PetResponseDto> createPet(@PathVariable Long ownerProfileId, @RequestBody PetRequestDto dto)
+    public ResponseEntity<PetResponseDto> createPet(@PathVariable Long ownerProfileId, @Valid @RequestBody PetRequestDto dto)
     {
         log.info("Creating pet for ownerProfileId {}", ownerProfileId);
         PetResponseDto createdPet = petService.createPet(ownerProfileId, dto);

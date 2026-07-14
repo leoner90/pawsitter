@@ -133,11 +133,20 @@ public class BookingServiceImpl implements BookingService
   @Transactional
   public BookingResponse accept(Long bookingId)
   {
-    return changeStatus(
-        bookingId,
-        BookingStatus.ACCEPTED,
-        EnumSet.of(BookingStatus.REQUESTED),
-        "Only requested bookings can be accepted");
+    Booking booking = getBooking(bookingId);
+
+    if (booking.getStatus() != BookingStatus.REQUESTED)
+    {
+      throw new InvalidBookingOperationException("Only requested bookings can be accepted");
+    }
+
+    if (hasAcceptedOverlap(booking))
+    {
+      throw new InvalidBookingOperationException("Sitter already has an accepted booking for these dates");
+    }
+
+    booking.setStatus(BookingStatus.ACCEPTED);
+    return BookingResponse.toResponse(bookingRepository.save(booking));
   }
 
   @Override
@@ -191,6 +200,16 @@ public class BookingServiceImpl implements BookingService
   {
     return bookingRepository.findById(id)
         .orElseThrow(() -> new BookingNotFoundException("Booking not found"));
+  }
+
+  private boolean hasAcceptedOverlap(Booking booking)
+  {
+    return bookingRepository.existsBySitterIdAndStatusAndStartDateLessThanAndEndDateGreaterThan(
+        booking.getSitter().getId(),
+        BookingStatus.ACCEPTED,
+        booking.getEndDate(),
+        booking.getStartDate()
+    );
   }
 
   private Pet getOwnerPet(Long petId, OwnerProfile owner)
