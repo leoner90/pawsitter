@@ -8,6 +8,7 @@ import lv.pawsitter.entity.Booking;
 import lv.pawsitter.entity.BookingStatus;
 import lv.pawsitter.entity.Review;
 import lv.pawsitter.entity.User;
+import lv.pawsitter.repository.BookingRepository;
 import lv.pawsitter.repository.ReviewRepository;
 import lv.pawsitter.repository.UserRepository;
 import org.hibernate.type.MapType;
