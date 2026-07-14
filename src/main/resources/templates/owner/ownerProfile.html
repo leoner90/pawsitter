@@ -77,7 +77,7 @@
                 <div th:if="${!#lists.isEmpty(owner.pets)}" class="pet-grid">
                     <article class="pet-card" th:each="pet : ${owner.pets}">
                         <hr>
-                        <h3 th:text="${pet.firstName != null && !pet.nickName.isBlank() ? pet.firstName : pet.nickName}">Pet name</h3>
+                        <h3 th:text="${pet.firstName}">Pet name</h3>
                         <p th:text="${pet.animalType}">Animal type</p>
                         <p th:text="${pet.breed}">Breed</p>
                     </article>

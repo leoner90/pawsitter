@@ -11,6 +11,7 @@ public record OwnerProfileUpdateDTO (
         String firstName,
 
         @NotBlank
+        @Size(min = 2, max = 25)
         @Pattern(regexp = "^[A-Za-zÀ-ž\\s'-]+$", message = "Must contain only letters")
         String lastName,
 
