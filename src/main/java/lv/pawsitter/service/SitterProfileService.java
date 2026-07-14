@@ -2,6 +2,7 @@ package lv.pawsitter.service;
 
 import lombok.RequiredArgsConstructor;
 import lv.pawsitter.entity.SitterProfile;
+import lv.pawsitter.exception.UserNotFoundException;
 import lv.pawsitter.repository.SitterProfileRepository;
 import org.springframework.stereotype.Service;
 import java.util.List;
@@ -19,11 +20,11 @@ public class SitterProfileService
 
     public SitterProfile getSitterById(Long id)
     {
-        return sitterProfileRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Sitter profile not found"));
+        return sitterProfileRepository.findById(id).orElseThrow(() -> new UserNotFoundException("Sitter profile not found"));
     }
 
     public SitterProfile getProfileByUserEmail(String email)
     {
-        return sitterProfileRepository.findByUserEmail(email).orElseThrow(() -> new IllegalArgumentException("Sitter profile not found"));
+        return sitterProfileRepository.findByUserEmail(email).orElseThrow(() -> new UserNotFoundException("Sitter profile not found"));
     }
 }

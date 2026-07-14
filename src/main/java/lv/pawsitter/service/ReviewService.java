@@ -8,9 +8,13 @@ import lv.pawsitter.entity.Booking;
 import lv.pawsitter.entity.BookingStatus;
 import lv.pawsitter.entity.Review;
 import lv.pawsitter.entity.User;
+import lv.pawsitter.exception.BookingNotFoundException;
+import lv.pawsitter.exception.InvalidReviewOperationException;
+import lv.pawsitter.exception.ReviewNotFoundException;
+import lv.pawsitter.exception.UserNotFoundException;
+import lv.pawsitter.repository.BookingRepository;
 import lv.pawsitter.repository.ReviewRepository;
 import lv.pawsitter.repository.UserRepository;
-import org.hibernate.type.MapType;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -24,15 +28,15 @@ public class ReviewService {
 
     public ReviewResponse createReview(ReviewRequest request, String reviewerEmail) {
         Booking booking = bookingRepository.findById(request.getBookingId())
-                .orElseThrow(() -> new IllegalArgumentException("Booking not found"));
+                .orElseThrow(() -> new BookingNotFoundException("Booking not found"));
 
         if (booking.getStatus() != BookingStatus.COMPLETED) {
-            throw new IllegalStateException("Only completed bookings can have a review");
+            throw new InvalidReviewOperationException("Only completed bookings can have a review");
         }
 
 
         User reviewer = userRepository.findByEmail(reviewerEmail)
-                .orElseThrow(() -> new IllegalArgumentException("Reviewer not found"));
+                .orElseThrow(() -> new UserNotFoundException("Reviewer not found"));
 
         User ownerUser = booking.getOwner().getUser();
         User sitterUser = booking.getSitter().getUser();
@@ -49,12 +53,12 @@ public class ReviewService {
         }
         else
         {
-            throw new IllegalStateException("Only the users of this booking can leave a review");
+            throw new InvalidReviewOperationException("Only the users of this booking can leave a review");
         }
 
         if (reviewRepository.existsByBookingIdAndReviewerId(booking.getId(), reviewer.getId()))
         {
-            throw new IllegalStateException("You have already reviewed this booking");
+            throw new InvalidReviewOperationException("You have already reviewed this booking");
         }
 
 
@@ -74,12 +78,12 @@ public class ReviewService {
     public ReviewResponse getReviewById(Long id){
 
         return mapToResponse(reviewRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Review not found")));
+                .orElseThrow(() -> new ReviewNotFoundException("Review not found")));
     }
 
-    public ReviewResponse getReviewByBooking(Long bookingId)
+    public List<ReviewResponse> getReviewByBooking(Long bookingId)
     {
-        return (ReviewResponse) reviewRepository.findByBookingId(bookingId)
+        return reviewRepository.findByBookingId(bookingId)
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
@@ -87,7 +91,7 @@ public class ReviewService {
 
     public List<ReviewResponse> getReviewsReceivedBy(Long userId){
 
-        return reviewRepository.findByReviewerId(userId)
+        return reviewRepository.findByRevieweeId(userId)
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
@@ -112,10 +116,10 @@ public class ReviewService {
 
     public ReviewResponse updateReview(Long id, ReviewRequest request, String requesterEmail) {
         Review review = reviewRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Review not found"));
+                .orElseThrow(() -> new ReviewNotFoundException("Review not found"));
 
         if (!review.getReviewer().getEmail().equals(requesterEmail)) {
-            throw new IllegalStateException("only the creator of this comment can edit this review");
+            throw new InvalidReviewOperationException("only the creator of this comment can edit this review");
         }
 
         review.setRating(request.getRating());
@@ -126,10 +130,10 @@ public class ReviewService {
 
     public void deleteReview(Long id, String requesterEmail) {
         Review review = reviewRepository.findById(id)
-                .orElseThrow(() -> new IllegalArgumentException("Review not found"));
+                .orElseThrow(() -> new ReviewNotFoundException("Review not found"));
 
         if (!review.getReviewer().getEmail().equals(requesterEmail)) {
-            throw new IllegalStateException("only the creator of this comment can delete this review");
+            throw new InvalidReviewOperationException("only the creator of this comment can delete this review"); // change
 
         }
         reviewRepository.delete(review);

@@ -69,9 +69,4 @@ public class PetController {
         return ResponseEntity.noContent().build();
     }
 
-    @ExceptionHandler(RuntimeException.class)
-    public ResponseEntity<String> handleNotFound(RuntimeException runtimeException) {
-        log.warn("Request failed: {}", runtimeException.getMessage());
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(runtimeException.getMessage());
-    }
 }
