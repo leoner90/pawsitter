@@ -1,6 +1,5 @@
 package lv.pawsitter.service;
 
-
 import lombok.RequiredArgsConstructor;
 import lv.pawsitter.dto.ReviewRequest;
 import lv.pawsitter.dto.ReviewResponse;
@@ -34,7 +33,6 @@ public class ReviewService {
             throw new InvalidReviewOperationException("Only completed bookings can have a review");
         }
 
-
         User reviewer = userRepository.findByEmail(reviewerEmail)
                 .orElseThrow(() -> new UserNotFoundException("Reviewer not found"));
 
@@ -43,12 +41,9 @@ public class ReviewService {
 
         User reviewee;
 
-        if (reviewer.getId().equals(ownerUser.getId()))
-        {
+        if (reviewer.getId().equals(ownerUser.getId())) {
             reviewee = sitterUser;
-        }
-        else if (reviewer.getId().equals(sitterUser.getId()))
-        {
+        } else if (reviewer.getId().equals(sitterUser.getId())) {
             reviewee = ownerUser;
         }
         else
@@ -61,8 +56,6 @@ public class ReviewService {
             throw new InvalidReviewOperationException("You have already reviewed this booking");
         }
 
-
-
         Review review = new Review();
         review.setBooking(booking);
         review.setReviewer(reviewer);
@@ -72,10 +65,9 @@ public class ReviewService {
 
         return mapToResponse(reviewRepository.save(review));
 
-
     }
 
-    public ReviewResponse getReviewById(Long id){
+    public ReviewResponse getReviewById(Long id) {
 
         return mapToResponse(reviewRepository.findById(id)
                 .orElseThrow(() -> new ReviewNotFoundException("Review not found")));
@@ -89,7 +81,7 @@ public class ReviewService {
                 .toList();
     }
 
-    public List<ReviewResponse> getReviewsReceivedBy(Long userId){
+    public List<ReviewResponse> getReviewsReceivedBy(Long userId) {
 
         return reviewRepository.findByRevieweeId(userId)
                 .stream()
@@ -98,15 +90,14 @@ public class ReviewService {
 
     }
 
-    public List<ReviewResponse> getReviewsWrittenBy(Long userId){
+    public List<ReviewResponse> getReviewsWrittenBy(Long userId) {
         return reviewRepository.findByReviewerId(userId)
                 .stream()
                 .map(this::mapToResponse)
                 .toList();
     }
 
-    public List<ReviewResponse> getAllReviews()
-    {
+    public List<ReviewResponse> getAllReviews() {
         return reviewRepository
                 .findAll()
                 .stream()
@@ -138,12 +129,9 @@ public class ReviewService {
         }
         reviewRepository.delete(review);
 
-
     }
 
-
-    private ReviewResponse mapToResponse(Review review)
-    {
+    private ReviewResponse mapToResponse(Review review) {
         return new ReviewResponse(
                 review.getId(),
                 review.getBooking().getId(),
@@ -153,7 +141,6 @@ public class ReviewService {
                 review.getReviewee().getFirstName() + " " + review.getReviewee().getLastName(),
                 review.getRating(),
                 review.getComment(),
-                review.getCreatedAt()
-        );
+                review.getCreatedAt());
     }
 }
