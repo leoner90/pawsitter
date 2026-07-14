@@ -24,9 +24,9 @@ public class SecurityConfig {
                                 "/images/**"
                         ).permitAll()
 
-                        .requestMatchers("/owner/**").hasRole("USER")
-                        .requestMatchers("/sitter/**").hasRole("SITTER")
-                        .requestMatchers("/admin/**").hasRole("ADMIN")
+                        .requestMatchers("/owner/**").hasAuthority("USER")
+                        .requestMatchers("/sitter/**").hasAuthority("SITTER")
+                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
                         .requestMatchers("/sitters/**").authenticated()
                         .anyRequest().denyAll()
                 )
