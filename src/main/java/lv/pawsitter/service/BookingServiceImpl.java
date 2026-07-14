@@ -5,9 +5,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import lv.pawsitter.exception.PetNotFoundException;
-import lv.pawsitter.exception.UserNotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -41,10 +38,10 @@ public class BookingServiceImpl implements BookingService
   public BookingResponse createBooking(CreateBookingRequest request)
   {
     OwnerProfile owner = ownerProfileRepository.findById(request.getOwnerId())
-        .orElseThrow(() -> new UserNotFoundException("Owner profile not found"));
+        .orElseThrow(() -> new InvalidBookingOperationException("Owner profile not found"));
 
     SitterProfile sitter = sitterProfileRepository.findById(request.getSitterId())
-        .orElseThrow(() -> new UserNotFoundException("Sitter profile not found"));
+        .orElseThrow(() -> new InvalidBookingOperationException("Sitter profile not found"));
 
     if (owner.getUser().getId().equals(sitter.getUser().getId()))
     {
@@ -199,6 +196,6 @@ public class BookingServiceImpl implements BookingService
   private Pet getOwnerPet(Long petId, OwnerProfile owner)
   {
     return petRepository.findByIdAndOwnerProfileId(petId, owner.getId())
-        .orElseThrow(() -> new PetNotFoundException("Pet not found for this owner"));
+        .orElseThrow(() -> new InvalidBookingOperationException("Pet not found for this owner"));
   }
 }

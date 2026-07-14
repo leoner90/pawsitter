@@ -16,9 +16,6 @@ import lombok.Setter;
 @NoArgsConstructor
 public class CreateBookingRequest
 {
-    @NotNull(message = "Owner profile is required")
-    private Long ownerId;
-
     @NotNull(message = "Sitter profile is required")
     private Long sitterId;
 
