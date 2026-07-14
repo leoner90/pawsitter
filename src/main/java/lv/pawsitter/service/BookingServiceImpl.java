@@ -27,8 +27,7 @@ import lv.pawsitter.repository.SitterProfileRepository;
 
 @Service
 @RequiredArgsConstructor
-public class BookingServiceImpl implements BookingService
-{
+public class BookingServiceImpl implements BookingService {
   private final BookingRepository bookingRepository;
   private final OwnerProfileRepository ownerProfileRepository;
   private final SitterProfileRepository sitterProfileRepository;
@@ -36,16 +35,18 @@ public class BookingServiceImpl implements BookingService
 
   @Override
   @Transactional
-  public BookingResponse createBooking(String ownerEmail, CreateBookingRequest request)
-  {
+  public BookingResponse createBooking(String ownerEmail, CreateBookingRequest request) {
     OwnerProfile owner = getOwnerByEmail(ownerEmail);
 
     SitterProfile sitter = sitterProfileRepository.findById(request.getSitterId())
         .orElseThrow(() -> new InvalidBookingOperationException("Sitter profile not found"));
 
-    if (owner.getUser().getId().equals(sitter.getUser().getId()))
-    {
+    if (owner.getUser().getId().equals(sitter.getUser().getId())) {
       throw new InvalidBookingOperationException("Owner and sitter cannot be the same user");
+    }
+
+    if (!sitter.isPublished()) {
+      throw new InvalidBookingOperationException("Sitter profile is not available for booking");
     }
 
     List<Pet> pets = request.getPetIds().stream()
@@ -59,6 +60,8 @@ public class BookingServiceImpl implements BookingService
     booking.setStartDate(request.getStartDate());
     booking.setEndDate(request.getEndDate());
     booking.setStatus(BookingStatus.REQUESTED);
+    booking.setNote(normalizeNote(request.getNote()));
+    booking.setPricePerDaySnapshot(sitter.getPricePerDay());
     booking.setPets(pets);
 
     return BookingResponse.toResponse(bookingRepository.save(booking));
@@ -66,8 +69,7 @@ public class BookingServiceImpl implements BookingService
 
   @Override
   @Transactional(readOnly = true)
-  public BookingResponse getBookingById(Long id, String userEmail)
-  {
+  public BookingResponse getBookingById(Long id, String userEmail) {
     Booking booking = getBooking(id);
     requireParticipant(booking, userEmail);
 
@@ -76,31 +78,30 @@ public class BookingServiceImpl implements BookingService
 
   @Override
   @Transactional
-  public BookingResponse updateBooking(Long bookingId, String ownerEmail, UpdateBookingRequest request)
-  {
+  public BookingResponse updateBooking(Long bookingId, String ownerEmail, UpdateBookingRequest request) {
     Booking booking = getBooking(bookingId);
     requireOwner(booking, ownerEmail);
 
-    if (booking.getStatus() != BookingStatus.REQUESTED)
-    {
+    if (booking.getStatus() != BookingStatus.REQUESTED) {
       throw new InvalidBookingOperationException("Only requested bookings can be updated");
     }
 
     LocalDateTime startDate = request.getStartDate() != null ? request.getStartDate() : booking.getStartDate();
     LocalDateTime endDate = request.getEndDate() != null ? request.getEndDate() : booking.getEndDate();
 
-    if (!endDate.isAfter(startDate))
-    {
+    if (!endDate.isAfter(startDate)) {
       throw new InvalidBookingOperationException("End date must be after start date");
     }
 
     booking.setStartDate(startDate);
     booking.setEndDate(endDate);
 
-    if (request.getPetIds() != null)
-    {
-      if (request.getPetIds().isEmpty())
-      {
+    if (request.getNote() != null) {
+      booking.setNote(normalizeNote(request.getNote()));
+    }
+
+    if (request.getPetIds() != null) {
+      if (request.getPetIds().isEmpty()) {
         throw new InvalidBookingOperationException("Select at least one pet");
       }
 
@@ -117,40 +118,43 @@ public class BookingServiceImpl implements BookingService
 
   @Override
   @Transactional(readOnly = true)
-  public List<BookingResponse> getOwnerBookings(String ownerEmail)
-  {
+  public List<BookingResponse> getOwnerBookings(String ownerEmail, BookingStatus status) {
     OwnerProfile owner = getOwnerByEmail(ownerEmail);
 
-    return bookingRepository.findByOwnerId(owner.getId()).stream()
+    List<Booking> bookings = status == null
+        ? bookingRepository.findByOwnerId(owner.getId())
+        : bookingRepository.findByOwnerIdAndStatus(owner.getId(), status);
+
+    return bookings.stream()
         .map(BookingResponse::toResponse)
         .collect(Collectors.toList());
   }
 
   @Override
   @Transactional(readOnly = true)
-  public List<BookingResponse> getSitterBookings(String sitterEmail)
-  {
+  public List<BookingResponse> getSitterBookings(String sitterEmail, BookingStatus status) {
     SitterProfile sitter = getSitterByEmail(sitterEmail);
 
-    return bookingRepository.findBySitterId(sitter.getId()).stream()
+    List<Booking> bookings = status == null
+        ? bookingRepository.findBySitterId(sitter.getId())
+        : bookingRepository.findBySitterIdAndStatus(sitter.getId(), status);
+
+    return bookings.stream()
         .map(BookingResponse::toResponse)
         .collect(Collectors.toList());
   }
 
   @Override
   @Transactional
-  public BookingResponse accept(Long bookingId, String sitterEmail)
-  {
+  public BookingResponse accept(Long bookingId, String sitterEmail) {
     Booking booking = getBooking(bookingId);
     requireSitter(booking, sitterEmail);
 
-    if (booking.getStatus() != BookingStatus.REQUESTED)
-    {
+    if (booking.getStatus() != BookingStatus.REQUESTED) {
       throw new InvalidBookingOperationException("Only requested bookings can be accepted");
     }
 
-    if (hasAcceptedOverlap(booking))
-    {
+    if (hasAcceptedOverlap(booking)) {
       throw new InvalidBookingOperationException("Sitter already has an accepted booking for these dates");
     }
 
@@ -160,8 +164,7 @@ public class BookingServiceImpl implements BookingService
 
   @Override
   @Transactional
-  public BookingResponse cancel(Long bookingId, String ownerEmail)
-  {
+  public BookingResponse cancel(Long bookingId, String ownerEmail) {
     Booking booking = getBooking(bookingId);
     requireOwner(booking, ownerEmail);
 
@@ -174,8 +177,7 @@ public class BookingServiceImpl implements BookingService
 
   @Override
   @Transactional
-  public BookingResponse reject(Long bookingId, String sitterEmail)
-  {
+  public BookingResponse reject(Long bookingId, String sitterEmail) {
     Booking booking = getBooking(bookingId);
     requireSitter(booking, sitterEmail);
 
@@ -188,8 +190,7 @@ public class BookingServiceImpl implements BookingService
 
   @Override
   @Transactional
-  public BookingResponse complete(Long bookingId, String sitterEmail)
-  {
+  public BookingResponse complete(Long bookingId, String sitterEmail) {
     Booking booking = getBooking(bookingId);
     requireSitter(booking, sitterEmail);
 
@@ -201,10 +202,8 @@ public class BookingServiceImpl implements BookingService
   }
 
   private BookingResponse changeStatus(Booking booking, BookingStatus newStatus, Set<BookingStatus> allowedStatuses,
-      String errorMessage)
-  {
-    if (!allowedStatuses.contains(booking.getStatus()))
-    {
+      String errorMessage) {
+    if (!allowedStatuses.contains(booking.getStatus())) {
       throw new InvalidBookingOperationException(errorMessage);
     }
 
@@ -212,77 +211,66 @@ public class BookingServiceImpl implements BookingService
     return BookingResponse.toResponse(bookingRepository.save(booking));
   }
 
-  private Booking getBooking(Long id)
-  {
+  private Booking getBooking(Long id) {
     return bookingRepository.findById(id)
         .orElseThrow(() -> new BookingNotFoundException("Booking not found"));
   }
 
-  private OwnerProfile getOwnerByEmail(String email)
-  {
+  private OwnerProfile getOwnerByEmail(String email) {
     return ownerProfileRepository.findByUserEmail(normalizeEmail(email))
         .orElseThrow(() -> new InvalidBookingOperationException("Owner profile not found"));
   }
 
-  private SitterProfile getSitterByEmail(String email)
-  {
+  private SitterProfile getSitterByEmail(String email) {
     return sitterProfileRepository.findByUserEmail(normalizeEmail(email))
         .orElseThrow(() -> new InvalidBookingOperationException("Sitter profile not found"));
   }
 
-  private void requireParticipant(Booking booking, String email)
-  {
+  private void requireParticipant(Booking booking, String email) {
     String normalizedEmail = normalizeEmail(email);
 
-    if (!isOwner(booking, normalizedEmail) && !isSitter(booking, normalizedEmail))
-    {
+    if (!isOwner(booking, normalizedEmail) && !isSitter(booking, normalizedEmail)) {
       throw new AccessDeniedException("You cannot access this booking");
     }
   }
 
-  private void requireOwner(Booking booking, String email)
-  {
-    if (!isOwner(booking, normalizeEmail(email)))
-    {
+  private void requireOwner(Booking booking, String email) {
+    if (!isOwner(booking, normalizeEmail(email))) {
       throw new AccessDeniedException("You cannot manage this owner booking");
     }
   }
 
-  private void requireSitter(Booking booking, String email)
-  {
-    if (!isSitter(booking, normalizeEmail(email)))
-    {
+  private void requireSitter(Booking booking, String email) {
+    if (!isSitter(booking, normalizeEmail(email))) {
       throw new AccessDeniedException("You cannot manage this sitter booking");
     }
   }
 
-  private boolean isOwner(Booking booking, String email)
-  {
+  private boolean isOwner(Booking booking, String email) {
     return booking.getOwner().getUser().getEmail().equalsIgnoreCase(email);
   }
 
-  private boolean isSitter(Booking booking, String email)
-  {
+  private boolean isSitter(Booking booking, String email) {
     return booking.getSitter().getUser().getEmail().equalsIgnoreCase(email);
   }
 
-  private String normalizeEmail(String email)
-  {
+  private String normalizeEmail(String email) {
     return email.trim().toLowerCase();
   }
 
-  private boolean hasAcceptedOverlap(Booking booking)
-  {
+  private String normalizeNote(String note) {
+    return note == null ? "" : note.trim();
+  }
+
+  private boolean hasAcceptedOverlap(Booking booking) {
     return bookingRepository.existsBySitterIdAndStatusAndStartDateLessThanAndEndDateGreaterThan(
         booking.getSitter().getId(),
         BookingStatus.ACCEPTED,
         booking.getEndDate(),
-        booking.getStartDate()
-    );
+        booking.getStartDate());
   }
 
-  private Pet getOwnerPet(Long petId, OwnerProfile owner)
-  {
+  private Pet getOwnerPet(Long petId, OwnerProfile owner) {
     return petRepository.findByIdAndOwnerProfileId(petId, owner.getId())
         .orElseThrow(() -> new InvalidBookingOperationException("Pet not found for this owner"));
   }

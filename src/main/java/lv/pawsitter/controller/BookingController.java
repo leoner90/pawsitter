@@ -12,12 +12,14 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import lombok.RequiredArgsConstructor;
 import lv.pawsitter.dto.BookingResponse;
 import lv.pawsitter.dto.CreateBookingRequest;
 import lv.pawsitter.dto.UpdateBookingRequest;
+import lv.pawsitter.entity.BookingStatus;
 import lv.pawsitter.service.BookingService;
 
 @RestController
@@ -46,15 +48,15 @@ public class BookingController
   }
 
   @GetMapping("/my")
-  public ResponseEntity<List<BookingResponse>> getOwnerBookings(Authentication authentication)
+  public ResponseEntity<List<BookingResponse>> getOwnerBookings(Authentication authentication, @RequestParam(required = false) BookingStatus status)
   {
-    return ResponseEntity.ok(bookingService.getOwnerBookings(authentication.getName()));
+    return ResponseEntity.ok(bookingService.getOwnerBookings(authentication.getName(), status));
   }
 
   @GetMapping("/assigned")
-  public ResponseEntity<List<BookingResponse>> getSitterBookings(Authentication authentication)
+  public ResponseEntity<List<BookingResponse>> getSitterBookings(Authentication authentication, @RequestParam(required = false) BookingStatus status)
   {
-    return ResponseEntity.ok(bookingService.getSitterBookings(authentication.getName()));
+    return ResponseEntity.ok(bookingService.getSitterBookings(authentication.getName(), status));
   }
 
   @PatchMapping("/{id}/accept")
