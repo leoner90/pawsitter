@@ -72,6 +72,46 @@
     margin-top: 0;
 }
 
+.availability-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px;
+}
+
+.publish-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+}
+
+.publish-button:hover {
+    background-color: #218838;
+}
+
+.availability-row form {
+    margin: 0;
+}
+
+.availability-cancel-button {
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
+    color: red;
+}
+
+.unpublish-button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+}
+
+.unpublish-button:hover {
+    background-color: #b02a37;
+}
+
 @media (max-width: 760px) {
     .profile-header,
     .pet-profile {

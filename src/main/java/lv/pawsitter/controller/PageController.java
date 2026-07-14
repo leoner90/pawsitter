@@ -2,6 +2,8 @@ package lv.pawsitter.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lv.pawsitter.dto.SitterAvailabilityRequest;
+import lv.pawsitter.dto.SitterProfileUpdateDTO;
 import lv.pawsitter.dto.UserCreateDTO;
 import lv.pawsitter.exception.EmailNotUniqueException;
 import lv.pawsitter.service.SitterProfileService;
@@ -30,7 +32,7 @@ public class PageController
     @GetMapping("/")
     public String homePage(Model model)
     {
-        model.addAttribute("sitters", sitterProfileService.getAllSitters());
+        model.addAttribute("sitters",sitterProfileService.getPublishedSitters());
         return "index";
     }
 
@@ -48,14 +50,6 @@ public class PageController
         return "owner/ownerProfile";
     }
 
-    @GetMapping("/sitter/profile")
-    public String sitterProfilePage(Authentication authentication, Model model)
-    {
-        SitterProfile sitterProfile = sitterProfileService.getProfileByUserEmail(authentication.getName());
-        model.addAttribute("sitter", sitterProfile);
-        return "sitter/sitterProfile";
-    }
-
     @GetMapping("/sitters/{id}")
     public String sitterDetailsPage(@PathVariable Long id, Model model)
     {
@@ -63,6 +57,7 @@ public class PageController
         return "sitter/sitterDetails";
     }
 
+    //Todo move to separate Controller
     @GetMapping("/registration")
     public String registrationPage(Model model) {
         model.addAttribute(
@@ -103,4 +98,128 @@ public class PageController
         return "redirect:/login?registered";
     }
 
+    //Todo move to separate Controller
+    //Sitter Profile page getter
+    @GetMapping("/sitter/profile/edit")
+    public String editSitterProfile(Authentication authentication, Model model)
+    {
+        SitterProfile sitterProfile = sitterProfileService.getProfileByUserEmail(authentication.getName());
+
+        SitterProfileUpdateDTO updateDTO =
+                new SitterProfileUpdateDTO(
+                        sitterProfile.getLocation(),
+                        sitterProfile.getUser().getPhoneNumber(),
+                        sitterProfile.getPricePerDay(),
+                        sitterProfile.getDescription(),
+                        null
+                );
+
+        model.addAttribute("sitterProfileUpdate", updateDTO);
+
+        return "sitter/sitterProfileEdit";
+    }
+
+    //Post sitter Profile update
+    @PostMapping("/sitter/profile/edit")
+    public String updateSitterProfile(
+            Authentication authentication,
+            @Valid @ModelAttribute("sitterProfileUpdate")
+            SitterProfileUpdateDTO dto,
+            BindingResult bindingResult)
+    {
+        if (bindingResult.hasErrors())
+        {
+            return "sitter/sitterProfileEdit";
+        }
+
+        try
+        {
+            sitterProfileService.updateProfile(authentication.getName(), dto);
+        }
+        catch (IllegalArgumentException exception)
+        {
+            bindingResult.rejectValue("image", "image.invalid", exception.getMessage());
+
+            return "sitter/sitterProfileEdit";
+        }
+
+        return "redirect:/sitter/profile";
+    }
+
+    //Todo move to separate Controller
+    @PostMapping("/sitter/profile/availability")
+    public String addSitterAvailability(
+            Authentication authentication,
+            @Valid
+            @ModelAttribute("availabilityRequest")
+            SitterAvailabilityRequest availabilityRequest,
+            BindingResult bindingResult,
+            Model model)
+    {
+        if (bindingResult.hasErrors())
+        {
+            SitterProfile sitterProfile = sitterProfileService.getProfileByUserEmail(authentication.getName());
+            model.addAttribute("sitter", sitterProfile);
+
+            return "sitter/sitterProfile";
+        }
+
+        sitterProfileService.addAvailability(authentication.getName(), availabilityRequest);
+
+        return "redirect:/sitter/profile";
+    }
+
+    @GetMapping("/sitter/profile")
+    public String sitterProfilePage(Authentication authentication, Model model)
+    {
+        SitterProfile sitterProfile = sitterProfileService.getProfileByUserEmail(authentication.getName());
+        model.addAttribute("sitter", sitterProfile);
+        model.addAttribute("availabilityRequest", new SitterAvailabilityRequest(null, null));
+        model.addAttribute("availabilityRanges", sitterProfileService.getAvailability(authentication.getName()));
+
+        return "sitter/sitterProfile";
+    }
+
+    //remove Availability Date
+    @PostMapping("/sitter/profile/availability/{id}/delete")
+    public String deleteSitterAvailability(@PathVariable Long id, Authentication authentication)
+    {
+        sitterProfileService.deleteAvailability(authentication.getName(), id);
+
+        return "redirect:/sitter/profile";
+    }
+
+
+    //Try to publish + error checks
+    @PostMapping("/sitter/profile/publish")
+    public String publishSitterProfile(Authentication authentication, Model model)
+    {
+        try
+        {
+            sitterProfileService.publishProfile(authentication.getName());
+        }
+        catch (IllegalStateException exception)
+        {
+            SitterProfile sitterProfile = sitterProfileService.getProfileByUserEmail(authentication.getName());
+
+            model.addAttribute("sitter", sitterProfile);
+            model.addAttribute("availabilityRequest", new SitterAvailabilityRequest(null, null)
+            );
+            model.addAttribute("availabilityRanges", sitterProfileService.getAvailability(authentication.getName()));
+            model.addAttribute("publishError", exception.getMessage());
+
+            return "sitter/sitterProfile";
+        }
+
+        return "redirect:/sitter/profile";
+    }
+
+    //unpublish profile
+    @PostMapping("/sitter/profile/unpublish")
+    public String unpublishSitterProfile(Authentication authentication)
+    {
+        sitterProfileService.unpublishProfile(authentication.getName());
+
+        return "redirect:/sitter/profile";
+    }
 }

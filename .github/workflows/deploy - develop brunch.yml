@@ -1,0 +1,37 @@
+name: Deploy PawSitter
+
+on:
+  workflow_dispatch:
+  push:
+    branches:
+      - develop
+
+concurrency:
+  group: pawsitter-deployment
+  cancel-in-progress: true
+
+jobs:
+  deploy:
+    runs-on: self-hosted
+
+    steps:
+      - name: Checkout code
+
+        uses: actions/checkout@v5
+
+      - name: Validate Compose
+        run: docker compose -f compose.yaml config
+
+      - name: Stop old containers
+        run: docker compose -f compose.yaml down --remove-orphans
+
+      - name: Build and start PawSitter
+        run: docker compose -f compose.yaml up -d --build
+
+      - name: Check containers
+        run: docker compose -f compose.yaml ps
+
+      - name: Show application logs
+        if: always()
+        run: docker compose -f compose.yaml logs --tail 100 app
+
