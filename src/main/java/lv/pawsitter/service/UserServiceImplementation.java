@@ -4,11 +4,15 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lv.pawsitter.dto.UserCreateDTO;
 import lv.pawsitter.dto.UserDTO;
+import lv.pawsitter.entity.OwnerProfile;
+import lv.pawsitter.entity.SitterProfile;
 import lv.pawsitter.entity.User;
 import lv.pawsitter.exception.EmailNotUniqueException;
 import lv.pawsitter.exception.UserNotFoundException;
 import lv.pawsitter.mapper.Converter;
 import lv.pawsitter.model.RoleType;
+import lv.pawsitter.repository.OwnerProfileRepository;
+import lv.pawsitter.repository.SitterProfileRepository;
 import lv.pawsitter.repository.UserRepository;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.AccessDeniedException;
@@ -34,6 +38,10 @@ public class UserServiceImplementation implements UserService {
 
     private final Converter<User, UserCreateDTO, UserDTO> converter;
 
+    //to create   extra database record
+    private final OwnerProfileRepository ownerProfileRepository;
+    private final SitterProfileRepository sitterProfileRepository;
+
     @Override
     @Transactional
     public UserDTO create(UserCreateDTO dto) {
@@ -54,8 +62,21 @@ public class UserServiceImplementation implements UserService {
         user.setPhoneNumber(dto.phoneNumber());
         user.setEmail(email);
         user.setPassword(encoder.encode(password));
+        user.setRole(dto.role());
         try {
             User saved = repository.save(user);
+
+            //Create the corresponding profile record based on the user role
+            if (saved.getRole() == RoleType.USER) {
+                OwnerProfile ownerProfile = new OwnerProfile();
+                ownerProfile.setUser(saved);
+                ownerProfileRepository.save(ownerProfile);
+            } else if (saved.getRole() == RoleType.SITTER) {
+                SitterProfile sitterProfile = new SitterProfile();
+                sitterProfile.setUser(saved);
+                sitterProfileRepository.save(sitterProfile);
+            }
+
             log.info("User created id={}, email={}", saved.getId(), saved.getEmail());
             return converter.entityToDto(saved);
         } catch (DataIntegrityViolationException e) {

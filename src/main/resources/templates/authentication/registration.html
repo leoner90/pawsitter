@@ -40,10 +40,14 @@
                     <input id="confirmPassword" type="password" th:field="*{confirmPassword}">
                     <p th:if="${#fields.hasErrors('confirmPassword')}" th:errors="*{confirmPassword}" class="form-error"></p>
 
+                    <label for="phoneNumber">Phone number</label>
+                    <input id="phoneNumber" type="text" th:field="*{phoneNumber}">
+                    <p th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}" class="form-error"></p>
+
                     <label for="role">Account type</label>
                     <select id="role" th:field="*{role}">
                         <option value="">Select account type</option>
-                        <option value="OWNER">Pet owner</option>
+                        <option value="USER">Pet owner</option>
                         <option value="SITTER">Pet sitter</option>
                     </select>
 
