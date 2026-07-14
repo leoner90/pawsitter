@@ -63,7 +63,7 @@ public class PageController
     public String registrationPage(Model model) {
         model.addAttribute(
                 "registrationRequest",
-                new UserCreateDTO("", "", "", "", "", "", null)
+                new UserCreateDTO("", "", "", "", "", "", "",null)
         );
 
         return "authentication/registration";
@@ -147,7 +147,6 @@ public class PageController
         return "redirect:/sitter/profile";
     }
 
-    //Todo move to separate Controller
     @PostMapping("/sitter/profile/availability")
     public String addSitterAvailability(
             Authentication authentication,
@@ -217,11 +216,12 @@ public class PageController
 
     //unpublish profile
     @PostMapping("/sitter/profile/unpublish")
-    public String unpublishSitterProfile(Authentication authentication)
-    {
+    public String unpublishSitterProfile(Authentication authentication) {
         sitterProfileService.unpublishProfile(authentication.getName());
 
         return "redirect:/sitter/profile";
+    }
+
     @GetMapping("/owner/pets/add")
     public String addPet(Model model){
         model.addAttribute("petRequest", new PetRequestDto());
