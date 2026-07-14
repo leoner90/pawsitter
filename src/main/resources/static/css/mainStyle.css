@@ -23,6 +23,9 @@ body {
     flex: 1;
 }
 
+hr{
+  opacity: 0.3;
+  }
 
 /*Main*/
 main{

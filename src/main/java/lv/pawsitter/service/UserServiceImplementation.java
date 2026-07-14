@@ -11,9 +11,8 @@ import lv.pawsitter.exception.EmailNotUniqueException;
 import lv.pawsitter.exception.UserNotFoundException;
 import lv.pawsitter.mapper.Converter;
 import lv.pawsitter.model.RoleType;
-import lv.pawsitter.repository.OwnerProfileRepository;
-import lv.pawsitter.repository.SitterProfileRepository;
 import lv.pawsitter.repository.UserRepository;
+import lv.pawsitter.utility.MaskingUtil;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.access.prepost.PreAuthorize;
@@ -38,22 +37,37 @@ public class UserServiceImplementation implements UserService {
 
     private final Converter<User, UserCreateDTO, UserDTO> converter;
 
-    //to create   extra database record
-    private final OwnerProfileRepository ownerProfileRepository;
-    private final SitterProfileRepository sitterProfileRepository;
+    private final MaskingUtil maskingUtil;
 
     @Override
     @Transactional
     public UserDTO create(UserCreateDTO dto) {
         Objects.requireNonNull(dto, "UserCreateDTO must not be null");
         String email = normalizeEmail(dto.email());
-        log.debug("create user with email={}", email);
+        String maskedEmail = maskingUtil.maskEmail(email);
+        String confirmEmail = normalizeEmail(dto.confirmEmail());
+        String maskedConfirmEmail = maskingUtil.maskEmail(confirmEmail);
+        log.debug("checking if email {} matches other {}", maskedEmail, maskedConfirmEmail);
+        if (!Objects.equals(email, confirmEmail)) {
+            log.warn("Email {} does not match other {}", maskedEmail, maskedConfirmEmail);
+            throw new IllegalArgumentException("Emails do not match");
+        }
         String password = normalizePassword(dto.password());
+        String maskedPassword = maskingUtil.maskPassword(password);
+        String confirmPassword = normalizePassword(dto.confirmPassword());
+        String maskedConfirmPassword = maskingUtil.maskPassword(confirmPassword);
+        log.debug("checking if password {} matches other {}", maskedPassword, maskedConfirmPassword);
+        if (!Objects.equals(password, confirmPassword)) {
+            log.warn("Password {} does not match other {}", maskedPassword, maskedConfirmPassword);
+            throw new IllegalArgumentException("Passwords do not match");
+
+        }
+        log.debug("create user with email={}", email);
         if (!email.matches("^[^@]+@[^@]+\\.[^@]+$")) {
             throw new IllegalArgumentException("Invalid email format");
         }
         repository.findByEmail(email).ifPresent(u -> {
-            log.warn("User creation failed — email already exists: {}", email);
+            log.warn("User creation failed — email already exists: {}", maskedEmail);
             throw new EmailNotUniqueException("User with email " + email + " already exists.");
         });
         User user = converter.dtoToEntity(dto);
@@ -63,24 +77,18 @@ public class UserServiceImplementation implements UserService {
         user.setEmail(email);
         user.setPassword(encoder.encode(password));
         user.setRole(dto.role());
+        if (user.getRole() == RoleType.USER) {
+            user.setOwnerProfile(new OwnerProfile());
+        } else if (user.getRole() == RoleType.SITTER) {
+            user.setSitterProfile(new SitterProfile());
+        }
         try {
             User saved = repository.save(user);
-
-            //Create the corresponding profile record based on the user role
-            if (saved.getRole() == RoleType.USER) {
-                OwnerProfile ownerProfile = new OwnerProfile();
-                ownerProfile.setUser(saved);
-                ownerProfileRepository.save(ownerProfile);
-            } else if (saved.getRole() == RoleType.SITTER) {
-                SitterProfile sitterProfile = new SitterProfile();
-                sitterProfile.setUser(saved);
-                sitterProfileRepository.save(sitterProfile);
-            }
-
-            log.info("User created id={}, email={}", saved.getId(), saved.getEmail());
+            log.info("User created id={}, email={}", maskingUtil.maskId(String.valueOf(saved.getId())),
+                    maskingUtil.maskEmail(saved.getEmail()));
             return converter.entityToDto(saved);
         } catch (DataIntegrityViolationException e) {
-            throw new EmailNotUniqueException("User with email " + email + " already exists.");
+            throw new EmailNotUniqueException("User with email " + maskedEmail + " already exists.");
         }
     }
 
@@ -97,14 +105,15 @@ public class UserServiceImplementation implements UserService {
     @Transactional(readOnly = true)
     public UserDTO findById(long id) {
         validateId(id);
-        log.debug("findById id={}", id);
+        String maskedId = maskingUtil.maskId(String.valueOf(id));
+        log.debug("findById id={}", maskedId);
         return repository.findById(id)
                 .map(user -> {
-                    log.info("User found id={}", id);
+                    log.info("User found id={}", maskedId);
                     return converter.entityToDto(user);
                 })
                 .orElseThrow(() -> {
-                    log.warn("User not found id={}", id);
+                    log.warn("User not found id={}", maskedId);
                     return new UserNotFoundException("User with id " + id + " is not found.");
                 });
     }
@@ -114,33 +123,37 @@ public class UserServiceImplementation implements UserService {
     @Transactional
     public UserDTO update(long id, RoleType newRole) {
         validateId(id);
+        String maskedId = maskingUtil.maskId(String.valueOf(id));
         Objects.requireNonNull(newRole, "Role must not be null");
-        log.debug("update user id={}, newRole={}", id, newRole);
+        log.debug("update user id={}, newRole={}", maskedId, newRole);
         User user = repository.findById(id)
                 .orElseThrow(() -> {
-                    log.warn("User update failed — not found id={}", id);
+                    log.warn("User update failed — not found id={}", maskedId);
                     return new UserNotFoundException("User with id " + id + " is not found.");
                 });
         user.setRole(newRole);
         User saved = repository.save(user);
-        log.info("User updated id={}, newRole={}", id, newRole);
+        log.info("User updated id={}, newRole={}", maskedId, newRole);
         return converter.entityToDto(saved);
     }
 
     @Override
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('USER', 'SITTER', 'ADMIN')")
     @Transactional
     public void delete(long id) {
         validateId(id);
+        String maskedId = maskingUtil.maskId(String.valueOf(id));
         User current = getCurrentUser();
-        log.debug("delete user id={} by user={}", id, current.getId());
+        String maskedCurrentId = maskingUtil.maskId(String.valueOf(current.getId()));
+        log.debug("delete user id={} by user={}", maskedId, maskedCurrentId);
         User userToDelete = repository.findById(id)
                 .orElseThrow(() -> {
-                    log.warn("User delete failed — not found id={}", id);
+                    log.warn("User delete failed — not found id={}", maskedId);
                     return new UserNotFoundException("User with id " + id + " is not found.");
                 });
-        if (current.getRole() == RoleType.USER && !Objects.equals(current.getId(), id)) {
-            log.warn("User {} attempted to delete another user {}", current.getId(), id);
+        if ((current.getRole() == RoleType.USER || current.getRole() == RoleType.SITTER)
+                && !Objects.equals(current.getId(), id)) {
+            log.warn("User {} attempted to delete another user {}", maskedCurrentId, maskedId);
             throw new AccessDeniedException("You do not have permission to delete another user.");
         }
         repository.delete(userToDelete);
@@ -148,22 +161,25 @@ public class UserServiceImplementation implements UserService {
     }
 
     @Override
-    @PreAuthorize("hasAnyAuthority('USER', 'ADMIN')")
+    @PreAuthorize("hasAnyAuthority('USER', 'SITTER', 'ADMIN')")
     @Transactional(readOnly = true)
     public UserDTO findByEmail(String email) {
         String normalized = normalizeEmail(email);
+        String maskedEmail = maskingUtil.maskEmail(normalized);
         User current = getCurrentUser();
+        String maskedCurrentId = maskingUtil.maskId(String.valueOf(current.getId()));
         log.debug("findByEmail email={} by user={}", normalized, current.getId());
         User user = repository.findByEmail(normalized)
                 .orElseThrow(() -> {
-                    log.warn("User not found by email={}", normalized);
-                    return new UserNotFoundException("User with email " + normalized + " is not found.");
+                    log.warn("User not found by email={}", maskedEmail);
+                    return new UserNotFoundException("User with email " + maskedEmail + " is not found.");
                 });
-        if (current.getRole() == RoleType.USER && !Objects.equals(current.getEmail(), normalized)) {
-            log.warn("User {} attempted to access another user's data {}", current.getId(), normalized);
+        if ((current.getRole() == RoleType.USER || current.getRole() == RoleType.SITTER)
+                && !Objects.equals(current.getEmail(), normalized)) {
+            log.warn("User {} attempted to access another user's data {}", maskedCurrentId, maskedEmail);
             throw new AccessDeniedException("You do not have permission to view this user.");
         }
-        log.info("User found by email={}", normalized);
+        log.info("User found by email={}", maskedEmail);
         return converter.entityToDto(user);
     }
 
@@ -178,10 +194,11 @@ public class UserServiceImplementation implements UserService {
         Object principal = auth.getPrincipal();
         if (principal instanceof UserDetails details) {
             String email = normalizeEmail(details.getUsername());
-            log.debug("getCurrentUser principal email={}", email);
+            String maskedEmail = maskingUtil.maskEmail(email);
+            log.debug("getCurrentUser principal email={}", maskedEmail);
             return repository.findByEmail(email)
                     .orElseThrow(() -> {
-                        log.error("Authenticated user not found in DB email={}", email);
+                        log.error("Authenticated user not found in DB email={}", maskedEmail);
                         return new UserNotFoundException("User with username " + email + " is not found.");
                     });
         }

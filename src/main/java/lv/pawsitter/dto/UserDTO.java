@@ -1,8 +1,6 @@
 package lv.pawsitter.dto;
 
-import lombok.Builder;
-import lv.pawsitter.entity.OwnerProfile;
-import lv.pawsitter.entity.SitterProfile;
+
 import lv.pawsitter.model.RoleType;
 
 import java.time.LocalDateTime;
@@ -15,9 +13,9 @@ public record UserDTO(Long id,
 
                       RoleType role,
 
-                      OwnerProfile ownerProfile,
+                      Long ownerProfileId,
 
-                      SitterProfile sitterProfile,
+                      Long sitterProfileId,
 
                       LocalDateTime createdAt) {
 }

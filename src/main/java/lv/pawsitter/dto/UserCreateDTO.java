@@ -28,6 +28,11 @@ public record UserCreateDTO
             String email,
 
             @NotBlank
+            @Email
+            @Size(max = 100)
+            String confirmEmail,
+
+            @NotBlank
             @Size(min = 6, max = 100)
             String password,
 

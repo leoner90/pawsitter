@@ -33,13 +33,13 @@ public class ReviewController {
     }
 
     @GetMapping("/booking/{bookingId}")
-    public ResponseEntity<ReviewResponse> getReviewByBooking(@PathVariable Long bookingId)
+    public ResponseEntity<List<ReviewResponse>> getReviewByBooking(@PathVariable Long bookingId)
     {
         return ResponseEntity.ok(reviewService.getReviewByBooking(bookingId));
     }
 
     @GetMapping("/received/{userId}")
-    public ResponseEntity<List<ReviewResponse>> getReviewsByReviewer(@PathVariable Long userId)
+    public ResponseEntity<List<ReviewResponse>> getReviewsReceived(@PathVariable Long userId)
     {
         return ResponseEntity.ok(reviewService.getReviewsReceivedBy(userId));
     }

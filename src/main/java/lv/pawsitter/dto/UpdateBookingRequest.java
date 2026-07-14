@@ -3,6 +3,7 @@ package lv.pawsitter.dto;
 import jakarta.validation.constraints.AssertTrue;
 import jakarta.validation.constraints.FutureOrPresent;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import java.time.LocalDateTime;
 import java.util.List;
 import lombok.Getter;
@@ -21,9 +22,12 @@ public class UpdateBookingRequest
 
     private List<@NotNull(message = "Pet id is required") Long> petIds;
 
-    @AssertTrue(message = "Provide dates or pets to update")
+    @Size(max = 1000, message = "Note must not exceed 1000 characters")
+    private String note;
+
+    @AssertTrue(message = "Provide dates, pets, or note to update")
     public boolean hasUpdates()
     {
-        return startDate != null || endDate != null || petIds != null;
+        return startDate != null || endDate != null || petIds != null || note != null;
     }
 }
