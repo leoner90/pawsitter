@@ -16,36 +16,79 @@ import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
+// If the frontend will be separate (React, Vue, Angular),
+// then you should NOT remove the JWT filter or stateless mode.
+// In that case, use the JWT version of SecurityConfig instead of this Thymeleaf version.
+@Configuration
+@EnableWebSecurity
+@EnableMethodSecurity
+@RequiredArgsConstructor
+public class SecurityConfig {
 
-//@Configuration
-//@EnableWebSecurity
-//@EnableMethodSecurity
-//@RequiredArgsConstructor
-//public class SecurityConfig {
-//    private final JwtAuthenticationFilter jwtAuthenticationFilter;
-//
-//    @Bean
-//    public PasswordEncoder passwordEncoder() {
-//        return new BCryptPasswordEncoder();
-//    }
-//
-//    @Bean
-//    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
-//        return configuration.getAuthenticationManager();
-//    }
-//
-//    @Bean
-//    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-//        http
-//                .csrf(AbstractHttpConfigurer::disable)
-//                .sessionManagement(session -> session
-//                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-//                .authorizeHttpRequests(request -> request
-//                        .requestMatchers(HttpMethod.POST, "/users").permitAll()
-//                        .requestMatchers(HttpMethod.POST, "/users/login").permitAll()
-//                        .requestMatchers(HttpMethod.GET, "/users/**").authenticated()
-//                        .anyRequest().authenticated())
-//                .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class);
-//        return http.build();
-//    }
-//}
+    // ❌ REMOVE FOR THYMELEAF (JWT is not used in a stateful MVC application)
+    // private final JwtAuthenticationFilter jwtAuthenticationFilter;
+
+    @Bean
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
+
+    @Bean
+    public AuthenticationManager authenticationManager(AuthenticationConfiguration configuration) throws Exception {
+        return configuration.getAuthenticationManager();
+    }
+
+    @Bean
+    SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
+        http
+                // CSRF can stay disabled if you use POST forms without CSRF tokens
+                .csrf(AbstractHttpConfigurer::disable)
+
+                // ❌ REMOVE FOR THYMELEAF (stateless mode breaks formLogin and sessions)
+                // .sessionManagement(session -> session
+                //         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+
+                .authorizeHttpRequests(request -> request
+                        .requestMatchers(
+                                "/",
+                                "/registration",
+                                "/login",
+                                "/css/**",
+                                "/js/**",
+                                "/images/**"
+                        ).permitAll()
+
+                        // ❌ REMOVE — these are only needed for JWT API endpoints
+                        // .requestMatchers(HttpMethod.POST, "/users").permitAll()
+                        // .requestMatchers(HttpMethod.POST, "/users/login").permitAll()
+                        // .requestMatchers(HttpMethod.GET, "/users/**").authenticated()
+
+                        .requestMatchers("/owner/**").hasAuthority("USER")
+                        .requestMatchers("/sitter/**").hasAuthority("SITTER")
+                        .requestMatchers("/admin/**").hasAuthority("ADMIN")
+                        .requestMatchers("/sitters/**").authenticated()
+                        .anyRequest().denyAll()
+                )
+
+                // ❌ REMOVE FOR THYMELEAF (JWT filter is not needed)
+                // .addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+
+                // ✔ REQUIRED FOR THYMELEAF (classic form-based login)
+                .formLogin(form -> form
+                        .loginPage("/login")
+                        .usernameParameter("email")
+                        .passwordParameter("password")
+                        .defaultSuccessUrl("/", true)
+                        .failureUrl("/login?error")
+                        .permitAll()
+                )
+
+                // ✔ REQUIRED FOR THYMELEAF (session-based logout)
+                .logout(logout -> logout
+                        .logoutSuccessUrl("/login?logout")
+                        .permitAll()
+                );
+
+        return http.build();
+    }
+}
