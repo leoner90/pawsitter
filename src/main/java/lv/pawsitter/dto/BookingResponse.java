@@ -41,7 +41,7 @@ public record BookingResponse(
                 booking.getPets().stream()
                         .map(Pet::getId)
                         .collect(Collectors.toList()),
-                booking.getReview() != null
+                booking.getReviews() != null && !booking.getReviews().isEmpty()
         );
     }
 
