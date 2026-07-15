@@ -5,6 +5,7 @@ import lombok.RequiredArgsConstructor;
 import lv.pawsitter.dto.SitterAvailabilityRequest;
 import lv.pawsitter.dto.SitterProfileUpdateDTO;
 import lv.pawsitter.entity.SitterProfile;
+import lv.pawsitter.exception.InvalidSitterOperationException;
 import lv.pawsitter.service.SitterProfileService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -119,7 +120,7 @@ public class SitterProfileController
         {
             sitterProfileService.publishProfile(authentication.getName());
         }
-        catch (IllegalStateException exception)
+        catch (InvalidSitterOperationException exception)
         {
             SitterProfile sitterProfile = sitterProfileService.getProfileByUserEmail(authentication.getName());
             model.addAttribute("sitter", sitterProfile);

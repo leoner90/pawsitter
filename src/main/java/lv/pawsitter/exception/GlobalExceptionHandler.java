@@ -23,18 +23,20 @@ public class GlobalExceptionHandler  {
             UserNotFoundException.class,
             BookingNotFoundException.class,
             PetNotFoundException.class,
-            ReviewNotFoundException.class
+            ReviewNotFoundException.class,
+            AvailabilityNotFoundException.class
     })
 
     public ResponseEntity<ErrorResponse> handleUserNotFoundException(RuntimeException e) {
         log.warn("Not found: {} ", e.getMessage());
-        return buildResponse(HttpStatus.CONFLICT, e.getMessage());
+        return buildResponse(HttpStatus.NOT_FOUND, e.getMessage());
     }
 
     @ExceptionHandler({
             EmailNotUniqueException.class,
             InvalidBookingOperationException.class,
-            InvalidReviewOperationException.class
+            InvalidReviewOperationException.class,
+            InvalidSitterOperationException.class
     })
     public ResponseEntity<ErrorResponse> handleConflict(RuntimeException exception)
     {
