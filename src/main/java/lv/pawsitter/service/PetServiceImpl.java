@@ -36,6 +36,7 @@ public class PetServiceImpl implements PetService{
 
     @Override
     public PetResponseDto getById(Long id) {
+        Objects.requireNonNull(id, "Pet id must not be null");
         log.info("Fetching pet with id: {}", id);
         return toResponseDto(findPetOrThrow(id));
     }
@@ -44,6 +45,7 @@ public class PetServiceImpl implements PetService{
     @Transactional
     public PetResponseDto createPet(Long ownerId, PetRequestDto dto) {
         Objects.requireNonNull(dto, "PetRequestDto must not be null");
+        Objects.requireNonNull(ownerId, "Owner id must not be null");
         validatePetFields(dto);
 
         OwnerProfile ownerProfile = ownerProfileRepository.findById(ownerId)
@@ -60,6 +62,7 @@ public class PetServiceImpl implements PetService{
 
     @Override
     public PetResponseDto updatePet(Long id, PetRequestDto dto) {
+        Objects.requireNonNull(id, "Pet id must not be null");
         Objects.requireNonNull(dto, "PetRequestDto must not be null");
         validatePetFields(dto);
 
@@ -77,6 +80,7 @@ public class PetServiceImpl implements PetService{
     @Override
     @Transactional
     public void deletePet(Long id) {
+        Objects.requireNonNull(id, "Pet id must not be null");
         Pet pet = findPetOrThrow(id);
         petRepository.delete(pet);
         log.info("Deleted pet with id: {}", id);
@@ -92,6 +96,7 @@ public class PetServiceImpl implements PetService{
     }
 
     private Pet findPetOrThrow(Long id) {
+        Objects.requireNonNull(id, "Pet id must not be null");
         return petRepository.findById(id)
                 .orElseThrow(() -> new PetNotFoundException("Pet not found with the id: " + id));
     }

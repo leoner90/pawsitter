@@ -118,6 +118,12 @@ public class PetServiceUnitTests {
     }
 
     @Test
+    void getById_throwsException_whenIdIsNull() {
+        assertThatThrownBy(() -> petService.getById(null))
+                .isInstanceOf(NullPointerException.class);
+    }
+
+    @Test
     void createPet_savesAndReturnsDto_ForExistingOwner(){
         when(ownerProfileRepository.findById(1L)).thenReturn(Optional.of(ownerProfile));
         when(petRepository.save(any(Pet.class))).thenReturn(pet);
@@ -144,9 +150,8 @@ public class PetServiceUnitTests {
     }
 
     @Test
-    void createPet_throwsException_whenOwnerIdIsNull(){
-        when(ownerProfileRepository.findById(null)).thenReturn(Optional.empty());
-        assertThatThrownBy(()->petService.createPet(null, petRequestDto)).isInstanceOf(UserNotFoundException.class);
+    void createPet_throwsException_whenOwnerIdIsNull() {
+        assertThatThrownBy(() -> petService.createPet(null, petRequestDto)).isInstanceOf(NullPointerException.class);
     }
 
     @Test
@@ -274,9 +279,8 @@ public class PetServiceUnitTests {
     }
 
     @Test
-    void deletePet_throwsException_forNullId(){
-        when(petRepository.findById(null)).thenReturn(Optional.empty());
-        assertThatThrownBy(()->petService.deletePet(null)).isInstanceOf(PetNotFoundException.class);
+    void deletePet_throwsException_whenIdIsNull() {
+        assertThatThrownBy(() -> petService.deletePet(null)).isInstanceOf(NullPointerException.class);
     }
 
     @Test
