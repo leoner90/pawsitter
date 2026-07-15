@@ -28,7 +28,7 @@ public class User {
     @Column(nullable = false)
     private String lastName;
 
-    @Column(nullable = false, unique = true)
+    @Column(nullable = false)
     private String phoneNumber;
 
     @Column(nullable = false, unique = true)
@@ -42,11 +42,13 @@ public class User {
     @Enumerated(EnumType.STRING)
     private RoleType role;
 
-    @OneToOne(mappedBy = "user")
+    // cascade = CascadeType.ALL so a newly created OwnerProfile or SitterProfile
+    // is automatically saved together with its User.
+    @OneToOne(mappedBy = "user" , cascade = CascadeType.ALL)
     @JsonManagedReference
     private OwnerProfile ownerProfile;
 
-    @OneToOne(mappedBy = "user")
+    @OneToOne(mappedBy = "user" , cascade = CascadeType.ALL)
     @JsonManagedReference
     private SitterProfile sitterProfile;
 
@@ -56,5 +58,19 @@ public class User {
     @PrePersist
     public void setCreatedAt() {
         this.createdAt = LocalDateTime.now();
+    }
+
+
+    public void setOwnerProfile(OwnerProfile ownerProfile)
+    {
+        this.ownerProfile = ownerProfile;
+        if (ownerProfile != null) {ownerProfile.setUser(this);}
+    }
+
+    public void setSitterProfile(SitterProfile sitterProfile)
+    {
+        this.sitterProfile = sitterProfile;
+
+        if (sitterProfile != null) {sitterProfile.setUser(this);}
     }
 }

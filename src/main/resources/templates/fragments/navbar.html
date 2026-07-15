@@ -5,8 +5,8 @@
 
     <div class="nav-links">
         <a th:href="@{/}">Home</a>
-        <a sec:authorize="hasRole('USER')" th:href="@{/owner/profile}">My Profile</a>
-        <a sec:authorize="hasRole('SITTER')" th:href="@{/sitter/profile}">My Profile</a>
+        <a sec:authorize="hasAuthority('USER')" th:href="@{/owner/profile}">My Profile</a>
+        <a sec:authorize="hasAuthority('SITTER')" th:href="@{/sitter/profile}">My Profile</a>
         <a sec:authorize="isAnonymous()" th:href="@{/registration}">Register</a>
         <a sec:authorize="isAnonymous()" th:href="@{/login}">Log In</a>
 
