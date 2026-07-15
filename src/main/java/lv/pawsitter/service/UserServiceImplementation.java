@@ -203,7 +203,7 @@ public class UserServiceImplementation implements UserService {
                     });
         }
         log.error("Invalid authentication principal type={}", principal.getClass().getName());
-        throw new IllegalArgumentException("Cannot obtain user from authentication principal");
+        throw new IllegalStateException("Cannot obtain user from authentication principal");
     }
 
     private void validateId(long id) {
