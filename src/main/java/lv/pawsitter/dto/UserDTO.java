@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 /**
  * Data Transfer Object representing a user in API responses.
  * Contains public, non-sensitive user information such as ID, email, phone number,
- * role, and linked profile objects.
+ * role, and date of creation.
  *
  * <p>This DTO is used to expose user data to clients without revealing internal
  * fields such as passwords, authentication metadata, or other security‑sensitive
@@ -50,21 +50,6 @@ public record UserDTO(
          * <p>Determines the user's permissions and access level within the system.</p>
          */
         RoleType role,
-
-        /**
-         * Owner profile associated with the user.
-         * <p>Contains additional domain-specific information relevant to users
-         * who act as pet owners. May be {@code null} if the user does not have
-         * an owner profile.</p>
-         */
-        OwnerProfile ownerProfile,
-
-        /**
-         * Sitter profile associated with the user.
-         * <p>Contains sitter-specific attributes such as experience, availability,
-         * or service preferences. May be {@code null} if the user is not a sitter.</p>
-         */
-        SitterProfile sitterProfile,
 
         /**
          * Timestamp indicating when the user account was created.
