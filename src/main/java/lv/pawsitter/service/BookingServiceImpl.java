@@ -20,6 +20,8 @@ import lv.pawsitter.entity.Pet;
 import lv.pawsitter.entity.SitterProfile;
 import lv.pawsitter.exception.BookingNotFoundException;
 import lv.pawsitter.exception.InvalidBookingOperationException;
+import lv.pawsitter.exception.PetNotFoundException;
+import lv.pawsitter.exception.UserNotFoundException;
 import lv.pawsitter.repository.BookingRepository;
 import lv.pawsitter.repository.OwnerProfileRepository;
 import lv.pawsitter.repository.PetRepository;
@@ -218,12 +220,12 @@ public class BookingServiceImpl implements BookingService {
 
   private OwnerProfile getOwnerByEmail(String email) {
     return ownerProfileRepository.findByUserEmail(normalizeEmail(email))
-        .orElseThrow(() -> new InvalidBookingOperationException("Owner profile not found"));
+        .orElseThrow(() -> new UserNotFoundException("Owner profile not found"));
   }
 
   private SitterProfile getSitterByEmail(String email) {
     return sitterProfileRepository.findByUserEmail(normalizeEmail(email))
-        .orElseThrow(() -> new InvalidBookingOperationException("Sitter profile not found"));
+        .orElseThrow(() -> new UserNotFoundException("Sitter profile not found"));
   }
 
   private void requireParticipant(Booking booking, String email) {
@@ -272,6 +274,6 @@ public class BookingServiceImpl implements BookingService {
 
   private Pet getOwnerPet(Long petId, OwnerProfile owner) {
     return petRepository.findByIdAndOwnerProfileId(petId, owner.getId())
-        .orElseThrow(() -> new InvalidBookingOperationException("Pet not found for this owner"));
+        .orElseThrow(() -> new PetNotFoundException("Pet not found for this owner"));
   }
 }

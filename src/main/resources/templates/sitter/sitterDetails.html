@@ -17,7 +17,7 @@
                 <div class="profile-header">
                     <img
                             th:src="${sitter.imageUrl != null && !sitter.imageUrl.isBlank()
-                            ? '/images/sittersImages/' + sitter.imageUrl
+                            ?  sitter.imageUrl
                             : '/images/sittersImages/default-sitter.png'}"
                             alt="Sitter profile"
                             class="profile-image"
