@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import lv.pawsitter.dto.OwnerProfileUpdateDTO;
 import lv.pawsitter.entity.OwnerProfile;
 import lv.pawsitter.entity.User;
+import lv.pawsitter.exception.UserNotFoundException;
 import lv.pawsitter.repository.OwnerProfileRepository;
 import lv.pawsitter.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -22,7 +23,7 @@ public class OwnerProfileServiceImpl implements OwnerProfileService
     public OwnerProfile getProfileByUserEmail(String email)
     {
         return ownerProfileRepository.findByUserEmail(email.trim().toLowerCase())
-                .orElseThrow(() -> new IllegalArgumentException("Owner profile not found"));
+                .orElseThrow(() -> new UserNotFoundException("Owner profile not found"));
     }
 
     @Override

@@ -3,7 +3,7 @@ package lv.pawsitter.utility;
 import org.springframework.stereotype.Component;
 
 /**
- * Utility class for masking sensitive user information such as emails and passwords.
+ * Utility class for masking sensitive user information such as ids, emails and passwords.
  * Used primarily for secure logging to avoid exposing personal data.
  */
 @Component
