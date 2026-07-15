@@ -24,6 +24,7 @@ import lv.pawsitter.entity.SitterProfile;
 import lv.pawsitter.entity.User;
 import lv.pawsitter.exception.BookingNotFoundException;
 import lv.pawsitter.exception.InvalidBookingOperationException;
+import lv.pawsitter.exception.PetNotFoundException;
 import lv.pawsitter.repository.BookingRepository;
 import lv.pawsitter.repository.OwnerProfileRepository;
 import lv.pawsitter.repository.PetRepository;
@@ -142,7 +143,7 @@ class BookingServiceImplTests {
     when(petRepository.findByIdAndOwnerProfileId(pet.getId(), owner.getId())).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> bookingService.createBooking(OWNER_EMAIL, request))
-        .isInstanceOf(InvalidBookingOperationException.class)
+        .isInstanceOf(PetNotFoundException.class)
         .hasMessage("Pet not found for this owner");
 
     verify(bookingRepository, never()).save(any());
