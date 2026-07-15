@@ -41,8 +41,8 @@ public class SecurityConfig {
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                // CSRF can stay disabled if you use POST forms without CSRF tokens
-                .csrf(AbstractHttpConfigurer::disable)
+                // CSRF must be disabled if you use POST forms without CSRF tokens and session is stateless
+                // .csrf(AbstractHttpConfigurer::disable)
 
                 // ❌ REMOVE FOR THYMELEAF (stateless mode breaks formLogin and sessions)
                 // .sessionManagement(session -> session
