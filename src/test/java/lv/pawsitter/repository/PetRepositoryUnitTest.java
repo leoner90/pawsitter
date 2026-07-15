@@ -18,7 +18,7 @@ import java.util.Optional;
 import static org.assertj.core.api.Assertions.assertThat;
 
 @DataJpaTest
-class PetRepositoryTest {
+class PetRepositoryUnitTest {
 
     @Autowired
     private PetRepository petRepository;
