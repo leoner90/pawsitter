@@ -9,6 +9,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
 @Setter
@@ -16,8 +17,10 @@ import lombok.Setter;
 public class UpdateBookingRequest
 {
     @FutureOrPresent(message = "Start date cannot be in the past")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime startDate;
 
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime endDate;
 
     private List<@NotNull(message = "Pet id is required") Long> petIds;

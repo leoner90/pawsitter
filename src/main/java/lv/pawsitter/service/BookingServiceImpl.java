@@ -39,9 +39,11 @@ public class BookingServiceImpl implements BookingService {
   @Override
   @Transactional
   public BookingResponse createBooking(String ownerEmail, CreateBookingRequest request) {
+    requireRequest(request, "Booking request must not be null");
     OwnerProfile owner = getOwnerByEmail(ownerEmail);
+    Long sitterId = requireId(request.getSitterId(), "Sitter id must not be null");
 
-    SitterProfile sitter = sitterProfileRepository.findById(request.getSitterId())
+    SitterProfile sitter = sitterProfileRepository.findById(sitterId)
         .orElseThrow(() -> new InvalidBookingOperationException("Sitter profile not found"));
 
     if (owner.getUser().getId().equals(sitter.getUser().getId())) {
@@ -82,6 +84,7 @@ public class BookingServiceImpl implements BookingService {
   @Override
   @Transactional
   public BookingResponse updateBooking(Long bookingId, String ownerEmail, UpdateBookingRequest request) {
+    requireRequest(request, "Update booking request must not be null");
     Booking booking = getBooking(bookingId);
     requireOwner(booking, ownerEmail);
 
@@ -215,7 +218,7 @@ public class BookingServiceImpl implements BookingService {
   }
 
   private Booking getBooking(Long id) {
-    return bookingRepository.findById(id)
+    return bookingRepository.findById(requireId(id, "Booking id must not be null"))
         .orElseThrow(() -> new BookingNotFoundException("Booking not found"));
   }
 
@@ -258,6 +261,10 @@ public class BookingServiceImpl implements BookingService {
   }
 
   private String normalizeEmail(String email) {
+    if (email == null || email.isBlank()) {
+      throw new InvalidBookingOperationException("Email must not be blank");
+    }
+
     return email.trim().toLowerCase();
   }
 
@@ -274,7 +281,23 @@ public class BookingServiceImpl implements BookingService {
   }
 
   private Pet getOwnerPet(Long petId, OwnerProfile owner) {
-    return petRepository.findByIdAndOwnerProfileId(petId, owner.getId())
+    return petRepository.findByIdAndOwnerProfileId(requireId(petId, "Pet id must not be null"), owner.getId())
         .orElseThrow(() -> new PetNotFoundException("Pet not found for this owner"));
+  }
+
+  private <T> T requireRequest(T request, String message) {
+    if (request == null) {
+      throw new InvalidBookingOperationException(message);
+    }
+
+    return request;
+  }
+
+  private Long requireId(Long id, String message) {
+    if (id == null) {
+      throw new InvalidBookingOperationException(message);
+    }
+
+    return id;
   }
 }
