@@ -112,14 +112,257 @@
     background-color: #b02a37;
 }
 
+.booking-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 32px;
+    align-items: flex-start;
+}
+
+.booking-summary {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.booking-form {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.form-row {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.form-row label,
+.form-label {
+    font-weight: 700;
+}
+
+.booking-form input[type="datetime-local"],
+.booking-form textarea {
+    width: 100%;
+    padding: 12px;
+    border: 1px solid #c9b6b6;
+    border-radius: 8px;
+    font: inherit;
+}
+
+.booking-form textarea {
+    resize: vertical;
+}
+
+.pet-choice-list {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+}
+
+.pet-choice {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px;
+    border: 1px solid #d9caca;
+    border-radius: 8px;
+    background: #fffafa;
+}
+
+.pet-choice input {
+    width: 18px;
+    height: 18px;
+}
+
+.pet-choice small {
+    display: block;
+    margin-top: 4px;
+    color: #755f5f;
+}
+
+.form-actions {
+    display: flex;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+.field-error,
+.form-error {
+    color: #a12626;
+}
+
+.field-error {
+    margin: 0;
+    font-size: 0.9rem;
+}
+
+.form-error,
+.success-message {
+    padding: 12px 14px;
+    border-radius: 8px;
+}
+
+.form-error {
+    background: #ffeaea;
+}
+
+.success-message {
+    margin-bottom: 16px;
+    background: #e8f5e9;
+    color: #22682b;
+}
+
+.compact-empty-state {
+    margin-top: 0;
+    padding: 24px;
+    text-align: left;
+}
+
+.status-filter {
+    display: flex;
+    gap: 8px;
+    flex-wrap: wrap;
+    margin: 20px 0 28px;
+}
+
+.status-filter a {
+    padding: 8px 12px;
+    border: 1px solid #d9caca;
+    border-radius: 8px;
+    color: #5b3f3f;
+    text-decoration: none;
+    background: white;
+}
+
+.status-filter .active-filter {
+    background: #7f5454;
+    color: white;
+    border-color: #7f5454;
+}
+
+.booking-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.booking-card {
+    padding: 22px;
+    border: 1px solid #e4d6d6;
+    border-radius: 8px;
+    background: #fffafa;
+}
+
+.booking-card-header {
+    display: flex;
+    justify-content: space-between;
+    gap: 20px;
+    align-items: flex-start;
+}
+
+.booking-card-header h2 {
+    margin: 0 0 8px;
+}
+
+.status-badge {
+    padding: 8px 10px;
+    border-radius: 8px;
+    background: #efe1e1;
+    color: #5b3f3f;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.booking-details {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 18px;
+    margin: 20px 0;
+}
+
+.booking-details dt {
+    margin-bottom: 6px;
+    color: #755f5f;
+    font-weight: 700;
+}
+
+.booking-details dd {
+    margin: 0;
+}
+
+.danger-button {
+    background: #b13d3d;
+    color: white;
+}
+
+.booking-detail-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 22px;
+    margin: 24px 0;
+}
+
+.booking-detail-grid dt {
+    margin-bottom: 6px;
+    color: #755f5f;
+    font-weight: 700;
+}
+
+.booking-detail-grid dd {
+    margin: 0;
+}
+
+.wide-detail {
+    grid-column: 1 / -1;
+}
+
+.review-card {
+    padding: 18px;
+    border: 1px solid #e4d6d6;
+    border-radius: 8px;
+    background: #fffafa;
+}
+
+.review-card h3 {
+    margin: 0 0 6px;
+}
+
+.button:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+}
+
 @media (max-width: 760px) {
     .profile-header,
-    .pet-profile {
+    .pet-profile,
+    .booking-layout {
         flex-direction: column;
         align-items: flex-start;
     }
 
+    .booking-layout {
+        display: flex;
+    }
+
     .service-list {
+        grid-template-columns: 1fr;
+    }
+
+    .pet-choice-list {
+        grid-template-columns: 1fr;
+    }
+
+    .booking-card-header {
+        flex-direction: column;
+    }
+
+    .booking-details {
+        grid-template-columns: 1fr;
+    }
+
+    .booking-detail-grid {
         grid-template-columns: 1fr;
     }
 

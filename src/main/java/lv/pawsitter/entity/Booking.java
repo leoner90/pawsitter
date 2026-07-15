@@ -16,7 +16,7 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -65,8 +65,8 @@ public class Booking {
     @JoinTable(name = "booking_pets", joinColumns = @JoinColumn(name = "booking_id"), inverseJoinColumns = @JoinColumn(name = "pet_id"))
     private List<Pet> pets = new ArrayList<>();
 
-    @OneToOne(mappedBy = "booking")
-    private Review review;
+    @OneToMany(mappedBy = "booking")
+    private List<Review> reviews = new ArrayList<>();
 
     @PrePersist
     public void setCreatedAt() {
