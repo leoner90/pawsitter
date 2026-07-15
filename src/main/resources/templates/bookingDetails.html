@@ -125,7 +125,7 @@
 
                     <a
                             th:if="${canReview}"
-                            th:href="@{/owner/bookings/{id}/review(id=${booking.id()})}"
+                            th:href="${reviewUrl}"
                             class="button primary-button"
                     >
                         Leave review

@@ -106,7 +106,7 @@ public class BookingPageController {
       Model model
   ) {
     BookingResponse booking = bookingService.getBookingById(id, authentication.getName());
-    populateDetailsPage(model, booking, "/owner/bookings", true);
+    populateDetailsPage(model, booking, "/owner/bookings", true, authentication.getName());
     return "bookingDetails";
   }
 
@@ -117,7 +117,7 @@ public class BookingPageController {
       Model model
   ) {
     BookingResponse booking = bookingService.getBookingById(id, authentication.getName());
-    populateDetailsPage(model, booking, "/sitter/bookings", false);
+    populateDetailsPage(model, booking, "/sitter/bookings", false, authentication.getName());
     return "bookingDetails";
   }
 
@@ -193,22 +193,18 @@ public class BookingPageController {
   }
 
   @GetMapping("/owner/bookings/{id}/review")
-  public String newReview(
+  public String newOwnerReview(
       @PathVariable Long id,
       Authentication authentication,
       Model model
   ) {
     BookingResponse booking = bookingService.getBookingById(id, authentication.getName());
-    ReviewRequest reviewRequest = new ReviewRequest();
-    reviewRequest.setBookingId(id);
-
-    model.addAttribute("booking", booking);
-    model.addAttribute("reviewRequest", reviewRequest);
+    populateReviewForm(model, booking, new ReviewRequest(), "/owner/bookings/" + id + "/review", "/owner/bookings/" + id);
     return "owner/reviewForm";
   }
 
   @PostMapping("/owner/bookings/{id}/review")
-  public String createReview(
+  public String createOwnerReview(
       @PathVariable Long id,
       Authentication authentication,
       @Valid @ModelAttribute("reviewRequest") ReviewRequest reviewRequest,
@@ -216,11 +212,47 @@ public class BookingPageController {
       Model model,
       RedirectAttributes redirectAttributes
   ) {
+    return createReview(id, authentication, reviewRequest, bindingResult, model, redirectAttributes, true);
+  }
+
+  @GetMapping("/sitter/bookings/{id}/review")
+  public String newSitterReview(
+      @PathVariable Long id,
+      Authentication authentication,
+      Model model
+  ) {
     BookingResponse booking = bookingService.getBookingById(id, authentication.getName());
-    reviewRequest.setBookingId(id);
+    populateReviewForm(model, booking, new ReviewRequest(), "/sitter/bookings/" + id + "/review", "/sitter/bookings/" + id);
+    return "owner/reviewForm";
+  }
+
+  @PostMapping("/sitter/bookings/{id}/review")
+  public String createSitterReview(
+      @PathVariable Long id,
+      Authentication authentication,
+      @Valid @ModelAttribute("reviewRequest") ReviewRequest reviewRequest,
+      BindingResult bindingResult,
+      Model model,
+      RedirectAttributes redirectAttributes
+  ) {
+    return createReview(id, authentication, reviewRequest, bindingResult, model, redirectAttributes, false);
+  }
+
+  private String createReview(
+      Long id,
+      Authentication authentication,
+      ReviewRequest reviewRequest,
+      BindingResult bindingResult,
+      Model model,
+      RedirectAttributes redirectAttributes,
+      boolean ownerView
+  ) {
+    BookingResponse booking = bookingService.getBookingById(id, authentication.getName());
+    String detailsUrl = ownerView ? "/owner/bookings/" + id : "/sitter/bookings/" + id;
+    String formAction = detailsUrl + "/review";
 
     if (bindingResult.hasErrors()) {
-      model.addAttribute("booking", booking);
+      populateReviewForm(model, booking, reviewRequest, formAction, detailsUrl);
       return "owner/reviewForm";
     }
 
@@ -228,12 +260,12 @@ public class BookingPageController {
       reviewService.createReview(reviewRequest, authentication.getName());
     } catch (RuntimeException exception) {
       bindingResult.reject("review.create", exception.getMessage());
-      model.addAttribute("booking", booking);
+      populateReviewForm(model, booking, reviewRequest, formAction, detailsUrl);
       return "owner/reviewForm";
     }
 
     redirectAttributes.addFlashAttribute("bookingSuccess", "Review submitted.");
-    return "redirect:/owner/bookings/" + id;
+    return "redirect:" + detailsUrl;
   }
 
   @PostMapping("/sitter/bookings/{id}/accept")
@@ -320,15 +352,37 @@ public class BookingPageController {
       Model model,
       BookingResponse booking,
       String backUrl,
-      boolean ownerView
+      boolean ownerView,
+      String userEmail
   ) {
     List<ReviewResponse> reviews = reviewService.getReviewByBooking(booking.id());
+    Long currentUserId = ownerView
+        ? ownerProfileService.getProfileByUserEmail(userEmail).getUser().getId()
+        : sitterProfileService.getProfileByUserEmail(userEmail).getUser().getId();
+    boolean currentUserReviewed = currentUserId != null && reviews.stream()
+        .anyMatch(review -> review.getReviewerId().equals(currentUserId));
 
     model.addAttribute("bookingView", getBookingView(booking));
     model.addAttribute("reviews", reviews);
     model.addAttribute("backUrl", backUrl);
     model.addAttribute("ownerView", ownerView);
-    model.addAttribute("canReview", ownerView && booking.status() == BookingStatus.COMPLETED && !booking.reviewed());
+    model.addAttribute("reviewUrl", ownerView ? "/owner/bookings/" + booking.id() + "/review" : "/sitter/bookings/" + booking.id() + "/review");
+    model.addAttribute("canReview", booking.status() == BookingStatus.COMPLETED && !currentUserReviewed);
+  }
+
+  private void populateReviewForm(
+      Model model,
+      BookingResponse booking,
+      ReviewRequest reviewRequest,
+      String formAction,
+      String backUrl
+  ) {
+    reviewRequest.setBookingId(booking.id());
+
+    model.addAttribute("booking", booking);
+    model.addAttribute("reviewRequest", reviewRequest);
+    model.addAttribute("formAction", formAction);
+    model.addAttribute("backUrl", backUrl);
   }
 
   private Map<Long, String> getPetNamesById(List<PetResponseDto> pets) {

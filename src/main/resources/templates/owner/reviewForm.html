@@ -17,16 +17,16 @@
                 <div class="section-heading">
                     <div>
                         <h1>Leave review</h1>
-                        <p th:text="${'Review ' + booking.sitterName()}">Review sitter</p>
+                        <p th:text="${'Booking #' + booking.id()}">Booking review</p>
                     </div>
 
-                    <a th:href="@{/owner/bookings/{id}(id=${booking.id()})}" class="button secondary-button">
+                    <a th:href="${backUrl}" class="button secondary-button">
                         Back
                     </a>
                 </div>
 
                 <form
-                        th:action="@{/owner/bookings/{id}/review(id=${booking.id()})}"
+                        th:action="${formAction}"
                         th:object="${reviewRequest}"
                         method="post"
                         class="booking-form"
@@ -68,7 +68,7 @@
                             Submit review
                         </button>
 
-                        <a th:href="@{/owner/bookings/{id}(id=${booking.id()})}" class="button secondary-button">
+                        <a th:href="${backUrl}" class="button secondary-button">
                             Cancel
                         </a>
                     </div>
