@@ -6,6 +6,7 @@ import lv.pawsitter.dto.PetResponseDto;
 import lv.pawsitter.entity.AnimalTypes;
 import lv.pawsitter.entity.OwnerProfile;
 import lv.pawsitter.entity.Pet;
+import lv.pawsitter.exception.GlobalExceptionHandler;
 import lv.pawsitter.exception.PetNotFoundException;
 import lv.pawsitter.exception.UserNotFoundException;
 import lv.pawsitter.repository.OwnerProfileRepository;
@@ -21,6 +22,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatNoException;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -92,9 +94,27 @@ public class PetServiceUnitTests {
 
     @Test
     void getById_returnsDtoForExistingPet() {
+        when(petRepository.findById(100L)).thenReturn(Optional.of(pet));
+
+        PetResponseDto result = petService.getById(100L);
+
+        assertThat(result.getId()).isEqualTo(100L);
+        assertThat(result.getOwnerId()).isEqualTo(1L);
+    }
+
+
+    @Test
+    void getById_throwsPetNotFoundException_whenPetDoesNotExist() {
         when(petRepository.findById(999L)).thenReturn(Optional.empty());
         assertThatThrownBy(() -> petService.getById(999L)).isInstanceOf(PetNotFoundException.class)
                 .hasMessageContaining("999");
+    }
+
+    @Test
+    void getById_throwsException_whenNegativeValueIsPassed() {
+        when(petRepository.findById(-100L)).thenReturn(Optional.empty());
+        assertThatThrownBy(() -> petService.getById(-100L)).isInstanceOf(PetNotFoundException.class)
+                .hasMessageContaining("-100");
     }
 
     @Test
@@ -119,20 +139,63 @@ public class PetServiceUnitTests {
     }
 
     @Test
-    void updatePet_updatesAndReturnsDro_ForExistingPet(){
-        PetRequestDto updateDto = getPetRequestDto();
+    void createPet_throwsNullPointerException_whenDtoIsNull(){
+        assertThatThrownBy(()->petService.createPet(1L, null)).isInstanceOf(NullPointerException.class);
+    }
 
-        when(petRepository.findById(100L)).thenReturn(Optional.of(pet));
-        when(petRepository.save(any(Pet.class))).thenAnswer(invocation -> invocation.getArgument(0));
+    @Test
+    void createPet_throwsException_whenOwnerIdIsNull(){
+        when(ownerProfileRepository.findById(null)).thenReturn(Optional.empty());
+        assertThatThrownBy(()->petService.createPet(null, petRequestDto)).isInstanceOf(UserNotFoundException.class);
+    }
 
-        PetResponseDto result = petService.updatePet(100L, updateDto);
+    @Test
+    void createPet_throwsIllegalArgumentException_whenFirstNameIsBlank() {
+        petRequestDto.setFirstName("");
 
-        assertThat(result.getFirstName()).isEqualTo("Moe");
-        assertThat(result.getBreed()).isEqualTo("Black");
-        assertThat(result.getAge()).isEqualTo(5);
-        assertThat(result.getSpecialNeeds()).isEqualTo("Diabetic");
-        verify(petRepository).save(pet);
+        assertThatThrownBy(() -> petService.createPet(1L, petRequestDto))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("first name");
 
+        verify(ownerProfileRepository, never()).findById(any());
+        verify(petRepository, never()).save(any());
+    }
+
+    @Test
+    void createPet_throwsIllegalArgumentException_whenFirstNameIsNull() {
+        petRequestDto.setFirstName(null);
+
+        assertThatThrownBy(() -> petService.createPet(1L, petRequestDto))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("first name");
+    }
+
+    @Test
+    void createPet_throwsIllegalArgumentException_whenAgeIsNegative() {
+        petRequestDto.setAge(-5);
+
+        assertThatThrownBy(() -> petService.createPet(1L, petRequestDto))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("age");
+
+        verify(petRepository, never()).save(any());
+    }
+
+    @Test
+    void createPet_succeeds_whenAgeIsZero() {
+        petRequestDto.setAge(0);
+
+        when(ownerProfileRepository.findById(1L)).thenReturn(Optional.of(ownerProfile));
+        when(petRepository.save(any(Pet.class))).thenAnswer(invocation -> {
+            Pet savedPet = invocation.getArgument(0);
+            savedPet.setId(100L);
+            return savedPet;
+        });
+
+        PetResponseDto result = petService.createPet(1L, petRequestDto);
+
+        assertThat(result.getAge()).isEqualTo(0);
+        verify(petRepository).save(any(Pet.class));
     }
 
     @Nonnull
@@ -153,6 +216,50 @@ public class PetServiceUnitTests {
     }
 
     @Test
+    void updatePet_updatesAndReturnsDro_ForExistingPet(){
+        PetRequestDto updateDto = getPetRequestDto();
+
+        when(petRepository.findById(100L)).thenReturn(Optional.of(pet));
+        when(petRepository.save(any(Pet.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        PetResponseDto result = petService.updatePet(100L, updateDto);
+
+        assertThat(result.getFirstName()).isEqualTo("Moe");
+        assertThat(result.getBreed()).isEqualTo("Black");
+        assertThat(result.getAge()).isEqualTo(5);
+        assertThat(result.getSpecialNeeds()).isEqualTo("Diabetic");
+        verify(petRepository).save(pet);
+
+    }
+
+    @Test
+    void updatePet_throwsNullPointerException_whenDtoIsNull(){
+        assertThatThrownBy(()->petService.updatePet(100L, null)).isInstanceOf(NullPointerException.class);
+    }
+
+    @Test
+    void updatePet_throwsIllegalArgumentException_whenFirstNameIsBlank() {
+        PetRequestDto updateDto = getPetRequestDto();
+        updateDto.setFirstName(" ");
+
+        assertThatThrownBy(() -> petService.updatePet(100L, updateDto))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("first name");
+
+        verify(petRepository, never()).save(any());
+    }
+
+    @Test
+    void updatePet_throwsIllegalArgumentException_whenAgeIsNegative() {
+        PetRequestDto updateDto = getPetRequestDto();
+        updateDto.setAge(-1);
+
+        assertThatThrownBy(() -> petService.updatePet(100L, updateDto))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("age");
+    }
+
+    @Test
     void deletePet_deletesPet_ForExistingPets(){
         when(petRepository.findById(100L)).thenReturn(Optional.of(pet));
         petService.deletePet(100L);
@@ -164,6 +271,12 @@ public class PetServiceUnitTests {
         when(petRepository.findById(999L)).thenReturn(Optional.empty());
         assertThatThrownBy(()->petService.deletePet(999L)).isInstanceOf(PetNotFoundException.class);
         verify(petRepository, never()).delete(any());
+    }
+
+    @Test
+    void deletePet_throwsException_forNullId(){
+        when(petRepository.findById(null)).thenReturn(Optional.empty());
+        assertThatThrownBy(()->petService.deletePet(null)).isInstanceOf(PetNotFoundException.class);
     }
 
     @Test
@@ -180,4 +293,11 @@ public class PetServiceUnitTests {
         List<PetResponseDto> result = petService.getPetsByOwnerId(2L);
         assertThat(result).isEmpty();
     }
+
+    @Test
+    void getPetsByOwnerId_throwsNullPointerException_whenOwnerIdIsNull() {
+        assertThatThrownBy(() -> petService.getPetsByOwnerId(null))
+                .isInstanceOf(NullPointerException.class);
+    }
+
 }

@@ -14,6 +14,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
+import java.util.Objects;
 import java.util.stream.Collectors;
 
 @Service
@@ -42,6 +43,9 @@ public class PetServiceImpl implements PetService{
     @Override
     @Transactional
     public PetResponseDto createPet(Long ownerId, PetRequestDto dto) {
+        Objects.requireNonNull(dto, "PetRequestDto must not be null");
+        validatePetFields(dto);
+
         OwnerProfile ownerProfile = ownerProfileRepository.findById(ownerId)
                 .orElseThrow(() -> new UserNotFoundException("Owner not found with the id: " + ownerId));
 
@@ -56,6 +60,9 @@ public class PetServiceImpl implements PetService{
 
     @Override
     public PetResponseDto updatePet(Long id, PetRequestDto dto) {
+        Objects.requireNonNull(dto, "PetRequestDto must not be null");
+        validatePetFields(dto);
+
         Pet existingPet = findPetOrThrow(id);
 
         log.info("Updating pet with id: {}", id);
@@ -77,6 +84,7 @@ public class PetServiceImpl implements PetService{
 
     @Override
     public List<PetResponseDto> getPetsByOwnerId(Long ownerProfileId) {
+        Objects.requireNonNull(ownerProfileId, "ownerProfileId must not be null");
         log.info("Fetching pets for ownerProfileId {}", ownerProfileId);
         return petRepository.findByOwnerProfileId(ownerProfileId).stream()
                 .map(this::toResponseDto)
@@ -89,6 +97,15 @@ public class PetServiceImpl implements PetService{
     }
 
     // Helper methods
+
+    private void validatePetFields(PetRequestDto dto) {
+        if (dto.getFirstName() == null || dto.getFirstName().isBlank()) {
+            throw new IllegalArgumentException("Pet first name must not be blank");
+        }
+        if (dto.getAge() < 0) {
+            throw new IllegalArgumentException("Pet age must be positive");
+        }
+    }
 
     private PetResponseDto toResponseDto(Pet pet) {
         PetResponseDto dto = new PetResponseDto();
