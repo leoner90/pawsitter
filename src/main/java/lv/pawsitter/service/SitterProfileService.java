@@ -6,9 +6,12 @@ import lv.pawsitter.dto.SitterProfileUpdateDTO;
 import lv.pawsitter.dto.SitterPublishDTO;
 import lv.pawsitter.entity.SitterAvailability;
 import lv.pawsitter.entity.SitterProfile;
+import lv.pawsitter.exception.AvailabilityNotFoundException;
+import lv.pawsitter.exception.InvalidSitterOperationException;
 import lv.pawsitter.repository.SitterAvailabilityRepository;
 import lv.pawsitter.exception.UserNotFoundException;
 import lv.pawsitter.repository.SitterProfileRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Set;
@@ -95,11 +98,11 @@ public class SitterProfileService
     {
         SitterProfile sitterProfile = getProfileByUserEmail(email);
 
-        SitterAvailability availability = sitterAvailabilityRepository.findById(availabilityId).orElseThrow(() -> new IllegalArgumentException("Availability not found"));
+        SitterAvailability availability = sitterAvailabilityRepository.findById(availabilityId).orElseThrow(() -> new AvailabilityNotFoundException("Availability not found"));
 
         if (!availability.getSitterProfile().getId().equals(sitterProfile.getId()))
         {
-            throw new IllegalArgumentException("You cannot remove another sitter's availability");
+            throw new AccessDeniedException("You cannot remove another sitter's availability");
         }
 
         sitterAvailabilityRepository.delete(availability);
@@ -132,7 +135,7 @@ public class SitterProfileService
         //if errors
         if (!violations.isEmpty())
         {
-            throw new IllegalStateException(violations.iterator().next().getMessage());
+            throw new InvalidSitterOperationException(violations.iterator().next().getMessage());
         }
 
         // Check if sitter has availability
@@ -140,7 +143,7 @@ public class SitterProfileService
 
         if (!hasAvailability)
         {
-            throw new IllegalStateException("At least one availability range is required");
+            throw new InvalidSitterOperationException("At least one availability range is required");
         }
 
         sitterProfile.setPublished(true);
