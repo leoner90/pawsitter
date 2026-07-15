@@ -25,7 +25,7 @@
             <p th:if="${#fields.hasErrors('image')}" th:errors="*{image}" class="form-error"></p>
 
 
-            <label for="location">Location</label>
+            <label class="sitter-and-owner-profile-textarea" for="location">Location</label>
 
             <select id="location" th:field="*{location}">
                 <option value="">Select location</option>
