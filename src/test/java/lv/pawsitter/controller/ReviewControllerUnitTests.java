@@ -5,14 +5,15 @@ import lv.pawsitter.dto.ReviewRequest;
 import lv.pawsitter.dto.ReviewResponse;
 import lv.pawsitter.security.JwtService;
 import lv.pawsitter.service.ReviewService;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 import java.time.LocalDateTime;
@@ -33,22 +34,40 @@ public class ReviewControllerUnitTests {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @MockBean
+    @MockitoBean
     private ReviewService reviewService;
 
-    @MockBean
+    @MockitoBean
     private UserDetailsService userDetailsService;
 
-    @MockBean
+    @MockitoBean
     private JwtService jwtService;
 
     private final Authentication authentication =
             new UsernamePasswordAuthenticationToken("jane@example.com", null);
 
-    private ReviewResponse sampleResponse() {
-        return new ReviewResponse(
-                500L, 100L, 1L, "Jane Doe",
-                2L, "John Smith", 5, "Great job!", LocalDateTime.now());
+
+    private ReviewRequest request;
+    private ReviewResponse response;
+
+    @BeforeEach
+    void setUp() {
+        request = new ReviewRequest();
+        request.setBookingId(100L);
+        request.setRating(5);
+        request.setReviewComment("Great job!");
+
+        response = new ReviewResponse(
+                500L,
+                100L,
+                1L,
+                "Jane Doe",
+                2L,
+                "John Smith",
+                5,
+                "Great job!",
+                LocalDateTime.now()
+        );
     }
 
     @Test
@@ -59,7 +78,7 @@ public class ReviewControllerUnitTests {
         request.setReviewComment("Great job!");
 
         when(reviewService.createReview(any(ReviewRequest.class), eq("jane@example.com")))
-                .thenReturn(sampleResponse());
+                .thenReturn(response);
 
         mockMvc.perform(post("/api/reviews")
                         .principal(authentication)
@@ -86,7 +105,7 @@ public class ReviewControllerUnitTests {
 
     @Test
     void getReviewById_found_returnsOk() throws Exception {
-        when(reviewService.getReviewById(500L)).thenReturn(sampleResponse());
+        when(reviewService.getReviewById(500L)).thenReturn(response);
 
         mockMvc.perform(get("/api/reviews/500"))
                 .andExpect(status().isOk())
@@ -95,7 +114,7 @@ public class ReviewControllerUnitTests {
 
     @Test
     void getReviewByBooking_returnsListOfReviews() throws Exception {
-        when(reviewService.getReviewByBooking(100L)).thenReturn(List.of(sampleResponse()));
+        when(reviewService.getReviewByBooking(100L)).thenReturn(List.of(response));
 
         mockMvc.perform(get("/api/reviews/booking/100"))
                 .andExpect(status().isOk())
@@ -104,7 +123,7 @@ public class ReviewControllerUnitTests {
 
     @Test
     void getReviewsReceived_returnsListOfReviews() throws Exception {
-        when(reviewService.getReviewsReceivedBy(2L)).thenReturn(List.of(sampleResponse()));
+        when(reviewService.getReviewsReceivedBy(2L)).thenReturn(List.of(response));
 
         mockMvc.perform(get("/api/reviews/received/2"))
                 .andExpect(status().isOk())
@@ -113,7 +132,7 @@ public class ReviewControllerUnitTests {
 
     @Test
     void getReviewsWritten_returnsListOfReviews() throws Exception {
-        when(reviewService.getReviewsWrittenBy(1L)).thenReturn(List.of(sampleResponse()));
+        when(reviewService.getReviewsWrittenBy(1L)).thenReturn(List.of(response));
 
         mockMvc.perform(get("/api/reviews/written/1"))
                 .andExpect(status().isOk())
@@ -122,7 +141,7 @@ public class ReviewControllerUnitTests {
 
     @Test
     void getAllReviews_returnsList() throws Exception {
-        when(reviewService.getAllReviews()).thenReturn(List.of(sampleResponse()));
+        when(reviewService.getAllReviews()).thenReturn(List.of(response));
 
         mockMvc.perform(get("/api/reviews"))
                 .andExpect(status().isOk())
@@ -137,7 +156,7 @@ public class ReviewControllerUnitTests {
         request.setReviewComment("Updated");
 
         when(reviewService.updateReview(eq(500L), any(ReviewRequest.class), eq("jane@example.com")))
-                .thenReturn(sampleResponse());
+                .thenReturn(response);
 
         mockMvc.perform(put("/api/reviews/500")
                         .principal(authentication)
