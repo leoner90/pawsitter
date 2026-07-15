@@ -14,9 +14,9 @@ import org.springframework.context.annotation.Configuration;
 
 @OpenAPIDefinition(
         info = @Info(
-                title = "URL Shortener Application",
+                title = "PawSitter Application",
                 version = "0.9.0",
-                description = "Service for shortening URLs, managing users, subscriptions and statistics.",
+                description = "Service for pet booking management, including user accounts, sitter profiles, bookings, payments, and analytics.",
                 termsOfService = "https://example.com/terms",
                 contact = @Contact(
                         name = "Support Team",
