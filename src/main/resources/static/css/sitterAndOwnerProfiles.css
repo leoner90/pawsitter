@@ -151,6 +151,9 @@
     overflow-y: auto;
     overflow-x: hidden;
 }
+.pet-info strong{
+    color: white;
+}
 
 .pet-info > *
 {
@@ -199,9 +202,7 @@
     background: #7f5454;
     border-radius: 12px 12px 12px 12px;
 }
-strong {
-    color: white;
-}
+
 .pet-image-space
 {
     flex: 0 0 150px;
