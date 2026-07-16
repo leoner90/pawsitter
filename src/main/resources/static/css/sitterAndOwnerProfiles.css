@@ -190,8 +190,7 @@
 
 }
 
-.pet-table-header
-{
+.pet-table-header{
     display: flex;
     align-items: center;
     gap: 5px;
