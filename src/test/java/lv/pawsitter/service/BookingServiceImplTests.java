@@ -28,6 +28,7 @@ import lv.pawsitter.exception.PetNotFoundException;
 import lv.pawsitter.repository.BookingRepository;
 import lv.pawsitter.repository.OwnerProfileRepository;
 import lv.pawsitter.repository.PetRepository;
+import lv.pawsitter.repository.SitterAvailabilityRepository;
 import lv.pawsitter.repository.SitterProfileRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -61,6 +62,9 @@ class BookingServiceImplTests {
   @Mock
   private PetRepository petRepository;
 
+  @Mock
+  private SitterAvailabilityRepository sitterAvailabilityRepository;
+
   @InjectMocks
   private BookingServiceImpl bookingService;
 
@@ -80,6 +84,7 @@ class BookingServiceImplTests {
     CreateBookingRequest request = createRequest(List.of(pet.getId()), " Evening medicine ");
     when(ownerProfileRepository.findByUserEmail(OWNER_EMAIL)).thenReturn(Optional.of(owner));
     when(sitterProfileRepository.findById(sitter.getId())).thenReturn(Optional.of(sitter));
+    sitterIsAvailable();
     when(petRepository.findByIdAndOwnerProfileId(pet.getId(), owner.getId())).thenReturn(Optional.of(pet));
     saveReturnsBooking();
 
@@ -140,11 +145,28 @@ class BookingServiceImplTests {
     CreateBookingRequest request = createRequest(List.of(pet.getId()), null);
     when(ownerProfileRepository.findByUserEmail(OWNER_EMAIL)).thenReturn(Optional.of(owner));
     when(sitterProfileRepository.findById(sitter.getId())).thenReturn(Optional.of(sitter));
+    sitterIsAvailable();
     when(petRepository.findByIdAndOwnerProfileId(pet.getId(), owner.getId())).thenReturn(Optional.empty());
 
     assertThatThrownBy(() -> bookingService.createBooking(OWNER_EMAIL, request))
         .isInstanceOf(PetNotFoundException.class)
         .hasMessage("Pet not found for this owner");
+
+    verify(bookingRepository, never()).save(any());
+  }
+
+  @Test
+  void createBookingRejectsDatesOutsideSitterAvailability() {
+    CreateBookingRequest request = createRequest(List.of(pet.getId()), null);
+    when(ownerProfileRepository.findByUserEmail(OWNER_EMAIL)).thenReturn(Optional.of(owner));
+    when(sitterProfileRepository.findById(sitter.getId())).thenReturn(Optional.of(sitter));
+    when(sitterAvailabilityRepository.existsBySitterProfileIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+        sitter.getId(), START_DATE.toLocalDate(), END_DATE.toLocalDate()))
+        .thenReturn(false);
+
+    assertThatThrownBy(() -> bookingService.createBooking(OWNER_EMAIL, request))
+        .isInstanceOf(InvalidBookingOperationException.class)
+        .hasMessage("Sitter is not available for selected dates");
 
     verify(bookingRepository, never()).save(any());
   }
@@ -189,6 +211,7 @@ class BookingServiceImplTests {
         List.of(newPet.getId()),
         " Updated note ");
     when(bookingRepository.findById(booking.getId())).thenReturn(Optional.of(booking));
+    sitterIsAvailable(request.getStartDate(), request.getEndDate());
     when(petRepository.findByIdAndOwnerProfileId(newPet.getId(), owner.getId())).thenReturn(Optional.of(newPet));
     saveReturnsBooking();
 
@@ -231,6 +254,7 @@ class BookingServiceImplTests {
     LocalDateTime newEndDate = END_DATE.plusDays(2);
     UpdateBookingRequest request = updateRequest(newStartDate, newEndDate, null, null);
     when(bookingRepository.findById(booking.getId())).thenReturn(Optional.of(booking));
+    sitterIsAvailable(newStartDate, newEndDate);
     saveReturnsBooking();
 
     BookingResponse response = bookingService.updateBooking(booking.getId(), OWNER_EMAIL, request);
@@ -300,6 +324,24 @@ class BookingServiceImplTests {
     assertThatThrownBy(() -> bookingService.updateBooking(booking.getId(), OWNER_EMAIL, request))
         .isInstanceOf(InvalidBookingOperationException.class)
         .hasMessage("Select at least one pet");
+  }
+
+  @Test
+  void updateBookingRejectsDatesOutsideSitterAvailability() {
+    Booking booking = booking(100L, BookingStatus.REQUESTED);
+    LocalDateTime newStartDate = START_DATE.plusDays(1);
+    LocalDateTime newEndDate = END_DATE.plusDays(1);
+    UpdateBookingRequest request = updateRequest(newStartDate, newEndDate, null, null);
+    when(bookingRepository.findById(booking.getId())).thenReturn(Optional.of(booking));
+    when(sitterAvailabilityRepository.existsBySitterProfileIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+        sitter.getId(), newStartDate.toLocalDate(), newEndDate.toLocalDate()))
+        .thenReturn(false);
+
+    assertThatThrownBy(() -> bookingService.updateBooking(booking.getId(), OWNER_EMAIL, request))
+        .isInstanceOf(InvalidBookingOperationException.class)
+        .hasMessage("Sitter is not available for selected dates");
+
+    verify(bookingRepository, never()).save(any());
   }
 
   @ParameterizedTest
@@ -457,6 +499,16 @@ class BookingServiceImplTests {
 
   private void saveReturnsBooking() {
     when(bookingRepository.save(any(Booking.class))).thenAnswer(invocation -> invocation.getArgument(0));
+  }
+
+  private void sitterIsAvailable() {
+    sitterIsAvailable(START_DATE, END_DATE);
+  }
+
+  private void sitterIsAvailable(LocalDateTime startDate, LocalDateTime endDate) {
+    when(sitterAvailabilityRepository.existsBySitterProfileIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+        sitter.getId(), startDate.toLocalDate(), endDate.toLocalDate()))
+        .thenReturn(true);
   }
 
   private CreateBookingRequest createRequest(List<Long> petIds, String note) {

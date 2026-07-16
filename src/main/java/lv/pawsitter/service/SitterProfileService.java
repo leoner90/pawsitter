@@ -15,6 +15,7 @@ public interface SitterProfileService
     SitterProfile getProfileByUserEmail(String email);
     List<SitterProfile> getPublishedSitters();
     List<SitterAvailability> getAvailability(String email);
+    List<SitterAvailability> getAvailabilityBySitterId(Long sitterId);
     List<SitterProfile> findFullyAvailableSitters(LocalDate startDate, LocalDate endDate);
     List<SitterProfile> findPartiallyAvailableSitters(LocalDate startDate, LocalDate endDate);
 

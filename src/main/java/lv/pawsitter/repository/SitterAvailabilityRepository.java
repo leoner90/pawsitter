@@ -1,10 +1,11 @@
 package lv.pawsitter.repository;
 
 import lv.pawsitter.entity.SitterAvailability;
-import org.springframework.data.jpa.repository.JpaRepository;
 import lv.pawsitter.entity.SitterProfile;
+import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
 import java.time.LocalDate;
 import java.util.List;
 
@@ -12,7 +13,19 @@ public interface SitterAvailabilityRepository extends JpaRepository<SitterAvaila
 {
     List<SitterAvailability> findBySitterProfileId(Long sitterProfileId);
 
-    //THIS Query finds published sitters whose one availability range fully covers the dates selected by the owner.
+    List<SitterAvailability> findBySitterProfileIdAndEndDateGreaterThanEqualOrderByStartDateAsc(
+            Long sitterProfileId,
+            LocalDate date
+    );
+
+    boolean existsBySitterProfileIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+            Long sitterProfileId,
+            LocalDate startDate,
+            LocalDate endDate
+    );
+
+    boolean existsBySitterProfileIdAndEndDateGreaterThanEqual(Long sitterProfileId, LocalDate date);
+
     @Query("""
         SELECT DISTINCT availability.sitterProfile
         FROM SitterAvailability availability
@@ -22,7 +35,6 @@ public interface SitterAvailabilityRepository extends JpaRepository<SitterAvaila
         """)
     List<SitterProfile> findFullyAvailableSitters(@Param("startDate") LocalDate startDate, @Param("endDate") LocalDate endDate);
 
-    //THIS Query finds published sitters whose are Partially in range (like 1 day out of 10)
     @Query("""
         SELECT DISTINCT availability.sitterProfile
         FROM SitterAvailability availability

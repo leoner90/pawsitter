@@ -330,6 +330,7 @@ public class BookingPageController {
 
     if (sitterId != null) {
       model.addAttribute("sitter", sitterProfileService.getSitterById(sitterId));
+      model.addAttribute("availabilityRanges", sitterProfileService.getAvailabilityBySitterId(sitterId));
     }
   }
 
@@ -346,6 +347,7 @@ public class BookingPageController {
     model.addAttribute("bookingRequest", bookingRequest);
     model.addAttribute("pets", pets);
     model.addAttribute("sitter", sitterProfileService.getSitterById(booking.sitterId()));
+    model.addAttribute("availabilityRanges", sitterProfileService.getAvailabilityBySitterId(booking.sitterId()));
   }
 
   private void populateDetailsPage(

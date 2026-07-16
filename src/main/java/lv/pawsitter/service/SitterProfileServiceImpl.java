@@ -53,7 +53,26 @@ public class SitterProfileServiceImpl implements SitterProfileService
     @Override
     public List<SitterProfile> getPublishedSitters()
     {
-        return sitterProfileRepository.findByPublishedTrue();
+        List<SitterProfile> publishedSitters = sitterProfileRepository.findByPublishedTrue();
+        LocalDate today = LocalDate.now();
+
+        for (SitterProfile sitterProfile : publishedSitters)
+        {
+            boolean hasCurrentAvailability = sitterAvailabilityRepository.existsBySitterProfileIdAndEndDateGreaterThanEqual(
+                    sitterProfile.getId(),
+                    today
+            );
+
+            if (!hasCurrentAvailability)
+            {
+                sitterProfile.setPublished(false);
+                sitterProfileRepository.save(sitterProfile);
+            }
+        }
+
+        return publishedSitters.stream()
+                .filter(SitterProfile::isPublished)
+                .toList();
     }
 
     //Update Profile
@@ -84,11 +103,41 @@ public class SitterProfileServiceImpl implements SitterProfileService
     public void addAvailability(String email, SitterAvailabilityRequest request)
     {
         SitterProfile sitterProfile = getProfileByUserEmail(email);
-        SitterAvailability availability = new SitterAvailability();
+        LocalDate requestedStartDate = request.startDate();
+        LocalDate requestedEndDate = request.endDate();
+        LocalDate mergedStartDate = request.startDate();
+        LocalDate mergedEndDate = request.endDate();
+
+        List<SitterAvailability> availabilityRanges = sitterAvailabilityRepository.findBySitterProfileId(sitterProfile.getId());
+        List<SitterAvailability> rangesToMerge = availabilityRanges.stream()
+                .filter(availability -> overlapsOrTouches(availability, requestedStartDate, requestedEndDate))
+                .toList();
+
+        SitterAvailability availability = rangesToMerge.isEmpty()
+                ? new SitterAvailability()
+                : rangesToMerge.getFirst();
+
+        for (SitterAvailability range : rangesToMerge)
+        {
+            if (range.getStartDate().isBefore(mergedStartDate))
+            {
+                mergedStartDate = range.getStartDate();
+            }
+
+            if (range.getEndDate().isAfter(mergedEndDate))
+            {
+                mergedEndDate = range.getEndDate();
+            }
+        }
+
+        if (rangesToMerge.size() > 1)
+        {
+            sitterAvailabilityRepository.deleteAll(rangesToMerge.subList(1, rangesToMerge.size()));
+        }
 
         availability.setSitterProfile(sitterProfile);
-        availability.setStartDate(request.startDate());
-        availability.setEndDate(request.endDate());
+        availability.setStartDate(mergedStartDate);
+        availability.setEndDate(mergedEndDate);
 
         sitterAvailabilityRepository.save(availability);
     }
@@ -100,6 +149,15 @@ public class SitterProfileServiceImpl implements SitterProfileService
         SitterProfile sitterProfile = getProfileByUserEmail(email);
 
         return sitterAvailabilityRepository.findBySitterProfileId(sitterProfile.getId());
+    }
+
+    @Override
+    public List<SitterAvailability> getAvailabilityBySitterId(Long sitterId)
+    {
+        return sitterAvailabilityRepository.findBySitterProfileIdAndEndDateGreaterThanEqualOrderByStartDateAsc(
+                sitterId,
+                LocalDate.now()
+        );
     }
 
     //Remove Available date
@@ -117,9 +175,12 @@ public class SitterProfileServiceImpl implements SitterProfileService
 
         sitterAvailabilityRepository.delete(availability);
 
-        boolean hasAvailability = !sitterAvailabilityRepository.findBySitterProfileId(sitterProfile.getId()).isEmpty();
+        boolean hasAvailability = sitterAvailabilityRepository.existsBySitterProfileIdAndEndDateGreaterThanEqual(
+                sitterProfile.getId(),
+                LocalDate.now()
+        );
 
-        //if it was last one, set publish status to false
+        //if it was last current/future range, set publish status to false
         if (!hasAvailability)
         {
             sitterProfile.setPublished(false);
@@ -149,12 +210,15 @@ public class SitterProfileServiceImpl implements SitterProfileService
             throw new InvalidSitterOperationException(violations.iterator().next().getMessage());
         }
 
-        // Check if sitter has availability
-        boolean hasAvailability = !sitterAvailabilityRepository.findBySitterProfileId(sitterProfile.getId()).isEmpty();
+        // Check if sitter has current or future availability
+        boolean hasAvailability = sitterAvailabilityRepository.existsBySitterProfileIdAndEndDateGreaterThanEqual(
+                sitterProfile.getId(),
+                LocalDate.now()
+        );
 
         if (!hasAvailability)
         {
-            throw new InvalidSitterOperationException("At least one availability range is required");
+            throw new InvalidSitterOperationException("At least one current or future availability range is required");
         }
 
         sitterProfile.setPublished(true);
@@ -192,5 +256,11 @@ public class SitterProfileServiceImpl implements SitterProfileService
         }
 
         return sitterAvailabilityRepository.findPartiallyAvailableSitters(startDate, endDate);
+    }
+
+    private boolean overlapsOrTouches(SitterAvailability availability, LocalDate startDate, LocalDate endDate)
+    {
+        return !availability.getEndDate().isBefore(startDate.minusDays(1))
+                && !availability.getStartDate().isAfter(endDate.plusDays(1));
     }
 }

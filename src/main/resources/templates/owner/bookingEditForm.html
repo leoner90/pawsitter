@@ -48,6 +48,20 @@
                     </div>
 
                     <div class="form-row">
+                        <span class="form-label">Available dates</span>
+                        <div class="availability-summary" th:if="${!#lists.isEmpty(availabilityRanges)}">
+                            <span class="availability-range" th:each="availability : ${availabilityRanges}">
+                                <span th:text="${#temporals.format(availability.startDate, 'dd MMM yyyy')}">10 Aug 2026</span>
+                                -
+                                <span th:text="${#temporals.format(availability.endDate, 'dd MMM yyyy')}">12 Aug 2026</span>
+                            </span>
+                        </div>
+                        <p class="form-hint" th:if="${#lists.isEmpty(availabilityRanges)}">
+                            This sitter has no available date ranges.
+                        </p>
+                    </div>
+
+                    <div class="form-row">
                         <label for="startDate">Start date and time</label>
                         <input id="startDate" type="datetime-local" th:field="*{startDate}">
                         <p class="field-error" th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}">Start error</p>
