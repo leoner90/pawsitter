@@ -23,8 +23,8 @@ public class UserDtoMapper implements Converter<User, UserCreateDTO, UserDTO> {
                 user.getPhoneNumber(),
                 user.getEmail(),
                 user.getRole(),
-//                user.getOwnerProfile() != null ? user.getOwnerProfile().getId() : null,
-//                user.getSitterProfile() != null ? user.getSitterProfile().getId() : null,
+                //user.getOwnerProfile() != null ? user.getOwnerProfile().getId() : null,
+                //user.getSitterProfile() != null ? user.getSitterProfile().getId() : null,
                 user.getCreatedAt());
     }
 

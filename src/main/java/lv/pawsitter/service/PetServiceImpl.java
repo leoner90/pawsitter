@@ -108,7 +108,7 @@ public class PetServiceImpl implements PetService{
         imageStorageService.deletePetImage(pet.getImageUrl());
         petRepository.delete(pet);
 
-        log.info("Deleted pet with id: {}", petId);
+        log.info("Deleted pet with id: {}, for user {}", petId, email);
     }
 
     @Override
