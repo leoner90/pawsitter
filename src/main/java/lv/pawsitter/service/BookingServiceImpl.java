@@ -5,9 +5,6 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
-
-import lv.pawsitter.exception.PetNotFoundException;
-import lv.pawsitter.exception.UserNotFoundException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -23,6 +20,8 @@ import lv.pawsitter.entity.Pet;
 import lv.pawsitter.entity.SitterProfile;
 import lv.pawsitter.exception.BookingNotFoundException;
 import lv.pawsitter.exception.InvalidBookingOperationException;
+import lv.pawsitter.exception.PetNotFoundException;
+import lv.pawsitter.exception.UserNotFoundException;
 import lv.pawsitter.repository.BookingRepository;
 import lv.pawsitter.repository.OwnerProfileRepository;
 import lv.pawsitter.repository.PetRepository;
