@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>PawSitter | Home</title>
+
+        <link rel="stylesheet" th:href="@{/css/mainStyle.css}">
+        <link rel="icon" type="image/x-icon" th:href="@{/images/favicon.ico}">
+    </head>
+    <body>
+        <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+        <main class="page-content">
+            <section class="sitters-section">
+                <div class="section-heading">
+                    <div>
+                        <h2>Available pet sitters</h2>
+                        <p>Find someone trustworthy to care for your pet.</p>
+                    </div>
+                </div>
+
+                <!--  Search -->
+                <p class="form-error" th:if="${searchError}" th:text="${searchError}"></p>
+
+                <form th:action="@{/sitters/search}" method="get" class="sitter-search-form">
+                    <div>
+                        <label for="startDate">From</label>
+                        <input id="startDate" name="startDate" type="date" th:value="${startDate}" th:min="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}" required>
+                    </div>
+
+                    <div>
+                        <label for="endDate">To</label>
+                        <input id="endDate" name="endDate" type="date" th:value="${endDate}" th:min="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}" required>
+                    </div>
+
+                    <div class="partial-search-option">
+                        <input id="includePartial" name="includePartial" type="checkbox" value="true" th:checked="${includePartial}">
+                        <label for="includePartial">Include partially available sitters</label>
+                    </div>
+
+
+                    <button type="submit" class="button primary-button">Search</button>
+                </form>
+
+                <div class="sitter-grid" th:if="${!#lists.isEmpty(sitters)}">
+                    <article class="sitter-card" th:each="sitter : ${sitters}">
+
+                        <img th:src="${sitter.imageUrl != null && !sitter.imageUrl.isBlank()
+                            ?  sitter.imageUrl
+                            : '/images/sittersImages/default-sitter.png'}"
+                                alt="Sitter profile"
+                                class="sitter-card-image"
+                        >
+
+                        <div class="sitter-card-content">
+                            <h3 th:text="${sitter.user.firstName + ' ' + sitter.user.lastName}">
+                                Sitter name
+                            </h3>
+
+                            <p>
+                                <strong>Location:</strong>
+                                <span th:text="${sitter.location}">Default location</span>
+                            </p>
+
+                            <p class="sitter-description" th:text="${sitter.description}">
+                                Sitter description
+                            </p>
+
+                            <p class="sitter-price">
+                                From
+                                <strong>
+                                    €<span th:text="${sitter.pricePerDay}">0.00</span>
+                                </strong>
+                                per day
+                            </p>
+
+                            <a th:href="@{/sitters/{id}(id=${sitter.id})}" class="button primary-button">
+                                View profile
+                            </a>
+                        </div>
+                    </article>
+                </div>
+
+                <div class="empty-state" th:if="${#lists.isEmpty(sitters)}">
+                    <h3>No sitters available yet</h3>
+                    <p>New sitter profiles will appear here.</p>
+                </div>
+            </section>
+        </main>
+
+        <div th:replace="~{fragments/footer :: footer}"></div>
+    </body>
+</html>

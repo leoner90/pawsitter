@@ -1,7 +1,6 @@
 @import url("footer.css");
 @import url("navbar.css");
 @import url("sitterAndOwnerProfiles.css");
-@import url("sitterSearch.css");
 
 
 * {
@@ -42,6 +41,7 @@ main{
     cursor: pointer;
     text-decoration: none;
     font-size: 1rem;
+    text-align: center;
 }
 
 .primary-button {
@@ -154,29 +154,6 @@ main{
     border-radius: 16px;
 }
 
-.availability-summary {
-    display: flex;
-    flex-wrap: wrap;
-    gap: 8px;
-}
-
-.availability-range {
-    display: inline-flex;
-    align-items: center;
-    gap: 4px;
-    padding: 8px 12px;
-    border: 1px solid #d9caca;
-    border-radius: 8px;
-    background: #f8f2f2;
-}
-
-.form-hint {
-    margin: 8px 0 0;
-    color: #6f5555;
-}
-
-
-
 @media (max-width: 900px) {
     .sitter-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -187,4 +164,150 @@ main{
     .sitter-grid {
         grid-template-columns: 1fr;
     }
+}
+
+/* HERO SECTION */
+.hero-section {
+    display: flex;
+    align-items: center;
+    gap: 48px;
+}
+
+.hero-content {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+}
+
+.hero-content h2 {
+    font-size: 2.4rem;
+    margin-top: 0;
+    margin-bottom: 12px;
+}
+
+.landingHr{
+    margin-top: 24px;
+}
+
+.hero-content p {
+    font-size: 1.1rem;
+    line-height: 1.6;
+}
+
+.hero-buttons {
+    display: flex;
+    gap: 16px;
+    margin-top: 16px;
+}
+
+.hero-image-wrapper {
+    flex: 1;
+    display: flex;
+    align-items: center;
+}
+
+.hero-image {
+    width: 100%;
+    height: auto;
+    max-height: 420px;
+    object-fit: cover;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+/* HOW IT WORKS SECTION */
+.how-it-works-title{
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      margin-top: 0;
+}
+
+.how-it-works-section {
+    margin-top: 60px;
+}
+
+.how-it-works-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 24px;
+}
+
+.how-it-works-card {
+    background: white;
+    border-radius: 16px;
+    padding: 28px 20px;
+    text-align: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.how-it-works-icon {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    margin-bottom: 16px;
+}
+
+.how-it-works-card h4 {
+    margin: 0;
+}
+
+.how-it-works-link {
+    color: #352323;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.how-it-works-link:hover {
+    color: #7f5454;
+}
+
+/* RESPONSIVE */
+@media (max-width: 900px) {
+    .hero-section {
+        flex-direction: column-reverse;
+    }
+
+    .how-it-works-grid {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+}
+
+@media (max-width: 620px) {
+    .how-it-works-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+/* Button logic */
+.how-it-works-card {
+    background: white;
+    border-radius: 16px;
+    padding: 28px 20px;
+    text-align: center;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    position: relative;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+}
+
+.how-it-works-card:hover {
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.14);
+    transform: translateY(-2px);
+}
+
+.how-it-works-link {
+    color: #352323;
+    text-decoration: none;
+    font-weight: bold;
+}
+
+.how-it-works-link::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+}
+
+.how-it-works-card:hover .how-it-works-link {
+    color: #7f5454;
 }
