@@ -25,6 +25,8 @@ public class PetServiceImpl implements PetService{
     PetRepository petRepository;
     @Autowired
     OwnerProfileRepository ownerProfileRepository;
+    @Autowired
+    ImageStorageService imageStorageService;
 
     @Override
     public List<PetResponseDto> getAllPets() {
@@ -55,6 +57,12 @@ public class PetServiceImpl implements PetService{
         applyDtoToEntity(dto, pet);
         pet.setOwnerProfile(ownerProfile);
 
+        if (dto.getImage() != null && !dto.getImage().isEmpty())
+        {
+            String imageUrl = imageStorageService.savePetImage(dto.getImage());
+            pet.setImageUrl(imageUrl);
+        }
+
         Pet savedPet = petRepository.save(pet);
         log.info("{} created a pet {}", ownerId, savedPet);
         return toResponseDto(savedPet);
@@ -77,6 +85,7 @@ public class PetServiceImpl implements PetService{
         return toResponseDto(savedPet);
     }
 
+    //not sure we need this isn't it unsafe?
     @Override
     @Transactional
     public void deletePet(Long id) {
@@ -84,6 +93,22 @@ public class PetServiceImpl implements PetService{
         Pet pet = findPetOrThrow(id);
         petRepository.delete(pet);
         log.info("Deleted pet with id: {}", id);
+    }
+
+    @Override
+    @Transactional
+    public void deleteOwnerPet(String email, Long petId)
+    {
+        OwnerProfile ownerProfile = ownerProfileRepository.findByUserEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("Owner profile not found"));
+
+        Pet pet = petRepository.findByIdAndOwnerProfileId(petId, ownerProfile.getId())
+                .orElseThrow(() -> new PetNotFoundException("Pet not found"));
+
+        imageStorageService.deletePetImage(pet.getImageUrl());
+        petRepository.delete(pet);
+
+        log.info("Deleted pet with id: {}", petId);
     }
 
     @Override
@@ -138,6 +163,41 @@ public class PetServiceImpl implements PetService{
         pet.setAge(dto.getAge());
         pet.setDescription(dto.getDescription());
         pet.setSpecialNeeds(dto.getSpecialNeeds());
-        pet.setImageUrl(dto.getImageUrl());
+    }
+
+    //pet Edit
+    @Override
+    public PetResponseDto getOwnerPet(String email, Long petId)
+    {
+        OwnerProfile ownerProfile = ownerProfileRepository.findByUserEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("Owner profile not found"));
+
+        Pet pet = petRepository.findByIdAndOwnerProfileId(petId, ownerProfile.getId())
+                .orElseThrow(() -> new PetNotFoundException("Pet not found"));
+
+        return toResponseDto(pet);
+    }
+
+    @Override
+    @Transactional
+    public PetResponseDto updateOwnerPet(String email, Long petId, PetRequestDto dto)
+    {
+        OwnerProfile ownerProfile = ownerProfileRepository.findByUserEmail(email)
+                .orElseThrow(() -> new UserNotFoundException("Owner profile not found"));
+
+        Pet pet = petRepository.findByIdAndOwnerProfileId(petId, ownerProfile.getId())
+                .orElseThrow(() -> new PetNotFoundException("Pet not found"));
+
+        applyDtoToEntity(dto, pet);
+
+        if (dto.getImage() != null && !dto.getImage().isEmpty())
+        {
+            String oldImageUrl = pet.getImageUrl();
+            String newImageUrl = imageStorageService.savePetImage(dto.getImage());
+            imageStorageService.deletePetImage(oldImageUrl);
+            pet.setImageUrl(newImageUrl);
+        }
+
+        return toResponseDto(petRepository.save(pet));
     }
 }

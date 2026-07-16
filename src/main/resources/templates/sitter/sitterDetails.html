@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -49,9 +49,17 @@
                     </p>
                 </div>
 
-                <button type="button" class="button primary-button">
+                <div class="success-message" th:if="${bookingSuccess}" th:text="${bookingSuccess}">
+                    Booking request sent.
+                </div>
+
+                <a
+                        sec:authorize="hasAuthority('USER')"
+                        th:href="@{/owner/bookings/new(sitterId=${sitter.id})}"
+                        class="button primary-button"
+                >
                     Book this sitter
-                </button>
+                </a>
 
                 <a th:href="@{/}" class="button secondary-button">
                      Back to search

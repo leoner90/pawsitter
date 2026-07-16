@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>PawSitter | Leave Review</title>
+
+        <link rel="stylesheet" th:href="@{/css/mainStyle.css}">
+        <link rel="icon" type="image/x-icon" th:href="@{/images/favicon.ico}">
+    </head>
+    <body>
+        <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+        <main class="page-content profile-page">
+            <section class="profile-card">
+                <div class="section-heading">
+                    <div>
+                        <h1>Leave review</h1>
+                        <p th:text="${'Booking #' + booking.id()}">Booking review</p>
+                    </div>
+
+                    <a th:href="${backUrl}" class="button secondary-button">
+                        Back
+                    </a>
+                </div>
+
+                <form
+                        th:action="${formAction}"
+                        th:object="${reviewRequest}"
+                        method="post"
+                        class="booking-form"
+                >
+                    <input type="hidden" th:field="*{bookingId}">
+
+                    <div class="form-error" th:if="${#fields.hasGlobalErrors()}">
+                        <p th:each="error : ${#fields.globalErrors()}" th:text="${error}">Review error</p>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="rating">Rating</label>
+                        <select id="rating" th:field="*{rating}">
+                            <option value="">Select rating</option>
+                            <option value="5">5 - Excellent</option>
+                            <option value="4">4 - Good</option>
+                            <option value="3">3 - Okay</option>
+                            <option value="2">2 - Poor</option>
+                            <option value="1">1 - Bad</option>
+                        </select>
+                        <p class="field-error" th:if="${#fields.hasErrors('rating')}" th:errors="*{rating}">Rating error</p>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="reviewComment">Comment</label>
+                        <textarea
+                                id="reviewComment"
+                                th:field="*{reviewComment}"
+                                rows="6"
+                                maxlength="1500"
+                        ></textarea>
+                        <p class="field-error" th:if="${#fields.hasErrors('reviewComment')}" th:errors="*{reviewComment}">
+                            Comment error
+                        </p>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="button primary-button">
+                            Submit review
+                        </button>
+
+                        <a th:href="${backUrl}" class="button secondary-button">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </section>
+        </main>
+
+        <div th:replace="~{fragments/footer :: footer}"></div>
+    </body>
+</html>

@@ -19,8 +19,8 @@
 
 .profile-image,
 .pet-image {
-    width: 160px;
-    height: 160px;
+    width: 140px;
+    height: 130px;
     border-radius: 50%;
     object-fit: cover;
 }
@@ -112,7 +112,130 @@
     background-color: #b02a37;
 }
 
-@media (max-width: 760px) {
+.sitter-and-owner-profile-textarea {
+    width: 100%;
+    max-width: 100%;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+
+
+.pet-card
+{
+    display: flex;
+    margin: 10px 0;
+    border-radius: 15px;
+    border-top: 1px solid grey;
+    padding: 10px;
+    box-shadow: 2px 2px 2px #7c7c7c14;
+}
+
+.pet-info
+{
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 5px;
+    text-align: center;
+    /*font-size: 1vw;*/
+}
+
+.pet-info .pet-description
+{
+    flex: 2;
+    max-height: 180px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+
+.pet-info > *
+{
+    justify-content: center;
+    flex: 1 1 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+    border-right: 2px dashed #00000014;
+}
+
+.edit-btn,
+.delete-pet-btn-form
+{
+    margin: 5px 0;
+    width: 100%;
+    text-align: center;
+}
+
+.edit-btn
+{
+    /*todo redo*/
+    background-color: #0f6000 !important;
+    color: white !important;
+    font-weight: bold;
+    text-align: center;
+}
+.delete-pet-btn-form button
+{
+    background-color: #8e2f2f;
+    color: white;
+    font-weight: bold;
+
+}
+
+.pet-table-header
+{
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: bold;
+    padding: 10px;
+}
+
+.pet-table-header > .pet-info > *
+{
+    border: none;
+}
+
+.pet-image-space
+{
+    flex: 0 0 150px;
+}
+.pet-actions-space
+{
+    width: 220px;
+}
+
+.pet-image {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    padding-right: 15px;
+    flex: 0 0 150px;
+}
+
+.pet-name
+{
+    flex: 1.5;
+}
+
+.action-buttons
+{
+    display: flex;
+    flex-direction: column;
+    flex: 1.5;
+}
+
+.delete-button
+{
+    width: 100%;
+}
+
+@media (max-width: 1360px) {
     .profile-header,
     .pet-profile {
         flex-direction: column;
@@ -127,5 +250,10 @@
         align-items: flex-start;
         flex-direction: column;
         gap: 14px;
+    }
+
+    .pet-card > .pet-info
+    {
+        flex-direction: column;
     }
 }
