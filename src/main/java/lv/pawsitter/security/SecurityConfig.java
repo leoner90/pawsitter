@@ -47,6 +47,7 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(
                                 "/",
+                                "/sittersSearch",
                                 "/registration",
                                 "/login",
                                 "/css/**",
@@ -80,7 +81,11 @@ public class SecurityConfig {
                 )
 
                 // ✔ REQUIRED FOR THYMELEAF (session-based logout)
+                // As we were advised, make the automatic logout cleanup explicit and delete the session cookie.
                 .logout(logout -> logout
+                        .invalidateHttpSession(true)
+                        .clearAuthentication(true)
+                        .deleteCookies("JSESSIONID")
                         .logoutSuccessUrl("/login?logout")
                         .permitAll()
                 );

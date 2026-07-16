@@ -1,6 +1,7 @@
 @import url("footer.css");
 @import url("navbar.css");
 @import url("sitterAndOwnerProfiles.css");
+@import url("sitterSearch.css");
 
 
 * {
@@ -41,7 +42,6 @@ main{
     cursor: pointer;
     text-decoration: none;
     font-size: 1rem;
-    text-align: center;
 }
 
 .primary-button {
@@ -153,8 +153,6 @@ main{
     background: white;
     border-radius: 16px;
 }
-
-
 
 @media (max-width: 900px) {
     .sitter-grid {
