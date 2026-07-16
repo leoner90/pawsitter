@@ -16,6 +16,9 @@
     align-items: center;
     gap: 28px;
 }
+.profile-descriptor-strong {
+    color: black;
+}
 
 .profile-image,
 .pet-image {
@@ -189,18 +192,19 @@
 
 .pet-table-header
 {
+    color: white;
     display: flex;
     align-items: center;
     gap: 5px;
     font-weight: bold;
     padding: 10px;
+    background: #7f5454;
+    border-radius: 12px 12px 12px 12px;
+    color: #7f5454;
 }
-
-.pet-table-header > .pet-info > *
-{
-    border: none;
+strong {
+    color: white;
 }
-
 .pet-image-space
 {
     flex: 0 0 150px;

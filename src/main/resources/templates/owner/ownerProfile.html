@@ -29,12 +29,12 @@
                         <h2 th:text="${owner.user.firstName + ' ' + owner.user.lastName}">Owner name</h2>
 
                         <p>
-                            <strong>Email:</strong>
+                            <strong class="profile-descriptor-strong">Email:</strong>
                             <span th:text="${owner.user.email}">email@example.com</span>
                         </p>
 
                         <p>
-                            <strong>Location:</strong>
+                            <strong class="profile-descriptor-strong">Location:</strong>
                             <span th:text="${owner.location != null && !owner.location.isBlank()
                                 ? owner.location
                                 : 'Not provided'}">
@@ -79,23 +79,21 @@
                         <span class="pet-image-space"></span>
 
                         <div class="pet-info">
-                            <strong>Name</strong>
+                            <strong class="pet-name">Name</strong>
                             <strong>Type</strong>
                             <strong>Breed</strong>
                             <strong>Age</strong>
                             <strong class="pet-description">Description</strong>
                             <strong>Special needs</strong>
-                            <strong></strong>
+                            <strong class="action-buttons"></strong>
                         </div>
                     </div>
 
-                        <span class="pet-actions-space"></span>
-                    </div>
                     <article class="pet-card" th:each="pet : ${owner.pets}">
                         <img th:src="${pet.imageUrl != null && !pet.imageUrl.isBlank()
-                            ? pet.imageUrl
-                            : '/images/petsImages/default-pet.png'}"
-                            alt="PetImg"  class="pet-image">
+            ? pet.imageUrl
+            : '/images/petsImages/default-pet.png'}"
+                             alt="PetImg" class="pet-image">
                         <div class="pet-info">
                             <h3 class="pet-name" th:text="${pet.firstName + ' ' + pet.lastName}">Pet name</h3>
                             <p th:text="${pet.animalType}">Animal type</p>
@@ -107,14 +105,11 @@
                                 <a th:href="@{/owner/pets/{id}/edit(id=${pet.id})}" class="button secondary-button edit-btn">
                                     Edit
                                 </a>
-
                                 <form class="delete-pet-btn-form" th:action="@{/owner/pets/{id}/delete(id=${pet.id})}" method="post">
-                                    <button type="submit" class="button delete-button ">Delete</button>
+                                    <button type="submit" class="button delete-button">Delete</button>
                                 </form>
                             </div>
                         </div>
-
-
                     </article>
                 </div>
             </section>

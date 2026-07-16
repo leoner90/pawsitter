@@ -31,12 +31,12 @@
                         <h2 th:text="${sitter.user.firstName + ' ' + sitter.user.lastName}"> Sitter name </h2>
 
                         <p>
-                            <strong>Email:</strong>
+                            <strong class="profile-descriptor-strong">Email:</strong>
                             <span th:text="${sitter.user.email}"> email@example.com </span>
                         </p>
 
                         <p>
-                            <strong>Location:</strong>
+                            <strong class="profile-descriptor-strong">Location:</strong>
                             <span th:text="${sitter.location != null && !sitter.location.isBlank()
                                 ? sitter.location
                                 : 'Not provided'}">
@@ -45,7 +45,7 @@
                         </p>
 
                         <p>
-                            <strong>Price:</strong>
+                            <strong class="profile-descriptor-strong">Price:</strong>
 
                             <span th:if="${sitter.pricePerDay != null}">
                                 €<span th:text="${sitter.pricePerDay}">0.00</span> per day
@@ -55,7 +55,7 @@
                         </p>
 
                         <p>
-                            <strong>Profile status:</strong>
+                            <strong class="profile-descriptor-strong">Profile status:</strong>
                             <span th:if="${sitter.published}"> Published</span>
                             <span th:unless="${sitter.published}">Not published </span>
                         </p>
