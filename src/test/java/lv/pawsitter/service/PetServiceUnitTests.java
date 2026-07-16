@@ -72,7 +72,7 @@ public class PetServiceUnitTests {
         petRequestDto.setAge(4);
         petRequestDto.setDescription("Friendly cat who sleeps a lot");
         petRequestDto.setSpecialNeeds("");
-        petRequestDto.setImageUrl("example.com/image/link.jpg");
+//        petRequestDto.setImageUrl("example.com/image/link.jpg");
     }
 
     @Test
@@ -216,7 +216,7 @@ public class PetServiceUnitTests {
         updateDto.setDescription("Friendly cat who sleeps a lot");
         // Added new special need
         updateDto.setSpecialNeeds("Diabetic");
-        updateDto.setImageUrl("example.com/image/link.jpg");
+        //updateDto.setImageUrl("example.com/image/link.jpg");
         return updateDto;
     }
 

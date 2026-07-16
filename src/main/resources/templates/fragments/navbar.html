@@ -5,6 +5,7 @@
 
     <div class="nav-links">
         <a th:href="@{/}">Home</a>
+        <a th:href="@{/sittersSearch}">Find Sitter</a>
         <a sec:authorize="hasAuthority('USER')" th:href="@{/owner/profile}">My Profile</a>
         <a sec:authorize="hasAuthority('USER')" th:href="@{/owner/bookings}">My Bookings</a>
         <a sec:authorize="hasAuthority('SITTER')" th:href="@{/sitter/profile}">My Profile</a>

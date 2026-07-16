@@ -72,7 +72,7 @@ public class PetControllerUnitTests {
         dto.setAge(4);
         dto.setDescription("Friendly and sleepy cat");
         dto.setSpecialNeeds("None");
-        dto.setImageUrl("http://example.com/buddy.jpg");
+        //dto.setImageUrl("http://example.com/buddy.jpg");
         return dto;
     }
 

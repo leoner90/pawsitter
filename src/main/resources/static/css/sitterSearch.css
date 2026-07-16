@@ -1,0 +1,26 @@
+.sitter-search-form {
+    display: flex;
+    align-items: end;
+    gap: 16px;
+    flex-wrap: wrap;
+    margin: 20px 0;
+}
+
+.sitter-search-form > div {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.sitter-search-form input[type="date"] {
+    padding: 8px 10px;
+}
+
+.sitter-search-form input[type="checkbox"] {
+    margin-right: 6px;
+}
+
+.form-error {
+    color: red;
+    margin-bottom: 10px;
+}
