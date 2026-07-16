@@ -31,12 +31,12 @@
                         <h2 th:text="${sitter.user.firstName + ' ' + sitter.user.lastName}"> Sitter name </h2>
 
                         <p>
-                            <strong>Email:</strong>
+                            <strong class="profile-descriptor-strong">Email:</strong>
                             <span th:text="${sitter.user.email}"> email@example.com </span>
                         </p>
 
                         <p>
-                            <strong>Location:</strong>
+                            <strong class="profile-descriptor-strong">Location:</strong>
                             <span th:text="${sitter.location != null && !sitter.location.isBlank()
                                 ? sitter.location
                                 : 'Not provided'}">
@@ -45,7 +45,7 @@
                         </p>
 
                         <p>
-                            <strong>Price:</strong>
+                            <strong class="profile-descriptor-strong">Price:</strong>
 
                             <span th:if="${sitter.pricePerDay != null}">
                                 €<span th:text="${sitter.pricePerDay}">0.00</span> per day
@@ -55,7 +55,7 @@
                         </p>
 
                         <p>
-                            <strong>Profile status:</strong>
+                            <strong class="profile-descriptor-strong">Profile status:</strong>
                             <span th:if="${sitter.published}"> Published</span>
                             <span th:unless="${sitter.published}">Not published </span>
                         </p>
@@ -72,8 +72,42 @@
                     </p>
                 </div>
 
-                <a class="button secondary-button"> Edit profile </a>
+                <!--                availability calendar-->
+                <div th:replace="~{fragments/sitterAvailabilityForm :: availabilityForm}"></div>
+
+                <!--                Already Available Dates-->
+                <div th:if="${!#lists.isEmpty(availabilityRanges)}">
+                    <h3>Your available dates</h3>
+                    <div th:each="availability : ${availabilityRanges}" class="availability-row">
+                        <span th:text="${availability.startDate}">2026-07-20</span>
+                        <span>to</span>
+                        <span th:text="${availability.endDate}">2026-07-25</span>
+
+                        <form th:action="@{/sitter/profile/availability/{id}/delete(id=${availability.id})}" method="post">
+                            <button type="submit" class="availability-cancel-button" aria-label="Cancel availability">×</button>
+                        </form>
+                    </div>
+                </div>
+
+                <p th:if="${#lists.isEmpty(availabilityRanges)}">
+                    No availability dates added yet.
+                </p>
+
+                <a th:href="@{/sitter/profile/edit}" class="button secondary-button">Edit profile</a>
             </section>
+
+            <!--            //publish profile-->
+            <div th:if="${publishError}" class="form-error" th:text="${publishError}"></div>
+
+            <form th:if="${!sitter.published}" th:action="@{/sitter/profile/publish}" method="post">
+                <button type="submit" class="button publish-button">Publish profile</button>
+            </form>
+
+            <!--            unpublish profile-->
+            <form th:if="${sitter.published}" th:action="@{/sitter/profile/unpublish}" method="post">
+                <button type="submit" class="button unpublish-button">Unpublish profile</button>
+            </form>
+
         </main>
 
         <div th:replace="~{fragments/footer :: footer}"></div>

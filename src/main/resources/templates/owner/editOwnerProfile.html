@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PawSitter | Edit Owner Profile</title>
+    <link rel="stylesheet" th:href="@{/css/mainStyle.css}">
+    <link rel="icon" type="image/x-icon" th:href="@{/images/favicon.ico}">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="page-content">
+    <section class="form-container">
+        <h1>Edit profile</h1>
+
+        <form th:action="@{/owner/profile/edit}" th:object="${profileRequest}" method="post" enctype="multipart/form-data">
+
+
+
+            <label for="firstName">First name</label>
+            <input id="firstName" type="text" th:field="*{firstName}">
+            <p th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}" class="form-error"></p>
+
+            <label for="lastName">Last name</label>
+            <input id="lastName" type="text" th:field="*{lastName}">
+            <p th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}" class="form-error"></p>
+
+            <label for="phoneNumber">Phone number</label>
+            <input id="phoneNumber" type="text" th:field="*{phoneNumber}">
+            <p th:if="${#fields.hasErrors('phoneNumber')}" th:errors="*{phoneNumber}" class="form-error"></p>
+
+            <label for="location">Location</label>
+            <select id="location" th:field="*{location}">
+                <option value="">Select location</option>
+                <option value="Riga">Riga</option>
+                <option value="Jurmala">Jurmala</option>
+                <option value="Jelgava">Jelgava</option>
+                <option value="Liepaja">Liepaja</option>
+                <option value="Ventspils">Ventspils</option>
+                <option value="Daugavpils">Daugavpils</option>
+            </select>
+            <p th:if="${#fields.hasErrors('location')}" th:errors="*{location}" class="form-error"></p>
+
+            <label for="description">About me</label>
+            <textarea class="sitter-and-owner-profile-textarea" id="description" th:field="*{description}" rows="5"></textarea>
+            <p th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="form-error"></p>
+
+            <label for="image">Profile image</label>
+            <input id="image" type="file" th:field="*{image}" accept="image/jpeg,image/png">
+            <p th:if="${#fields.hasErrors('image')}" th:errors="*{image}" class="form-error"></p>
+
+            <button type="submit" class="button primary-button">Save changes</button>
+            <a th:href="@{/owner/profile}" class="button secondary-button">Cancel</a>
+        </form>
+    </section>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

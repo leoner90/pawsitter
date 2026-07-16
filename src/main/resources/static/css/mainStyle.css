@@ -1,6 +1,7 @@
 @import url("footer.css");
 @import url("navbar.css");
-@import url("sitter.css");
+@import url("sitterAndOwnerProfiles.css");
+@import url("sitterSearch.css");
 
 
 * {
@@ -23,6 +24,9 @@ body {
     flex: 1;
 }
 
+hr{
+  opacity: 0.3;
+  }
 
 /*Main*/
 main{
@@ -109,16 +113,24 @@ main{
     background: white;
     border-radius: 16px;
     box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+    display: flex;
+    flex-direction: column;
 }
 
 .sitter-card-image {
     width: 100%;
     height: 220px;
     object-fit: cover;
+    padding: 3px;
+    background-color: #919191;
+    border-radius: 15px;
 }
 
 .sitter-card-content {
     padding: 22px;
+    display: flex;
+    flex-direction: column;
+    flex: 1;
 }
 
 .sitter-card-content h3 {
@@ -127,6 +139,7 @@ main{
 
 .sitter-description {
     line-height: 1.5;
+    flex: 1;
 }
 
 .sitter-price {
@@ -140,6 +153,29 @@ main{
     background: white;
     border-radius: 16px;
 }
+
+.availability-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.availability-range {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 12px;
+    border: 1px solid #d9caca;
+    border-radius: 8px;
+    background: #f8f2f2;
+}
+
+.form-hint {
+    margin: 8px 0 0;
+    color: #6f5555;
+}
+
+
 
 @media (max-width: 900px) {
     .sitter-grid {

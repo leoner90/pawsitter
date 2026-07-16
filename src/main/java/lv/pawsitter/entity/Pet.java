@@ -20,8 +20,8 @@ public class Pet
     private Long id;
 
     @ManyToOne
-    @JoinColumn(name = "user_id", nullable = false)
-    private User user;
+    @JoinColumn(name = "owner_profile_id", nullable = false)
+    private OwnerProfile ownerProfile;
 
     @Column(nullable = false)
     private String firstName;

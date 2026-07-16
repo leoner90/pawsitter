@@ -4,6 +4,18 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+.env
+
+### Do not commit images of sitters/owner/pets apart of default one ###
+src/main/resources/static/images/sittersImages/*
+!src/main/resources/static/images/sittersImages/default-sitter.png
+
+src/main/resources/static/images/ownersImages/*
+!src/main/resources/static/images/ownersImages/default-owner.png
+
+src/main/resources/static/images/petsImages/*
+!src/main/resources/static/images/petsImages/default-pet.png
+
 ### STS ###
 .apt_generated
 .classpath

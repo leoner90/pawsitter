@@ -1,29 +1,27 @@
 package lv.pawsitter.service;
 
-import lombok.RequiredArgsConstructor;
+import lv.pawsitter.dto.SitterAvailabilityRequest;
+import lv.pawsitter.dto.SitterProfileUpdateDTO;
+import lv.pawsitter.entity.SitterAvailability;
 import lv.pawsitter.entity.SitterProfile;
-import lv.pawsitter.repository.SitterProfileRepository;
-import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 import java.util.List;
 
-@Service
-@RequiredArgsConstructor
-public class SitterProfileService
+public interface SitterProfileService
 {
-    private final SitterProfileRepository sitterProfileRepository;
+    List<SitterProfile> getAllSitters();
+    SitterProfile getSitterById(Long id);
+    SitterProfile getProfileByUserEmail(String email);
+    List<SitterProfile> getPublishedSitters();
+    List<SitterAvailability> getAvailability(String email);
+    List<SitterAvailability> getAvailabilityBySitterId(Long sitterId);
+    List<SitterProfile> findFullyAvailableSitters(LocalDate startDate, LocalDate endDate);
+    List<SitterProfile> findPartiallyAvailableSitters(LocalDate startDate, LocalDate endDate);
 
-    public List<SitterProfile> getAllSitters()
-    {
-        return sitterProfileRepository.findAll();
-    }
-
-    public SitterProfile getSitterById(Long id)
-    {
-        return sitterProfileRepository.findById(id).orElseThrow(() -> new IllegalArgumentException("Sitter profile not found"));
-    }
-
-    public SitterProfile getProfileByUserEmail(String email)
-    {
-        return sitterProfileRepository.findByUserEmail(email).orElseThrow(() -> new IllegalArgumentException("Sitter profile not found"));
-    }
+    void updateProfile(String email, SitterProfileUpdateDTO dto);
+    void addAvailability(String email, SitterAvailabilityRequest request);
+    void deleteAvailability(String email, Long availabilityId);
+    void publishProfile(String email);
+    void unpublishProfile(String email);
 }

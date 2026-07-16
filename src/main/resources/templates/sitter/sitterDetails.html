@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<html lang="en" xmlns:th="http://www.thymeleaf.org" xmlns:sec="http://www.thymeleaf.org/extras/spring-security">
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -17,7 +17,7 @@
                 <div class="profile-header">
                     <img
                             th:src="${sitter.imageUrl != null && !sitter.imageUrl.isBlank()
-                            ? '/images/sittersImages/' + sitter.imageUrl
+                            ?  sitter.imageUrl
                             : '/images/sittersImages/default-sitter.png'}"
                             alt="Sitter profile"
                             class="profile-image"
@@ -49,11 +49,19 @@
                     </p>
                 </div>
 
-                <button type="button" class="button primary-button">
-                    Book this sitter
-                </button>
+                <div class="success-message" th:if="${bookingSuccess}" th:text="${bookingSuccess}">
+                    Booking request sent.
+                </div>
 
-                <a th:href="@{/}" class="button secondary-button">
+                <a
+                        sec:authorize="hasAuthority('USER')"
+                        th:href="@{/owner/bookings/new(sitterId=${sitter.id})}"
+                        class="button primary-button"
+                >
+                    Book this sitter
+                </a>
+
+                <a th:href="@{/sittersSearch}" class="button secondary-button">
                      Back to search
                 </a>
 

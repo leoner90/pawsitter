@@ -1,0 +1,261 @@
+.profile-page {
+    display: flex;
+    flex-direction: column;
+    gap: 32px;
+}
+
+.profile-card {
+    padding: 32px;
+    background: white;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+}
+
+.profile-header {
+    display: flex;
+    align-items: center;
+    gap: 28px;
+}
+.profile-descriptor-strong {
+    color: black;
+}
+
+.profile-image,
+.pet-image {
+    width: 140px;
+    height: 130px;
+    border-radius: 50%;
+    object-fit: cover;
+}
+
+.profile-summary h1,
+.profile-summary h2 {
+    margin-top: 0;
+}
+
+.profile-section {
+    margin: 28px 0;
+}
+
+.section-heading {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 24px;
+}
+
+.pet-profile {
+    display: flex;
+    gap: 28px;
+    align-items: flex-start;
+}
+
+.pet-details {
+    flex: 1;
+}
+
+.pet-details h3 {
+    margin-top: 0;
+    font-size: 1.6rem;
+}
+
+.service-list {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+.service-card {
+    padding: 20px;
+    border: 1px solid #d9caca;
+    border-radius: 12px;
+}
+
+.service-card h3 {
+    margin-top: 0;
+}
+
+.availability-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 5px;
+}
+
+.publish-button {
+    background-color: #28a745;
+    color: white;
+    border: none;
+}
+
+.publish-button:hover {
+    background-color: #218838;
+}
+
+.availability-row form {
+    margin: 0;
+}
+
+.availability-cancel-button {
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 20px;
+    line-height: 1;
+    color: red;
+}
+
+.unpublish-button {
+    background-color: #dc3545;
+    color: white;
+    border: none;
+}
+
+.unpublish-button:hover {
+    background-color: #b02a37;
+}
+
+.sitter-and-owner-profile-textarea {
+    width: 100%;
+    max-width: 100%;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+
+
+.pet-card
+{
+    display: flex;
+    margin: 10px 0;
+    border-radius: 15px;
+    border-top: 1px solid grey;
+    padding: 10px;
+    box-shadow: 2px 2px 2px #7c7c7c14;
+}
+
+.pet-info
+{
+    display: flex;
+    flex: 1;
+    align-items: center;
+    gap: 5px;
+    text-align: center;
+    /*font-size: 1vw;*/
+}
+
+.pet-info .pet-description
+{
+    flex: 2;
+    max-height: 180px;
+    overflow-y: auto;
+    overflow-x: hidden;
+}
+.pet-info strong{
+    color: white;
+}
+
+.pet-info > *
+{
+    justify-content: center;
+    flex: 1 1 0;
+    min-width: 0;
+    overflow-wrap: anywhere;
+    height: 100%;
+    box-sizing: border-box;
+    padding: 5px 10px;
+    display: flex;
+    align-items: center;
+    border-right: 2px dashed #00000014;
+}
+
+.edit-btn,
+.delete-pet-btn-form
+{
+    margin: 5px 0;
+    width: 100%;
+    text-align: center;
+}
+
+.edit-btn
+{
+    /*todo redo*/
+    background-color: #0f6000 !important;
+    color: white !important;
+    font-weight: bold;
+    text-align: center;
+}
+.delete-pet-btn-form button
+{
+    background-color: #8e2f2f;
+    color: white;
+    font-weight: bold;
+
+}
+
+.pet-table-header{
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-weight: bold;
+    padding: 10px;
+    background: #7f5454;
+    border-radius: 12px 12px 12px 12px;
+}
+
+.pet-image-space
+{
+    flex: 0 0 150px;
+}
+.pet-actions-space
+{
+    width: 220px;
+}
+
+.pet-image {
+    width: 150px;
+    height: 150px;
+    object-fit: cover;
+    padding-right: 15px;
+    flex: 0 0 150px;
+}
+
+.pet-name
+{
+    flex: 1.5;
+}
+
+.action-buttons
+{
+    display: flex;
+    flex-direction: column;
+    flex: 1.5;
+}
+
+.delete-button
+{
+    width: 100%;
+}
+
+@media (max-width: 1360px) {
+    .profile-header,
+    .pet-profile {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .service-list {
+        grid-template-columns: 1fr;
+    }
+
+    .section-heading {
+        align-items: flex-start;
+        flex-direction: column;
+        gap: 14px;
+    }
+
+    .pet-card > .pet-info
+    {
+        flex-direction: column;
+    }
+}

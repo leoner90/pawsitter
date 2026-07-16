@@ -1,5 +1,6 @@
 package lv.pawsitter.entity;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -16,53 +17,60 @@ import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
-import jakarta.persistence.OneToOne;
 import jakarta.persistence.PrePersist;
 import jakarta.persistence.Table;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "bookings")
-@Data
+@Getter
+@Setter
 @NoArgsConstructor
 public class Booking {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private Long id;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
-  @ManyToOne
-  @JoinColumn(name = "owner_profile_id", nullable = false)
-  private OwnerProfile owner;
+    @ManyToOne
+    @JoinColumn(name = "owner_profile_id", nullable = false)
+    private OwnerProfile owner;
 
-  @ManyToOne
-  @JoinColumn(name = "sitter_profile_id", nullable = false)
-  private SitterProfile sitter;
+    @ManyToOne
+    @JoinColumn(name = "sitter_profile_id", nullable = false)
+    private SitterProfile sitter;
 
-  @Column(nullable = false)
-  private LocalDateTime startDate;
+    @Column(nullable = false)
+    private LocalDateTime startDate;
 
-  @Column(nullable = false)
-  private LocalDateTime endDate;
+    @Column(nullable = false)
+    private LocalDateTime endDate;
 
-  @Column(nullable = false)
-  private LocalDateTime createdAt;
+    @Column(nullable = false)
+    private LocalDateTime createdAt;
 
-  @Enumerated(EnumType.STRING)
-  @Column(nullable = false)
-  private BookingStatus status = BookingStatus.REQUESTED;
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private BookingStatus status = BookingStatus.REQUESTED;
 
-  @ManyToMany
-  @JoinTable(name = "booking_pets", joinColumns = @JoinColumn(name = "booking_id"), inverseJoinColumns = @JoinColumn(name = "pet_id"))
-  private List<Pet> pets = new ArrayList<>();
+    @Column(length = 1000)
+    private String note = "";
 
-  @OneToOne(mappedBy = "booking")
-  private Review review;
+    @Column(nullable = false, precision = 10, scale = 2)
+    private BigDecimal pricePerDaySnapshot = BigDecimal.ZERO;
 
-  @PrePersist
-  public void setCreatedAt() {
-    this.createdAt = LocalDateTime.now();
-  }
+    @ManyToMany
+    @JoinTable(name = "booking_pets", joinColumns = @JoinColumn(name = "booking_id"), inverseJoinColumns = @JoinColumn(name = "pet_id"))
+    private List<Pet> pets = new ArrayList<>();
+
+    @OneToMany(mappedBy = "booking")
+    private List<Review> reviews = new ArrayList<>();
+
+    @PrePersist
+    public void setCreatedAt() {
+        this.createdAt = LocalDateTime.now();
+    }
 
 }

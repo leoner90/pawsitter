@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>PawSitter | Edit Booking</title>
+
+        <link rel="stylesheet" th:href="@{/css/mainStyle.css}">
+        <link rel="icon" type="image/x-icon" th:href="@{/images/favicon.ico}">
+    </head>
+    <body>
+        <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+        <main class="page-content profile-page">
+            <section class="profile-card booking-layout">
+                <div class="booking-summary">
+                    <img
+                            th:src="${sitter.imageUrl != null && !sitter.imageUrl.isBlank()
+                            ?  sitter.imageUrl
+                            : '/images/sittersImages/default-sitter.png'}"
+                            alt="Sitter profile"
+                            class="profile-image"
+                    >
+
+                    <div>
+                        <h1>Edit booking</h1>
+                        <h2 th:text="${booking.sitterName()}">Sitter name</h2>
+                        <p>
+                            <strong>Status:</strong>
+                            <span th:text="${booking.status()}">REQUESTED</span>
+                        </p>
+                        <p>
+                            <strong>Price:</strong>
+                            EUR <span th:text="${booking.pricePerDaySnapshot()}">25.00</span> per day
+                        </p>
+                    </div>
+                </div>
+
+                <form
+                        th:action="@{/owner/bookings/{id}/edit(id=${booking.id()})}"
+                        th:object="${bookingRequest}"
+                        method="post"
+                        class="booking-form"
+                >
+                    <div class="form-error" th:if="${#fields.hasGlobalErrors()}">
+                        <p th:each="error : ${#fields.globalErrors()}" th:text="${error}">Booking error</p>
+                    </div>
+
+                    <div class="form-row">
+                        <span class="form-label">Available dates</span>
+                        <div class="availability-summary" th:if="${!#lists.isEmpty(availabilityRanges)}">
+                            <span class="availability-range" th:each="availability : ${availabilityRanges}">
+                                <span th:text="${#temporals.format(availability.startDate, 'dd MMM yyyy')}">10 Aug 2026</span>
+                                -
+                                <span th:text="${#temporals.format(availability.endDate, 'dd MMM yyyy')}">12 Aug 2026</span>
+                            </span>
+                        </div>
+                        <p class="form-hint" th:if="${#lists.isEmpty(availabilityRanges)}">
+                            This sitter has no available date ranges.
+                        </p>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="startDate">Start date and time</label>
+                        <input id="startDate" type="datetime-local" th:field="*{startDate}">
+                        <p class="field-error" th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}">Start error</p>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="endDate">End date and time</label>
+                        <input id="endDate" type="datetime-local" th:field="*{endDate}">
+                        <p class="field-error" th:if="${#fields.hasErrors('endDate')}" th:errors="*{endDate}">End error</p>
+                    </div>
+
+                    <div class="form-row">
+                        <span class="form-label">Pets</span>
+
+                        <div class="pet-choice-list">
+                            <label class="pet-choice" th:each="pet : ${pets}">
+                                <input type="checkbox" th:field="*{petIds}" th:value="${pet.id}">
+                                <span>
+                                    <strong th:text="${pet.firstName}">Pet name</strong>
+                                    <small th:text="${pet.animalType + (pet.breed != null && !pet.breed.isBlank() ? ' - ' + pet.breed : '')}">
+                                        DOG
+                                    </small>
+                                </span>
+                            </label>
+                        </div>
+
+                        <p class="field-error" th:if="${#fields.hasErrors('petIds')}" th:errors="*{petIds}">Pet error</p>
+                    </div>
+
+                    <div class="form-row">
+                        <label for="note">Note</label>
+                        <textarea id="note" th:field="*{note}" rows="5" maxlength="1000"></textarea>
+                        <p class="field-error" th:if="${#fields.hasErrors('note')}" th:errors="*{note}">Note error</p>
+                    </div>
+
+                    <div class="form-actions">
+                        <button type="submit" class="button primary-button">
+                            Save changes
+                        </button>
+
+                        <a th:href="@{/owner/bookings}" class="button secondary-button">
+                            Cancel
+                        </a>
+                    </div>
+                </form>
+            </section>
+        </main>
+
+        <div th:replace="~{fragments/footer :: footer}"></div>
+    </body>
+</html>

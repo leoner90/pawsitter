@@ -16,7 +16,16 @@ jobs:
 
     steps:
       - name: Checkout code
+
         uses: actions/checkout@v5
+
+      - name: Create environment file
+        run: |
+          cat > .env <<EOF
+          MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
+          MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
+          DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          EOF
 
       - name: Validate Compose
         run: docker compose -f compose.yaml config

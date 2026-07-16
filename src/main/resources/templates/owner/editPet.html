@@ -1,0 +1,73 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PawSitter | Edit Pet</title>
+
+    <link rel="stylesheet" th:href="@{/css/mainStyle.css}">
+    <link rel="icon" type="image/x-icon" th:href="@{/images/favicon.ico}">
+</head>
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="page-content">
+    <section class="form-container">
+
+        <h1>Edit pet</h1>
+
+        <form th:action="@{/owner/pets/{id}/edit(id=${petId})}"
+              th:object="${petRequest}"
+              method="post"
+              enctype="multipart/form-data">
+
+            <label for="image">Pet image</label>
+            <input id="image" type="file" th:field="*{image}" accept="image/jpeg,image/png">
+            <p th:if="${#fields.hasErrors('image')}" th:errors="*{image}" class="form-error"></p>
+
+            <label for="firstName">Pet's first name</label>
+            <input id="firstName" type="text" th:field="*{firstName}">
+            <p th:if="${#fields.hasErrors('firstName')}" th:errors="*{firstName}" class="form-error"></p>
+
+            <label for="lastName">Pet's last name</label>
+            <input id="lastName" type="text" th:field="*{lastName}">
+            <p th:if="${#fields.hasErrors('lastName')}" th:errors="*{lastName}" class="form-error"></p>
+
+            <label for="nickName">Nickname</label>
+            <input id="nickName" type="text" th:field="*{nickName}">
+
+            <label for="animalType">Animal type</label>
+            <select id="animalType" th:field="*{animalType}">
+                <option value="">Select animal type</option>
+                <option value="DOG">Dog</option>
+                <option value="CAT">Cat</option>
+            </select>
+            <p th:if="${#fields.hasErrors('animalType')}" th:errors="*{animalType}" class="form-error"></p>
+
+            <label for="breed">Breed</label>
+            <input id="breed" type="text" th:field="*{breed}">
+
+            <label for="age">Age</label>
+            <input id="age" type="number" th:field="*{age}">
+            <p th:if="${#fields.hasErrors('age')}" th:errors="*{age}" class="form-error"></p>
+
+            <label for="description">Description</label>
+            <textarea id="description" th:field="*{description}" rows="5"></textarea>
+            <p th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="form-error"></p>
+
+            <label for="specialNeeds">Special needs</label>
+            <textarea id="specialNeeds" th:field="*{specialNeeds}" rows="4"></textarea>
+
+            <button type="submit" class="button primary-button">Save changes</button>
+            <a th:href="@{/owner/profile}" class="button secondary-button">Cancel</a>
+
+        </form>
+    </section>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

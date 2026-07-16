@@ -1,5 +1,6 @@
 package lv.pawsitter.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.DecimalMin;
 import lombok.Getter;
@@ -20,6 +21,7 @@ public class SitterProfile
 
     @OneToOne(optional = false)
     @JoinColumn(name = "user_id", nullable = false, unique = true)
+    @JsonBackReference
     private User user;
 
     @Column(nullable = false)
