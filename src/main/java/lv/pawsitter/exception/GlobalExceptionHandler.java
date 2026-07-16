@@ -102,6 +102,12 @@ public class GlobalExceptionHandler  {
         return buildResponse(HttpStatus.INTERNAL_SERVER_ERROR, "An unexpected error occurred");
     }
 
+    @ExceptionHandler(jakarta.validation.ConstraintViolationException.class)
+    public ResponseEntity<ErrorResponse> handleConstraintViolation(jakarta.validation.ConstraintViolationException exception) {
+        log.warn("Constraint violation: {}", exception.getMessage());
+        return buildResponse(HttpStatus.BAD_REQUEST, exception.getMessage());
+    }
+
     @Getter
     @AllArgsConstructor
     public static class ErrorResponse
