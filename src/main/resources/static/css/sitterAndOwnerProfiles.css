@@ -190,9 +190,7 @@
 
 }
 
-.pet-table-header
-{
-    color: white;
+.pet-table-header{
     display: flex;
     align-items: center;
     gap: 5px;
@@ -200,7 +198,6 @@
     padding: 10px;
     background: #7f5454;
     border-radius: 12px 12px 12px 12px;
-    color: #7f5454;
 }
 strong {
     color: white;

@@ -1,72 +1,75 @@
 <!DOCTYPE html>
 <html lang="en" xmlns:th="http://www.thymeleaf.org">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-        <title>PawSitter | Home</title>
+    <title>PawSitter | Home</title>
 
-        <link rel="stylesheet" th:href="@{/css/mainStyle.css}">
-        <link rel="icon" type="image/x-icon" th:href="@{/images/favicon.ico}">
-    </head>
-    <body>
-        <div th:replace="~{fragments/navbar :: navbar}"></div>
+    <link rel="stylesheet" th:href="@{/css/landingPageStyle.css}">
+    <link rel="icon" type="image/x-icon" th:href="@{/images/favicon.ico}">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
 
-        <main class="page-content">
-            <section class="sitters-section">
-                <div class="section-heading">
-                    <div>
-                        <h2>Available pet sitters</h2>
-                        <p>Find someone trustworthy to care for your pet.</p>
-                    </div>
-                </div>
+<main class="page-content">
+    <section class="hero-section">
+        <div class="hero-content">
+            <h2>Find trusted pet sitters near you</h2>
+            <p>We promise love and care for when you are not there.</p>
+            <div class="hero-buttons">
+                <a th:href="@{/sittersSearch.html}" class="button primary-button">Find Sitters</a>
+                <a href="#how-it-works" class="button secondary-button">How We Work</a>
+            </div>
+        </div>
 
-                <div class="sitter-grid" th:if="${!#lists.isEmpty(sitters)}">
-                    <article class="sitter-card" th:each="sitter : ${sitters}">
+        <div class="hero-image-wrapper">
+            <img th:src="@{/images/landingPageImages/landingPageImage1.jpg}"
+                 class="hero-image"
+                 alt="Pet sitter with a happy dog">
+        </div>
+    </section>
 
-                        <img th:src="${sitter.imageUrl != null && !sitter.imageUrl.isBlank()
-                            ?  sitter.imageUrl
-                            : '/images/sittersImages/default-sitter.png'}"
-                                alt="Sitter profile"
-                                class="sitter-card-image"
-                        >
+    <hr class="landingHr">
 
-                        <div class="sitter-card-content">
-                            <h3 th:text="${sitter.user.firstName + ' ' + sitter.user.lastName}">
-                                Sitter name
-                            </h3>
+    <section class="how-it-works-section" id="how-it-works">
+        <div class="how-it-works-title">
+            <h1>How we work</h1>
+        </div>
+        <div class="how-it-works-grid">
 
-                            <p>
-                                <strong>Location:</strong>
-                                <span th:text="${sitter.location}">Default location</span>
-                            </p>
+            <div class="how-it-works-card">
+                <img th:src="@{/images/landingPageImages/searchIcon.png}"
+                     class="how-it-works-icon"
+                     alt="Search icon">
+                <h4><a href="#" class="how-it-works-link">Search Sitter</a></h4>
+            </div>
 
-                            <p class="sitter-description" th:text="${sitter.description}">
-                                Sitter description
-                            </p>
+            <div class="how-it-works-card">
+                <img th:src="@{/images/landingPageImages/bookIcon.png}"
+                     class="how-it-works-icon"
+                     alt="Book icon">
+                <h4><a href="#" class="how-it-works-link">Book &amp; Pay</a></h4>
+            </div>
 
-                            <p class="sitter-price">
-                                From
-                                <strong>
-                                    €<span th:text="${sitter.pricePerDay}">0.00</span>
-                                </strong>
-                                per day
-                            </p>
+            <div class="how-it-works-card">
+                <img th:src="@{/images/landingPageImages/careIcon.png}"
+                     class="how-it-works-icon"
+                     alt="Care icon">
+                <h4><a href="#" class="how-it-works-link">Care &amp; Enjoy</a></h4>
+            </div>
 
-                            <a th:href="@{/sitters/{id}(id=${sitter.id})}" class="button primary-button">
-                                View profile
-                            </a>
-                        </div>
-                    </article>
-                </div>
+            <div class="how-it-works-card">
+                <img th:src="@{/images/landingPageImages/reviewIcon.png}"
+                     class="how-it-works-icon"
+                     alt="Review icon">
+                <h4><a href="#" class="how-it-works-link">Review the Service</a></h4>
+            </div>
 
-                <div class="empty-state" th:if="${#lists.isEmpty(sitters)}">
-                    <h3>No sitters available yet</h3>
-                    <p>New sitter profiles will appear here.</p>
-                </div>
-            </section>
-        </main>
+        </div>
+    </section>
+</main>
 
-        <div th:replace="~{fragments/footer :: footer}"></div>
-    </body>
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
 </html>
