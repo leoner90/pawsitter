@@ -32,10 +32,10 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 @WebMvcTest(BookingController.class)
@@ -51,10 +51,10 @@ class BookingControllerTests {
   @Autowired
   private ObjectMapper objectMapper;
 
-  @MockBean
+  @MockitoBean
   private BookingService bookingService;
 
-  @MockBean
+  @MockitoBean
   private JwtAuthenticationFilter jwtAuthenticationFilter;
 
   @Test
@@ -64,9 +64,9 @@ class BookingControllerTests {
     when(bookingService.createBooking(eq(USER_EMAIL), any(CreateBookingRequest.class))).thenReturn(response);
 
     mockMvc.perform(post("/bookings")
-            .principal(authentication())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)))
+        .principal(authentication())
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isCreated())
         .andExpect(jsonPath("$.id").value(response.id()))
         .andExpect(jsonPath("$.status").value(BookingStatus.REQUESTED.name()))
@@ -85,9 +85,9 @@ class BookingControllerTests {
   @MethodSource("invalidCreateRequests")
   void createBookingRejectsInvalidRequest(CreateBookingRequest request) throws Exception {
     mockMvc.perform(post("/bookings")
-            .principal(authentication())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)))
+        .principal(authentication())
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isBadRequest());
 
     verify(bookingService, never()).createBooking(any(), any());
@@ -112,9 +112,9 @@ class BookingControllerTests {
     when(bookingService.updateBooking(eq(100L), eq(USER_EMAIL), any(UpdateBookingRequest.class))).thenReturn(response);
 
     mockMvc.perform(put("/bookings/{id}", 100L)
-            .principal(authentication())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)))
+        .principal(authentication())
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.id").value(100L));
 
@@ -131,9 +131,9 @@ class BookingControllerTests {
     UpdateBookingRequest request = new UpdateBookingRequest();
 
     mockMvc.perform(put("/bookings/{id}", 100L)
-            .principal(authentication())
-            .contentType(MediaType.APPLICATION_JSON)
-            .content(objectMapper.writeValueAsString(request)))
+        .principal(authentication())
+        .contentType(MediaType.APPLICATION_JSON)
+        .content(objectMapper.writeValueAsString(request)))
         .andExpect(status().isBadRequest());
 
     verify(bookingService, never()).updateBooking(any(), any(), any());
@@ -145,8 +145,8 @@ class BookingControllerTests {
     when(bookingService.getOwnerBookings(USER_EMAIL, BookingStatus.ACCEPTED)).thenReturn(List.of(response));
 
     mockMvc.perform(get("/bookings/my")
-            .principal(authentication())
-            .param("status", BookingStatus.ACCEPTED.name()))
+        .principal(authentication())
+        .param("status", BookingStatus.ACCEPTED.name()))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$[0].id").value(100L))
         .andExpect(jsonPath("$[0].status").value(BookingStatus.ACCEPTED.name()));
