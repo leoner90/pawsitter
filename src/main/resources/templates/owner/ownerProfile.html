@@ -75,11 +75,46 @@
                 </div>
 
                 <div th:if="${!#lists.isEmpty(owner.pets)}" class="pet-grid">
+                    <div class="pet-table-header">
+                        <span class="pet-image-space"></span>
+
+                        <div class="pet-info">
+                            <strong>Name</strong>
+                            <strong>Type</strong>
+                            <strong>Breed</strong>
+                            <strong>Age</strong>
+                            <strong class="pet-description">Description</strong>
+                            <strong>Special needs</strong>
+                            <strong></strong>
+                        </div>
+                    </div>
+
+                        <span class="pet-actions-space"></span>
+                    </div>
                     <article class="pet-card" th:each="pet : ${owner.pets}">
-                        <hr>
-                        <h3 th:text="${pet.firstName}">Pet name</h3>
-                        <p th:text="${pet.animalType}">Animal type</p>
-                        <p th:text="${pet.breed}">Breed</p>
+                        <img th:src="${pet.imageUrl != null && !pet.imageUrl.isBlank()
+                            ? pet.imageUrl
+                            : '/images/petsImages/default-pet.png'}"
+                            alt="PetImg"  class="pet-image">
+                        <div class="pet-info">
+                            <h3 class="pet-name" th:text="${pet.firstName + ' ' + pet.lastName}">Pet name</h3>
+                            <p th:text="${pet.animalType}">Animal type</p>
+                            <p th:text="${pet.breed}">Breed</p>
+                            <p th:text="${pet.age}">Age</p>
+                            <p class="pet-description" th:text="${pet.description}">Description</p>
+                            <p th:text="${pet.specialNeeds}">Special needs</p>
+                            <div class="action-buttons">
+                                <a th:href="@{/owner/pets/{id}/edit(id=${pet.id})}" class="button secondary-button edit-btn">
+                                    Edit
+                                </a>
+
+                                <form class="delete-pet-btn-form" th:action="@{/owner/pets/{id}/delete(id=${pet.id})}" method="post">
+                                    <button type="submit" class="button delete-button ">Delete</button>
+                                </form>
+                            </div>
+                        </div>
+
+
                     </article>
                 </div>
             </section>

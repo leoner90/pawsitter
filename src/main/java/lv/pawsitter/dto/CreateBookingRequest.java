@@ -11,6 +11,7 @@ import java.util.List;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import org.springframework.format.annotation.DateTimeFormat;
 
 @Getter
 @Setter
@@ -22,9 +23,11 @@ public class CreateBookingRequest
 
     @NotNull(message = "Start date is required")
     @FutureOrPresent(message = "Start date cannot be in the past")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime startDate;
 
     @NotNull(message = "End date is required")
+    @DateTimeFormat(iso = DateTimeFormat.ISO.DATE_TIME)
     private LocalDateTime endDate;
 
     @NotEmpty(message = "Select at least one pet")

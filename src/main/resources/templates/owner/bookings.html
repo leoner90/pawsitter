@@ -1,0 +1,128 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+        <title>PawSitter | My Bookings</title>
+
+        <link rel="stylesheet" th:href="@{/css/mainStyle.css}">
+        <link rel="icon" type="image/x-icon" th:href="@{/images/favicon.ico}">
+    </head>
+    <body>
+        <div th:replace="~{fragments/navbar :: navbar}"></div>
+
+        <main class="page-content profile-page">
+            <section class="profile-card">
+                <div class="section-heading">
+                    <div>
+                        <h1>My bookings</h1>
+                        <p>Track booking requests and upcoming sitter visits.</p>
+                    </div>
+
+                    <a th:href="@{/}" class="button secondary-button">Find sitters</a>
+                </div>
+
+                <div class="success-message" th:if="${bookingSuccess}" th:text="${bookingSuccess}">
+                    Booking updated.
+                </div>
+
+                <div class="form-error" th:if="${bookingError}" th:text="${bookingError}">
+                    Booking error.
+                </div>
+
+                <div class="status-filter">
+                    <a th:href="@{/owner/bookings}" th:classappend="${selectedStatus == null} ? ' active-filter'">
+                        All
+                    </a>
+                    <a
+                            th:each="status : ${statuses}"
+                            th:href="@{/owner/bookings(status=${status})}"
+                            th:text="${status}"
+                            th:classappend="${selectedStatus == status} ? ' active-filter'"
+                    >
+                        REQUESTED
+                    </a>
+                </div>
+
+                <div th:if="${#lists.isEmpty(bookings)}" class="empty-state">
+                    <h3>No bookings found</h3>
+                    <p>Your booking requests will appear here.</p>
+                </div>
+
+                <div class="booking-list" th:if="${!#lists.isEmpty(bookings)}">
+                    <article class="booking-card" th:each="bookingView : ${bookings}" th:with="booking=${bookingView.booking()}">
+                        <div class="booking-card-header">
+                            <div>
+                                <h2 th:text="${booking.sitterName()}">Sitter name</h2>
+                                <p>
+                                    <span th:text="${#temporals.format(booking.startDate(), 'dd MMM yyyy HH:mm')}">
+                                        10 Aug 2026 09:00
+                                    </span>
+                                    -
+                                    <span th:text="${#temporals.format(booking.endDate(), 'dd MMM yyyy HH:mm')}">
+                                        12 Aug 2026 18:00
+                                    </span>
+                                </p>
+                            </div>
+
+                            <span class="status-badge" th:text="${booking.status()}">REQUESTED</span>
+                        </div>
+
+                        <dl class="booking-details">
+                            <div>
+                                <dt>Pets</dt>
+                                <dd>
+                                    <span th:each="petName, iter : ${bookingView.petNames()}">
+                                        <span th:text="${petName}">
+                                            Pet name
+                                        </span><span th:if="${!iter.last}">, </span>
+                                    </span>
+                                </dd>
+                            </div>
+                            <div>
+                                <dt>Price snapshot</dt>
+                                <dd>EUR <span th:text="${booking.pricePerDaySnapshot()}">25.00</span> per day</dd>
+                            </div>
+                            <div>
+                                <dt>Note</dt>
+                                <dd th:text="${booking.note() != null && !booking.note().isBlank() ? booking.note() : 'No note'}">
+                                    No note
+                                </dd>
+                            </div>
+                        </dl>
+
+                        <div class="form-actions">
+                            <a
+                                    th:href="@{/owner/bookings/{id}(id=${booking.id()})}"
+                                    class="button secondary-button"
+                            >
+                                View details
+                            </a>
+
+                            <a
+                                    th:if="${booking.status().name() == 'REQUESTED'}"
+                                    th:href="@{/owner/bookings/{id}/edit(id=${booking.id()})}"
+                                    class="button secondary-button"
+                            >
+                                Edit
+                            </a>
+
+                            <form
+                                    th:if="${booking.status().name() == 'REQUESTED' || booking.status().name() == 'ACCEPTED'}"
+                                    th:action="@{/owner/bookings/{id}/cancel(id=${booking.id()})}"
+                                    method="post"
+                            >
+                                <button type="submit" class="button danger-button">
+                                    Cancel
+                                </button>
+                            </form>
+                        </div>
+                    </article>
+                </div>
+            </section>
+        </main>
+
+        <div th:replace="~{fragments/footer :: footer}"></div>
+    </body>
+</html>
