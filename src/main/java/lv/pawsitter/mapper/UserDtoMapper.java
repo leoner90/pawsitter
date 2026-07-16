@@ -27,11 +27,13 @@ public class UserDtoMapper implements Converter<User, UserCreateDTO, UserDTO> {
 //                user.getSitterProfile() != null ? user.getSitterProfile().getId() : null,
                 user.getCreatedAt());
     }
+
     /**
      * Converts a UserCreateDTO into a User entity.
      *
      * @param dto the DTO containing user creation data
-     * @return the new User entity */
+     * @return the new User entity
+     */
     @Override
     public User dtoToEntity(UserCreateDTO dto) {
         return new User();
