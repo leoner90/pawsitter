@@ -13,6 +13,7 @@ import lv.pawsitter.exception.UserNotFoundException;
 import lv.pawsitter.repository.SitterProfileRepository;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -51,6 +52,7 @@ public class SitterProfileServiceImpl implements SitterProfileService
 
     //return only Published Sitters
     @Override
+    @Transactional
     public List<SitterProfile> getPublishedSitters()
     {
         List<SitterProfile> publishedSitters = sitterProfileRepository.findByPublishedTrue();
@@ -77,6 +79,7 @@ public class SitterProfileServiceImpl implements SitterProfileService
 
     //Update Profile
     @Override
+    @Transactional
     public void updateProfile(String email, SitterProfileUpdateDTO dto)
     {
         SitterProfile sitterProfile = getProfileByUserEmail(email);
@@ -100,6 +103,7 @@ public class SitterProfileServiceImpl implements SitterProfileService
 
     //ad available dates to DB
     @Override
+    @Transactional
     public void addAvailability(String email, SitterAvailabilityRequest request)
     {
         SitterProfile sitterProfile = getProfileByUserEmail(email);
@@ -144,6 +148,7 @@ public class SitterProfileServiceImpl implements SitterProfileService
 
     //Get Available Dates From Db
     @Override
+    @Transactional(readOnly = true)
     public List<SitterAvailability> getAvailability(String email)
     {
         SitterProfile sitterProfile = getProfileByUserEmail(email);
@@ -152,6 +157,7 @@ public class SitterProfileServiceImpl implements SitterProfileService
     }
 
     @Override
+    @Transactional(readOnly = true)
     public List<SitterAvailability> getAvailabilityBySitterId(Long sitterId)
     {
         return sitterAvailabilityRepository.findBySitterProfileIdAndEndDateGreaterThanEqualOrderByStartDateAsc(
@@ -162,6 +168,7 @@ public class SitterProfileServiceImpl implements SitterProfileService
 
     //Remove Available date
     @Override
+    @Transactional
     public void deleteAvailability(String email, Long availabilityId)
     {
         SitterProfile sitterProfile = getProfileByUserEmail(email);
@@ -190,6 +197,7 @@ public class SitterProfileServiceImpl implements SitterProfileService
 
     //Try to publish and errors check using DTO (SitterPublishDTO)
     @Override
+    @Transactional
     public void publishProfile(String email)
     {
         SitterProfile sitterProfile = getProfileByUserEmail(email);
@@ -227,6 +235,7 @@ public class SitterProfileServiceImpl implements SitterProfileService
 
     //Unpublish Profile
     @Override
+    @Transactional
     public void unpublishProfile(String email)
     {
         SitterProfile sitterProfile = getProfileByUserEmail(email);
@@ -236,6 +245,7 @@ public class SitterProfileServiceImpl implements SitterProfileService
 
     //search
     @Override
+    @Transactional(readOnly = true)
     public List<SitterProfile> findFullyAvailableSitters(LocalDate startDate, LocalDate endDate)
     {
         if (endDate.isBefore(startDate))
@@ -248,6 +258,7 @@ public class SitterProfileServiceImpl implements SitterProfileService
 
     //partial search
     @Override
+    @Transactional(readOnly = true)
     public List<SitterProfile> findPartiallyAvailableSitters(LocalDate startDate, LocalDate endDate)
     {
         if (endDate.isBefore(startDate))
