@@ -2,7 +2,7 @@ package lv.pawsitter.client;
 
 import lombok.extern.slf4j.Slf4j;
 import lv.pawsitter.configuration.MailerSendProperties;
-import org.springframework.http.MediaType;
+import lv.pawsitter.exception.ClientException;
 import org.springframework.stereotype.Component;
 import org.springframework.web.reactive.function.client.WebClient;
 import org.springframework.web.reactive.function.client.WebClientRequestException;
@@ -11,6 +11,8 @@ import reactor.core.publisher.Mono;
 import reactor.util.retry.Retry;
 
 import java.time.Duration;
+import java.util.List;
+import java.util.Map;
 
 @Component
 @Slf4j
@@ -28,22 +30,20 @@ public class EmailWebClientImpl implements EmailWebClient {
 
     @Override
     public Mono<String> sendEmail(String email, String subject, String text) {
-        String body = String.format("""
-        {
-          "from": {
-            "email": "noreply@test-86org8ej9pegew13.mlsender.net"
-          },
-          "to": [
-            { "email": "%s" }
-          ],
-          "subject": "%s",
-          "text": "%s"
-        }
-        """, email, subject, text);
+        Map<String, Object> body = Map.of(
+                "from", Map.of(
+                        "email", "noreply@test-86org8ej9pegew13.mlsender.net",
+                        "name", "PawSitter"
+                ),
+                "to", List.of(
+                        Map.of("email", email)
+                ),
+                "subject", subject,
+                "text", text
+        );
 
         return webClient.post()
                 .uri("/email")
-                .contentType(MediaType.APPLICATION_JSON)
                 .bodyValue(body)
                 .retrieve()
                 .bodyToMono(String.class)
@@ -54,9 +54,11 @@ public class EmailWebClientImpl implements EmailWebClient {
                                         ex instanceof WebClientResponseException.ServiceUnavailable ||
                                         ex instanceof WebClientRequestException)
                 )
-                .onErrorResume(ex -> {
-                    log.error("Email sending failed: {}", ex.getMessage());
-                    return Mono.error(new RuntimeException("Email sending failed: " + ex.getMessage(), ex));
-                });
+                .onErrorResume(WebClientResponseException.class, ex ->
+                        Mono.error(new ClientException("External API returned error: " + ex.getStatusCode(), ex))
+                )
+                .onErrorResume(WebClientRequestException.class, ex ->
+                        Mono.error(new ClientException("External API unreachable: " + ex.getMessage(), ex))
+                );
     }
 }
