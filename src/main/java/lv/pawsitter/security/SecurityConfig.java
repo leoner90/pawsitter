@@ -64,6 +64,7 @@ public class SecurityConfig {
                         .requestMatchers("/sitter/**").hasAuthority("SITTER")
                         .requestMatchers("/admin/**").hasAuthority("ADMIN")
                         .requestMatchers("/sitters/**").authenticated()
+                        .requestMatchers("/dashboard").authenticated()
                         .anyRequest().denyAll()
                 )
 
@@ -75,7 +76,7 @@ public class SecurityConfig {
                         .loginPage("/login")
                         .usernameParameter("email")
                         .passwordParameter("password")
-                        .defaultSuccessUrl("/", true)
+                        .defaultSuccessUrl("/dashboard", true)
                         .failureUrl("/login?error")
                         .permitAll()
                 )
