@@ -35,9 +35,11 @@ services:
       DB_URL: jdbc:mysql://mysql:3306/pawsitter
       DB_USERNAME: pawsitter
       DB_PASSWORD: ${DB_PASSWORD}
+      JWT_SECRET: ${JWT_SECRET}
+      MAILERSEND_TOKEN: ${MAILERSEND_TOKEN}
 
-    ports:
-      - "3400:3400"
+#    ports:
+#      - "3400:3400"
 
     depends_on:
       mysql:
