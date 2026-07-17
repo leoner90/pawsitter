@@ -1,8 +1,10 @@
 package lv.pawsitter.controller;
 
 import lombok.RequiredArgsConstructor;
+import lv.pawsitter.entity.OwnerProfile;
 import lv.pawsitter.entity.SitterProfile;
 import lv.pawsitter.service.*;
+import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -18,6 +20,8 @@ import java.util.List;
 public class PageController
 {
     private final SitterProfileService sitterProfileService;
+    private final OwnerProfileService ownerProfileService;
+    private final BookingService bookingService;
 
     //Home Page
     @GetMapping("/")
@@ -25,6 +29,36 @@ public class PageController
     {
         model.addAttribute("sitters",sitterProfileService.getPublishedSitters());
         return "index";
+    }
+    @GetMapping("/dashboard")
+    public String dashboardRedirect(Authentication authentication)
+    {
+        boolean isSitter = authentication.getAuthorities().stream()
+                .anyMatch(authority -> authority.getAuthority().equals("SITTER"));
+
+        return isSitter ? "redirect:/sitter/dashboard" : "redirect:/owner/dashboard";
+    }
+
+    @GetMapping("/owner/dashboard")
+    public String ownerDashboard(Authentication authentication, Model model)
+    {
+        OwnerProfile ownerProfile = ownerProfileService.getProfileByUserEmail(authentication.getName());
+        model.addAttribute("firstName", ownerProfile.getUser().getFirstName());
+        model.addAttribute("petCount", ownerProfile.getPets().size());
+        model.addAttribute("bookingCount", bookingService.getOwnerBookings(authentication.getName(), null).size());
+        model.addAttribute("location", ownerProfile.getLocation());
+        return "owner/ownerDashboard";
+    }
+
+    @GetMapping("/sitter/dashboard")
+    public String sitterDashboard(Authentication authentication, Model model)
+    {
+        SitterProfile sitterProfile = sitterProfileService.getProfileByUserEmail(authentication.getName());
+        model.addAttribute("firstName", sitterProfile.getUser().getFirstName());
+        model.addAttribute("published", sitterProfile.isPublished());
+        model.addAttribute("pricePerDay", sitterProfile.getPricePerDay());
+        model.addAttribute("availabilityCount", sitterProfileService.getAvailability(authentication.getName()).size());
+        return "sitter/sitterDashboard";
     }
 
     //Sitters Details Page For Booking( not part of sitter profile)
