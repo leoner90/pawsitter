@@ -10,8 +10,8 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
 
-    ports:
-      - "3306:3306"
+#    ports:
+#      - "3306:3306"
 
     volumes:
       - pawsitter-mysql-data:/var/lib/mysql
@@ -38,8 +38,8 @@ services:
       JWT_SECRET: ${JWT_SECRET}
       MAILERSEND_TOKEN: ${MAILERSEND_TOKEN}
 
-#    ports:
-#      - "3400:3400"
+    ports:
+      - "3400:3400"
 
     depends_on:
       mysql:
