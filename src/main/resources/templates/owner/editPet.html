@@ -3,18 +3,29 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PawSitter | Add Pet</title>
+
+    <title>PawSitter | Edit Pet</title>
+
     <link rel="stylesheet" th:href="@{/css/mainStyle.css}">
     <link rel="icon" type="image/x-icon" th:href="@{/images/favicon.ico}">
 </head>
 <body>
+
 <div th:replace="~{fragments/navbar :: navbar}"></div>
 
 <main class="page-content">
     <section class="form-container">
-        <h1>Add a pet</h1>
 
-        <form th:action="@{/owner/pets/add}" th:object="${petRequest}" method="post" enctype="multipart/form-data">
+        <h1>Edit pet</h1>
+
+        <form th:action="@{/owner/pets/{id}/edit(id=${petId})}"
+              th:object="${petRequest}"
+              method="post"
+              enctype="multipart/form-data">
+
+            <label for="image">Pet image</label>
+            <input id="image" type="file" th:field="*{image}" accept="image/jpeg,image/png">
+            <p th:if="${#fields.hasErrors('image')}" th:errors="*{image}" class="form-error"></p>
 
             <label for="firstName">Pet's first name</label>
             <input id="firstName" type="text" th:field="*{firstName}">
@@ -43,21 +54,20 @@
             <p th:if="${#fields.hasErrors('age')}" th:errors="*{age}" class="form-error"></p>
 
             <label for="description">Description</label>
-            <input id="description" type="text" th:field="*{description}">
+            <textarea id="description" th:field="*{description}" rows="5"></textarea>
             <p th:if="${#fields.hasErrors('description')}" th:errors="*{description}" class="form-error"></p>
 
             <label for="specialNeeds">Special needs</label>
-            <input id="specialNeeds" type="text" th:field="*{specialNeeds}">
+            <textarea id="specialNeeds" th:field="*{specialNeeds}" rows="4"></textarea>
 
-            <label for="image">Image URL</label>
-            <input id="image" type="file" th:field="*{image}" accept="image/jpeg,image/png">
-            <p th:if="${#fields.hasErrors('image')}" th:errors="*{image}" class="form-error"></p>
+            <button type="submit" class="button primary-button">Save changes</button>
+            <a th:href="@{/owner/profile}" class="button secondary-button">Cancel</a>
 
-            <button type="submit" class="button primary-button">Add pet</button>
         </form>
     </section>
 </main>
 
 <div th:replace="~{fragments/footer :: footer}"></div>
+
 </body>
 </html>

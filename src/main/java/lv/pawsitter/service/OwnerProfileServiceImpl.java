@@ -5,6 +5,7 @@ import lombok.extern.slf4j.Slf4j;
 import lv.pawsitter.dto.OwnerProfileUpdateDTO;
 import lv.pawsitter.entity.OwnerProfile;
 import lv.pawsitter.entity.User;
+import lv.pawsitter.exception.UserNotFoundException;
 import lv.pawsitter.repository.OwnerProfileRepository;
 import lv.pawsitter.repository.UserRepository;
 import org.springframework.stereotype.Service;
@@ -17,12 +18,13 @@ public class OwnerProfileServiceImpl implements OwnerProfileService
 {
     private final OwnerProfileRepository ownerProfileRepository;
     private final UserRepository userRepository;
+    private final ImageStorageService imageStorageService;
 
     @Override
     public OwnerProfile getProfileByUserEmail(String email)
     {
         return ownerProfileRepository.findByUserEmail(email.trim().toLowerCase())
-                .orElseThrow(() -> new IllegalArgumentException("Owner profile not found"));
+                .orElseThrow(() -> new UserNotFoundException("Owner profile not found"));
     }
 
     @Override
@@ -38,7 +40,14 @@ public class OwnerProfileServiceImpl implements OwnerProfileService
 
         ownerProfile.setLocation(dto.location());
         ownerProfile.setDescription(dto.description());
-        ownerProfile.setImageUrl(dto.imageUrl());
+
+        if (dto.image() != null && !dto.image().isEmpty())
+        {
+            String oldImageUrl = ownerProfile.getImageUrl();
+            String newImageUrl = imageStorageService.saveOwnerImage(dto.image());
+            imageStorageService.deleteOwnerImage(oldImageUrl);
+            ownerProfile.setImageUrl(newImageUrl);
+        }
 
         log.info("Updated owner profile with the email: {}", email);
         return ownerProfileRepository.save(ownerProfile);

@@ -5,6 +5,9 @@ import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+
+import lv.pawsitter.exception.PetNotFoundException;
+import lv.pawsitter.exception.UserNotFoundException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -36,9 +39,11 @@ public class BookingServiceImpl implements BookingService {
   @Override
   @Transactional
   public BookingResponse createBooking(String ownerEmail, CreateBookingRequest request) {
+    requireRequest(request, "Booking request must not be null");
     OwnerProfile owner = getOwnerByEmail(ownerEmail);
+    Long sitterId = requireId(request.getSitterId(), "Sitter id must not be null");
 
-    SitterProfile sitter = sitterProfileRepository.findById(request.getSitterId())
+    SitterProfile sitter = sitterProfileRepository.findById(sitterId)
         .orElseThrow(() -> new InvalidBookingOperationException("Sitter profile not found"));
 
     if (owner.getUser().getId().equals(sitter.getUser().getId())) {
@@ -79,6 +84,7 @@ public class BookingServiceImpl implements BookingService {
   @Override
   @Transactional
   public BookingResponse updateBooking(Long bookingId, String ownerEmail, UpdateBookingRequest request) {
+    requireRequest(request, "Update booking request must not be null");
     Booking booking = getBooking(bookingId);
     requireOwner(booking, ownerEmail);
 
@@ -212,18 +218,18 @@ public class BookingServiceImpl implements BookingService {
   }
 
   private Booking getBooking(Long id) {
-    return bookingRepository.findById(id)
+    return bookingRepository.findById(requireId(id, "Booking id must not be null"))
         .orElseThrow(() -> new BookingNotFoundException("Booking not found"));
   }
 
   private OwnerProfile getOwnerByEmail(String email) {
     return ownerProfileRepository.findByUserEmail(normalizeEmail(email))
-        .orElseThrow(() -> new InvalidBookingOperationException("Owner profile not found"));
+        .orElseThrow(() -> new UserNotFoundException("Owner profile not found"));
   }
 
   private SitterProfile getSitterByEmail(String email) {
     return sitterProfileRepository.findByUserEmail(normalizeEmail(email))
-        .orElseThrow(() -> new InvalidBookingOperationException("Sitter profile not found"));
+        .orElseThrow(() -> new UserNotFoundException("Sitter profile not found"));
   }
 
   private void requireParticipant(Booking booking, String email) {
@@ -255,6 +261,10 @@ public class BookingServiceImpl implements BookingService {
   }
 
   private String normalizeEmail(String email) {
+    if (email == null || email.isBlank()) {
+      throw new InvalidBookingOperationException("Email must not be blank");
+    }
+
     return email.trim().toLowerCase();
   }
 
@@ -271,7 +281,23 @@ public class BookingServiceImpl implements BookingService {
   }
 
   private Pet getOwnerPet(Long petId, OwnerProfile owner) {
-    return petRepository.findByIdAndOwnerProfileId(petId, owner.getId())
-        .orElseThrow(() -> new InvalidBookingOperationException("Pet not found for this owner"));
+    return petRepository.findByIdAndOwnerProfileId(requireId(petId, "Pet id must not be null"), owner.getId())
+        .orElseThrow(() -> new PetNotFoundException("Pet not found for this owner"));
+  }
+
+  private <T> T requireRequest(T request, String message) {
+    if (request == null) {
+      throw new InvalidBookingOperationException(message);
+    }
+
+    return request;
+  }
+
+  private Long requireId(Long id, String message) {
+    if (id == null) {
+      throw new InvalidBookingOperationException(message);
+    }
+
+    return id;
   }
 }
