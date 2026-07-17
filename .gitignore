@@ -4,6 +4,8 @@ target/
 !**/src/main/**/target/
 !**/src/test/**/target/
 
+.env
+
 ### Do not commit images of sitters/owner/pets apart of default one ###
 src/main/resources/static/images/sittersImages/*
 !src/main/resources/static/images/sittersImages/default-sitter.png

@@ -21,6 +21,29 @@
                     </div>
                 </div>
 
+                <!--  Search -->
+                <p class="form-error" th:if="${searchError}" th:text="${searchError}"></p>
+
+                <form th:action="@{/sitters/search}" method="get" class="sitter-search-form">
+                    <div>
+                        <label for="startDate">From</label>
+                        <input id="startDate" name="startDate" type="date" th:value="${startDate}" th:min="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}" required>
+                    </div>
+
+                    <div>
+                        <label for="endDate">To</label>
+                        <input id="endDate" name="endDate" type="date" th:value="${endDate}" th:min="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}" required>
+                    </div>
+
+                    <div class="partial-search-option">
+                        <input id="includePartial" name="includePartial" type="checkbox" value="true" th:checked="${includePartial}">
+                        <label for="includePartial">Include partially available sitters</label>
+                    </div>
+
+
+                    <button type="submit" class="button primary-button">Search</button>
+                </form>
+
                 <div class="sitter-grid" th:if="${!#lists.isEmpty(sitters)}">
                     <article class="sitter-card" th:each="sitter : ${sitters}">
 
