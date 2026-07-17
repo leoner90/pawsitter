@@ -154,6 +154,29 @@ main{
     border-radius: 16px;
 }
 
+.availability-summary {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+}
+
+.availability-range {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 12px;
+    border: 1px solid #d9caca;
+    border-radius: 8px;
+    background: #f8f2f2;
+}
+
+.form-hint {
+    margin: 8px 0 0;
+    color: #6f5555;
+}
+
+
+
 @media (max-width: 900px) {
     .sitter-grid {
         grid-template-columns: repeat(2, minmax(0, 1fr));

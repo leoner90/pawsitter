@@ -25,6 +25,7 @@ import lv.pawsitter.exception.UserNotFoundException;
 import lv.pawsitter.repository.BookingRepository;
 import lv.pawsitter.repository.OwnerProfileRepository;
 import lv.pawsitter.repository.PetRepository;
+import lv.pawsitter.repository.SitterAvailabilityRepository;
 import lv.pawsitter.repository.SitterProfileRepository;
 
 @Service
@@ -34,6 +35,7 @@ public class BookingServiceImpl implements BookingService {
   private final OwnerProfileRepository ownerProfileRepository;
   private final SitterProfileRepository sitterProfileRepository;
   private final PetRepository petRepository;
+  private final SitterAvailabilityRepository sitterAvailabilityRepository;
 
   @Override
   @Transactional
@@ -52,6 +54,8 @@ public class BookingServiceImpl implements BookingService {
     if (!sitter.isPublished()) {
       throw new InvalidBookingOperationException("Sitter profile is not available for booking");
     }
+
+    requireSitterAvailable(sitter, request.getStartDate(), request.getEndDate());
 
     List<Pet> pets = request.getPetIds().stream()
         .distinct()
@@ -96,6 +100,10 @@ public class BookingServiceImpl implements BookingService {
 
     if (!endDate.isAfter(startDate)) {
       throw new InvalidBookingOperationException("End date must be after start date");
+    }
+
+    if (request.getStartDate() != null || request.getEndDate() != null) {
+      requireSitterAvailable(booking.getSitter(), startDate, endDate);
     }
 
     booking.setStartDate(startDate);
@@ -277,6 +285,18 @@ public class BookingServiceImpl implements BookingService {
         BookingStatus.ACCEPTED,
         booking.getEndDate(),
         booking.getStartDate());
+  }
+
+  private void requireSitterAvailable(SitterProfile sitter, LocalDateTime startDate, LocalDateTime endDate) {
+    boolean available = sitterAvailabilityRepository
+        .existsBySitterProfileIdAndStartDateLessThanEqualAndEndDateGreaterThanEqual(
+            sitter.getId(),
+            startDate.toLocalDate(),
+            endDate.toLocalDate());
+
+    if (!available) {
+      throw new InvalidBookingOperationException("Sitter is not available for selected dates");
+    }
   }
 
   private Pet getOwnerPet(Long petId, OwnerProfile owner) {

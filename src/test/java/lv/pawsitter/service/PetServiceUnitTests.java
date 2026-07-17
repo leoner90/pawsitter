@@ -17,6 +17,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.mock.web.MockMultipartFile;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDateTime;
 import java.util.List;
@@ -39,6 +41,8 @@ public class PetServiceUnitTests {
 
     @InjectMocks
     private PetServiceImpl petService;
+    @Mock
+    private ImageStorageService imageStorageService;
 
     private OwnerProfile ownerProfile;
     private Pet pet;
@@ -72,7 +76,7 @@ public class PetServiceUnitTests {
         petRequestDto.setAge(4);
         petRequestDto.setDescription("Friendly cat who sleeps a lot");
         petRequestDto.setSpecialNeeds("");
-//        petRequestDto.setImageUrl("example.com/image/link.jpg");
+        petRequestDto.setImage(null);
     }
 
     @Test
@@ -203,6 +207,56 @@ public class PetServiceUnitTests {
         verify(petRepository).save(any(Pet.class));
     }
 
+    @Test
+    void createPet_savesImageUrl_whenImageFileIsProvided() {
+        MultipartFile imageFile = new MockMultipartFile(
+                "image", "cat.jpg", "image/jpeg", "fake-image-content".getBytes());
+        petRequestDto.setImage(imageFile);
+
+        when(ownerProfileRepository.findById(1L)).thenReturn(Optional.of(ownerProfile));
+        when(imageStorageService.savePetImage(imageFile)).thenReturn("/images/petsImages/cat123.jpg");
+        when(petRepository.save(any(Pet.class))).thenAnswer(invocation -> invocation.getArgument(0));
+
+        PetResponseDto result = petService.createPet(1L, petRequestDto);
+
+        assertThat(result.getImageUrl()).isEqualTo("/images/petsImages/cat123.jpg");
+        verify(imageStorageService).savePetImage(imageFile);
+    }
+
+    @Test
+    void createPet_throwsIllegalArgumentException_whenImageStorageRejectsFileType() {
+        MultipartFile imageFile = new MockMultipartFile(
+                "image", "cat.gif", "image/gif", "fake-image-content".getBytes());
+        petRequestDto.setImage(imageFile);
+
+        when(ownerProfileRepository.findById(1L)).thenReturn(Optional.of(ownerProfile));
+        when(imageStorageService.savePetImage(imageFile))
+                .thenThrow(new IllegalArgumentException("Only JPEG and PNG images are allowed"));
+
+        assertThatThrownBy(() -> petService.createPet(1L, petRequestDto))
+                .isInstanceOf(IllegalArgumentException.class)
+                .hasMessageContaining("JPEG");
+
+        verify(petRepository, never()).save(any());
+    }
+
+    @Test
+    void createPet_throwsIllegalStateException_whenImageStorageFailsToWriteFile() {
+        MultipartFile imageFile = new MockMultipartFile(
+                "image", "cat.jpg", "image/jpeg", "fake-image-content".getBytes());
+        petRequestDto.setImage(imageFile);
+
+        when(ownerProfileRepository.findById(1L)).thenReturn(Optional.of(ownerProfile));
+        when(imageStorageService.savePetImage(imageFile))
+                .thenThrow(new IllegalStateException("Failed to save image"));
+
+        assertThatThrownBy(() -> petService.createPet(1L, petRequestDto))
+                .isInstanceOf(IllegalStateException.class)
+                .hasMessageContaining("Failed to save image");
+
+        verify(petRepository, never()).save(any());
+    }
+
     @Nonnull
     private static PetRequestDto getPetRequestDto() {
         PetRequestDto updateDto = new PetRequestDto();
@@ -216,7 +270,7 @@ public class PetServiceUnitTests {
         updateDto.setDescription("Friendly cat who sleeps a lot");
         // Added new special need
         updateDto.setSpecialNeeds("Diabetic");
-        //updateDto.setImageUrl("example.com/image/link.jpg");
+        updateDto.setImage(null);
         return updateDto;
     }
 
