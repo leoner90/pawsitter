@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PawSitter | Dashboard</title>
+
+    <link rel="stylesheet" th:href="@{/css/landingPageStyle.css}">
+    <link rel="icon" type="image/x-icon" th:href="@{/images/favicon.ico}">
+
+</head>
+<body><div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="page-content">
+    <section class="hero-section">
+        <div class="hero-content">
+            <h2 th:text="'Welcome back, ' + ${firstName} + '!'">Welcome back!</h2>
+            <p>Ready to find the perfect sitter for your pet?</p>
+            <div class="hero-buttons">
+                <a th:href="@{/sittersSearch}" class="button primary-button">Find a Sitter</a>
+                <a th:href="@{/owner/bookings}" class="button secondary-button">My Bookings</a>
+            </div>
+        </div>
+
+        <div class="hero-image-wrapper">
+            <img th:src="@{/images/landingPageImages/landingPageImage1.jpg}"
+                 class="hero-image"
+                 alt="Happy dog">
+        </div>
+    </section>
+
+    <hr class="landingHr">
+
+    <section class="profile-section">
+        <div class="section-heading">
+            <h1>Your Summary</h1>
+        </div>
+
+        <div class="service-list">
+            <div class="service-card">
+                <h3>My Pets</h3>
+                <p th:if="${petCount > 0}" th:text="${petCount} + ' pet(s) registered'">0 pets registered</p>
+                <p th:unless="${petCount > 0}">No pets added yet</p>
+                <a th:href="@{/owner/pets/add}">Add a pet →</a>
+            </div>
+
+            <div class="service-card">
+                <h3>My Bookings</h3>
+                <p th:if="${bookingCount > 0}" th:text="${bookingCount} + ' booking(s) so far'">0 bookings so far</p>
+                <p th:unless="${bookingCount > 0}">No bookings yet</p>
+                <a th:href="@{/owner/bookings}">View bookings →</a>
+            </div>
+
+            <div class="service-card">
+                <h3>Location</h3>
+                <p th:text="${location}">Not provided</p>
+                <a th:href="@{/owner/profile}">Update profile →</a>
+            </div>
+        </div>
+    </section>
+
+    <section class="how-it-works-section">
+        <div class="how-it-works-title">
+            <h1>Quick Links</h1>
+        </div>
+        <div class="how-it-works-grid">
+
+            <div class="how-it-works-card">
+                <img th:src="@{/images/landingPageImages/searchIcon.png}"
+                     class="how-it-works-icon"
+                     alt="Search icon">
+                <h4><a th:href="@{/sittersSearch}" class="how-it-works-link">Find a Sitter</a></h4>
+            </div>
+
+            <div class="how-it-works-card">
+                <img th:src="@{/images/landingPageImages/careIcon.png}"
+                     class="how-it-works-icon"
+                     alt="Profile icon">
+                <h4><a th:href="@{/owner/profile}" class="how-it-works-link">My Profile</a></h4>
+            </div>
+
+            <div class="how-it-works-card">
+                <img th:src="@{/images/landingPageImages/bookIcon.png}"
+                     class="how-it-works-icon"
+                     alt="Bookings icon">
+                <h4><a th:href="@{/owner/bookings}" class="how-it-works-link">My Bookings</a></h4>
+            </div>
+
+            <div class="how-it-works-card">
+                <img th:src="@{/images/landingPageImages/reviewIcon.png}"
+                     class="how-it-works-icon"
+                     alt="Add pet icon">
+                <h4><a th:href="@{/owner/pets/add}" class="how-it-works-link">Add a Pet</a></h4>
+            </div>
+
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>
