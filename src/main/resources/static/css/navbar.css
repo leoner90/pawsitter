@@ -1,11 +1,18 @@
-
 .navbar {
+    position: sticky;
+    top: 0;
+    z-index: 1000;
+
     min-height: 72px;
     padding: 0 8%;
+
     display: flex;
     align-items: center;
     justify-content: space-between;
+    gap: 28px;
+
     background: #3c2424;
+    box-shadow: 0 3px 12px rgba(0, 0, 0, 0.16);
 }
 
 .navbar a {
@@ -13,43 +20,132 @@
     text-decoration: none;
 }
 
-.logo {
-    font-size: 1.5rem;
-    font-weight: bold;
-}
-
-.nav-links {
-    display: flex;
-    gap: 24px;
-}
-
-.navbar {
-    position: sticky;
-    top: 0;
-    z-index: 1000;
-}
-
-
-.logout-form {
-    margin: 0;
-    display: inline;
-}
-
-.nav-link-button {
-    padding: 0;
-    border: none;
-    background: transparent;
-    color: white;
-    font: inherit;
-    cursor: pointer;
-}
-
-.nav-link-button:hover {
-    text-decoration: underline;
+.logo-link {
+    flex-shrink: 0;
 }
 
 .nav-logo {
     width: 150px;
     height: auto;
     display: block;
+}
+
+.nav-links {
+    display: flex;
+    align-items: center;
+    gap: 0;
+}
+
+.nav-links > a,
+.logout-form {
+    position: relative;
+    padding: 8px 15px;
+}
+
+/* Vertical dividers */
+.nav-links > a:not(:first-child)::before,
+.logout-form::before {
+    content: "";
+    position: absolute;
+    left: 0;
+    top: 20%;
+    width: 1px;
+    height: 60%;
+    background: rgba(255, 255, 255, 0.4);
+}
+
+.nav-links > a,
+.nav-link-button {
+    font-size: 0.95rem;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    text-transform: capitalize;
+    transition: opacity 0.2s ease;
+    text-shadow: 2px 2px 0 black;
+    font-style: italic;
+}
+
+.nav-links > a:hover,
+.nav-link-button:hover {
+    opacity: 0.72;
+}
+
+.logout-form {
+    margin: 0;
+    display: inline-flex;
+}
+
+.nav-link-button {
+    border: none;
+    background: transparent;
+    color: white;
+    font-family: inherit;
+    font-size: 0.95rem;
+    font-weight: 600;
+    font-style: italic;
+    letter-spacing: 0.03em;
+    text-transform: capitalize;
+    text-shadow: 1px 2px 3px rgba(0, 0, 0, 0.7);
+    cursor: pointer;
+}
+
+.logout-form > .nav-link-button {
+  color: #f8afaf;
+}
+
+.mobile-menu-button {
+    display: none;
+    padding: 6px 10px;
+    border: none;
+    background: transparent;
+    color: white;
+    font-size: 1.7rem;
+    cursor: pointer;
+}
+
+/* Mobile */
+@media (max-width: 900px) {
+    .navbar {
+        min-height: 68px;
+        padding: 0 5%;
+        flex-wrap: wrap;
+    }
+
+    .nav-logo {
+        width: 130px;
+    }
+
+    .mobile-menu-button {
+        display: block;
+    }
+
+    .nav-links {
+        display: none;
+        width: 100%;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0;
+        padding: 8px 0 18px;
+    }
+
+    .nav-links.nav-links-open {
+        display: flex;
+    }
+
+    .nav-links > a,
+    .logout-form {
+        width: 100%;
+        padding: 13px 4px;
+        border-top: 1px solid rgba(255, 255, 255, 0.18);
+    }
+
+    .nav-links > a::before,
+    .logout-form::before {
+        display: none;
+    }
+
+    .nav-link-button {
+        width: 100%;
+        text-align: left;
+    }
 }

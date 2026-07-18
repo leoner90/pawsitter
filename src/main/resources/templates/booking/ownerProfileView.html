@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PawSitter | Owner Profile</title>
+
+    <link rel="stylesheet" th:href="@{/css/mainStyle.css}">
+    <link rel="icon"
+          type="image/x-icon"
+          th:href="@{/images/favicon.ico}">
+</head>
+
+<body>
+
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="page-content profile-page">
+
+    <!-- Owner information -->
+    <section class="profile-card">
+
+        <div class="profile-header">
+
+            <img th:src="${owner.imageUrl != null && !owner.imageUrl.isBlank()
+                        ? owner.imageUrl
+                        : '/images/defaultImages/default-owner.png'}"
+                 alt="Owner profile image"
+                 class="profile-image">
+
+            <div class="profile-summary">
+
+                <h1>Owner Profile</h1>
+
+                <h2 th:text="${owner.user.firstName + ' ' + owner.user.lastName}">
+                    Owner name
+                </h2>
+
+                <p>
+                    <strong class="profile-descriptor-strong">Email:</strong>
+
+                    <span th:text="${owner.user.email}">
+                        owner@example.com
+                    </span>
+                </p>
+
+                <p>
+                    <strong class="profile-descriptor-strong">Location:</strong>
+
+                    <span th:text="${owner.location != null
+                                    && !owner.location.isBlank()
+                                    ? owner.location
+                                    : 'Not provided'}">
+                        Not provided
+                    </span>
+                </p>
+
+            </div>
+        </div>
+
+        <hr>
+
+        <div class="profile-section">
+
+            <h2>About the Owner</h2>
+
+            <p th:text="${owner.description != null
+                        && !owner.description.isBlank()
+                        ? owner.description
+                        : 'No description provided.'}">
+                No description provided.
+            </p>
+
+        </div>
+
+    </section>
+
+
+    <!-- Owner pets -->
+    <section class="profile-card pet-section">
+
+        <div class="section-heading">
+            <div>
+                <h2>Pets</h2>
+                <p>Pets connected to this owner profile.</p>
+            </div>
+        </div>
+
+        <!-- No pets -->
+        <div th:if="${#lists.isEmpty(owner.pets)}"
+             class="empty-state">
+
+            <h3>No pets added</h3>
+
+            <p>This owner has not added any pet profiles yet.</p>
+
+        </div>
+
+
+        <!-- Pet list -->
+        <div th:if="${!#lists.isEmpty(owner.pets)}"
+             class="pet-grid">
+
+            <div class="pet-table-header">
+
+                <span class="pet-image-space"></span>
+
+                <div class="pet-info">
+                    <strong class="pet-name">Name</strong>
+                    <strong>Type</strong>
+                    <strong>Breed</strong>
+                    <strong>Age</strong>
+                    <strong class="pet-description">Description</strong>
+                    <strong>Special needs</strong>
+                </div>
+
+            </div>
+
+
+            <article class="pet-card" th:each="pet : ${owner.pets}"   th:classappend="${!pet.active} ? ' inactive-pet'">
+                <p th:if="${!pet.active}" class="inactive-label">
+                    Inactive
+                </p>
+                <img th:src="${pet.imageUrl != null
+                            && !pet.imageUrl.isBlank()
+                            ? pet.imageUrl
+                            : '/images/defaultImages/default-pet.png'}"
+                     alt="Pet profile image"
+                     class="pet-image">
+
+                <div class="pet-info">
+                    <h3 class="pet-name" th:text="${pet.firstName + ' ' + pet.lastName}">Pet name</h3>
+                    <p th:text="${pet.animalType != null ? pet.animalType : 'Not provided'}">Animal type</p>
+                    <p th:text="${pet.breed != null    && !pet.breed.isBlank()     ? pet.breed         : 'Not provided'}">Breed</p>
+                    <p th:text="${pet.age != null       ? pet.age              : 'Not provided'}">Age</p>
+
+                    <p class="pet-description"
+                       th:text="${pet.description != null
+                                && !pet.description.isBlank()
+                                ? pet.description
+                                : 'No description provided.'}">
+                        Description
+                    </p>
+
+                    <p th:text="${pet.specialNeeds != null&& !pet.specialNeeds.isBlank()? pet.specialNeeds: 'None'}">Special needs</p>
+                </div>
+            </article>
+        </div>
+    </section>
+    <div class="form-actions">
+        <a th:href="@{/sitter/bookings/{id}(id=${booking.id})}" class="button secondary-button">
+            Back to booking
+        </a>
+    </div>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+
+</body>
+</html>

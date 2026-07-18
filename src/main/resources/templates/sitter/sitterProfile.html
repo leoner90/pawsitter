@@ -20,7 +20,7 @@
                     <img
                             th:src="${sitter.imageUrl != null && !sitter.imageUrl.isBlank()
                                 ? sitter.imageUrl
-                                : '/images/sittersImages/default-sitter.png'}"
+                                : '/images/defaultImages/default-sitter.png'}"
                             alt="Sitter profile"
                             class="profile-image"
                     >
@@ -74,7 +74,9 @@
 
                 <!--                availability calendar-->
                 <div th:replace="~{fragments/sitterAvailabilityForm :: availabilityForm}"></div>
-
+                
+                <!-- error check availability -->
+                <p class="form-error" th:if="${availabilityError}" th:text="${availabilityError}"></p>
                 <!--                Already Available Dates-->
                 <div th:if="${!#lists.isEmpty(availabilityRanges)}">
                     <h3>Your available dates</h3>

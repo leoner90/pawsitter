@@ -10,4 +10,6 @@ public interface PetRepository extends JpaRepository<Pet, Long>
 {
     List<Pet> findByOwnerProfileId(Long ownerProfileId);
     Optional<Pet> findByIdAndOwnerProfileId(Long id, Long ownerProfileId);
+    //find only active pets (deleted pets have ever been used in booking will be not returned)
+    List<Pet> findByOwnerProfileIdAndActiveTrue(Long ownerProfileId);
 }

@@ -98,7 +98,22 @@ public class SitterProfileController
             return "sitter/sitterProfile";
         }
 
-        sitterProfileService.addAvailability(authentication.getName(), availabilityRequest);
+        String email = authentication.getName();
+        try
+        {
+            sitterProfileService.addAvailability(email, availabilityRequest);
+        }
+        catch (InvalidSitterOperationException exception)
+        {
+            SitterProfile sitterProfile = sitterProfileService.getProfileByUserEmail(email);
+
+            model.addAttribute("sitter", sitterProfile);
+            model.addAttribute("availabilityRanges", sitterProfileService.getAvailability(email));
+            model.addAttribute("availabilityError", exception.getMessage());
+
+            return "sitter/sitterProfile";
+        }
+
         return "redirect:/sitter/profile";
     }
 

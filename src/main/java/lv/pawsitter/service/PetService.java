@@ -15,4 +15,5 @@ public interface PetService {
     List<PetResponseDto> getPetsByOwnerId(Long ownerProfileId);
     PetResponseDto getOwnerPet(String email, Long petId);
     PetResponseDto updateOwnerPet(String email, Long petId, PetRequestDto dto);
+    List<PetResponseDto> getActivePetsByOwnerId(Long ownerProfileId);
 }
