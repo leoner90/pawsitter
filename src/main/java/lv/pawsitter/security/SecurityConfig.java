@@ -47,12 +47,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(
                                 "/",
-                                "/sittersSearch",
-                                "/registration",
                                 "/login",
+                                "/registration",
+                                "/sittersSearch",
                                 "/css/**",
                                 "/js/**",
-                                "/images/**"
+                                "/images/**",
+                                "/fragments/**",
+                                "/recovery/**"
                         ).permitAll()
 
                         // ❌ REMOVE — these are only needed for JWT API endpoints
