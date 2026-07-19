@@ -2,9 +2,9 @@ package lv.pawsitter.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lv.pawsitter.dto.UserCreateDTO;
+import lv.pawsitter.dto.userdto.UserCreateDTO;
 import lv.pawsitter.exception.EmailNotUniqueException;
-import lv.pawsitter.service.UserService;
+import lv.pawsitter.service.userservice.UserService;
 import org.springframework.stereotype.Controller;
 import org.springframework.validation.BindingResult;
 import org.springframework.ui.Model;

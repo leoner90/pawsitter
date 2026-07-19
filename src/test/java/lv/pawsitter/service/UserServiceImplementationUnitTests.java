@@ -1,16 +1,16 @@
 package lv.pawsitter.service;
 
-import lv.pawsitter.dto.UserCreateDTO;
-import lv.pawsitter.dto.UserDTO;
-import lv.pawsitter.entity.OwnerProfile;
-import lv.pawsitter.entity.SitterProfile;
+import lv.pawsitter.dto.userdto.UserCreateDTO;
+import lv.pawsitter.dto.userdto.UserDTO;
 import lv.pawsitter.entity.User;
 import lv.pawsitter.exception.EmailNotUniqueException;
 import lv.pawsitter.exception.UserNotFoundException;
 import lv.pawsitter.mapper.Converter;
 import lv.pawsitter.model.RoleType;
 import lv.pawsitter.repository.UserRepository;
+import lv.pawsitter.service.userservice.UserServiceImplementation;
 import lv.pawsitter.utility.MaskingUtil;
+import lv.pawsitter.utility.ValidationUtil;
 import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -50,6 +50,8 @@ public class UserServiceImplementationUnitTests {
 
     private MaskingUtil maskingUtil;
 
+    private ValidationUtil validationUtil;
+
     private UserServiceImplementation userService;
 
     private User user;
@@ -58,7 +60,7 @@ public class UserServiceImplementationUnitTests {
     @BeforeEach
     void setUp() {
         maskingUtil = new MaskingUtil();
-        userService = new UserServiceImplementation(userRepository, passwordEncoder, converter, maskingUtil);
+        userService = new UserServiceImplementation(userRepository, passwordEncoder, converter, maskingUtil, validationUtil);
 
         user = new User();
         user.setId(1L);
@@ -101,7 +103,7 @@ public class UserServiceImplementationUnitTests {
     }
 
     private UserDTO toDto(User u) {
-        return new UserDTO(u.getId(), u.getPhoneNumber(), u.getEmail(), u.getRole(), u.getCreatedAt());
+        return new UserDTO(u.getId(), u.getFirstName(), u.getLastName(), u.getPhoneNumber(), u.getEmail(), u.getRole(), u.getCreatedAt());
     }
 
 
@@ -426,34 +428,34 @@ public class UserServiceImplementationUnitTests {
 
 
     @Test
-    void getCurrentUser_returnsUser_whenAuthenticated() {
+    void getAuthenicatedCurrentUser_returnsUser_whenAuthenticated() {
         setCurrentUser(user);
 
-        User result = userService.getCurrentUser();
+        User result = userService.getAuthenicatedCurrentUser();
 
         assertThat(result.getEmail()).isEqualTo("jane@example.com");
     }
 
     @Test
-    void getCurrentUser_throwsSecurityException_whenNoAuthentication() {
+    void getAuthenicatedCurrentUser_throwsSecurityException_whenNoAuthentication() {
         SecurityContextHolder.clearContext();
 
-        assertThatThrownBy(() -> userService.getCurrentUser())
+        assertThatThrownBy(() -> userService.getAuthenicatedCurrentUser())
                 .isInstanceOf(SecurityException.class);
     }
 
     @Test
-    void getCurrentUser_throwsSecurityException_whenAnonymous() {
+    void getAuthenicatedCurrentUser_throwsSecurityException_whenAnonymous() {
         Authentication anonymous = new AnonymousAuthenticationToken(
                 "key", "anonymousUser", AuthorityUtils.createAuthorityList("ROLE_ANONYMOUS"));
         SecurityContextHolder.getContext().setAuthentication(anonymous);
 
-        assertThatThrownBy(() -> userService.getCurrentUser())
+        assertThatThrownBy(() -> userService.getAuthenicatedCurrentUser())
                 .isInstanceOf(SecurityException.class);
     }
 
     @Test
-    void getCurrentUser_throwsUserNotFoundException_whenPrincipalNotInRepository() {
+    void getAuthenicatedCurrentUser_throwsUserNotFoundException_whenPrincipalNotInRepository() {
         UserDetails principal = org.springframework.security.core.userdetails.User
                 .withUsername("ghost@example.com")
                 .password("x")
@@ -463,17 +465,17 @@ public class UserServiceImplementationUnitTests {
                 new UsernamePasswordAuthenticationToken(principal, null, principal.getAuthorities()));
         when(userRepository.findByEmail("ghost@example.com")).thenReturn(Optional.empty());
 
-        assertThatThrownBy(() -> userService.getCurrentUser())
+        assertThatThrownBy(() -> userService.getAuthenicatedCurrentUser())
                 .isInstanceOf(UserNotFoundException.class);
     }
 
     @Test
-    void getCurrentUser_throwsIllegalStateException_whenPrincipalTypeIsInvalid() {
+    void getAuthenicatedCurrentUser_throwsIllegalStateException_whenPrincipalTypeIsInvalid() {
         Authentication authentication = new TestingAuthenticationToken("stringPrincipal", "credentials");
         authentication.setAuthenticated(true);
         SecurityContextHolder.getContext().setAuthentication(authentication);
 
-        assertThatThrownBy(() -> userService.getCurrentUser())
+        assertThatThrownBy(() -> userService.getAuthenicatedCurrentUser())
                 .isInstanceOf(IllegalStateException.class);
     }
 }

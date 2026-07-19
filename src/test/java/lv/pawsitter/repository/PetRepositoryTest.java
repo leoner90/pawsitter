@@ -1,7 +1,7 @@
 package lv.pawsitter.repository;
 
 import jakarta.persistence.EntityManager;
-import lv.pawsitter.entity.AnimalTypes;
+import lv.pawsitter.entity.AnimalType;
 import lv.pawsitter.entity.OwnerProfile;
 import lv.pawsitter.entity.Pet;
 import lv.pawsitter.entity.User;
@@ -70,7 +70,7 @@ class PetRepositoryTest {
         pet.setFirstName(firstName);
         pet.setLastName("Test");
         pet.setNickName(firstName);
-        pet.setAnimalType(AnimalTypes.DOG);
+        pet.setAnimalType(AnimalType.DOG);
         pet.setBreed("Mixed");
         pet.setAge(2);
         pet.setDescription("Test pet");

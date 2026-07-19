@@ -3,7 +3,7 @@ package lv.pawsitter.controller;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import lv.pawsitter.dto.ReviewRequest;
 import lv.pawsitter.dto.ReviewResponse;
-import lv.pawsitter.security.JwtService;
+import lv.pawsitter.security.sessionless.jwttoken.JwtService;
 import lv.pawsitter.service.ReviewService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;

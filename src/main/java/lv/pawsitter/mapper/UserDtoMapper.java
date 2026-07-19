@@ -1,7 +1,7 @@
 package lv.pawsitter.mapper;
 
-import lv.pawsitter.dto.UserCreateDTO;
-import lv.pawsitter.dto.UserDTO;
+import lv.pawsitter.dto.userdto.UserCreateDTO;
+import lv.pawsitter.dto.userdto.UserDTO;
 import lv.pawsitter.entity.User;
 import org.springframework.stereotype.Component;
 
@@ -20,11 +20,11 @@ public class UserDtoMapper implements Converter<User, UserCreateDTO, UserDTO> {
     @Override
     public UserDTO entityToDto(User user) {
         return new UserDTO(user.getId(),
+                user.getFirstName(),
+                user.getLastName(),
                 user.getPhoneNumber(),
                 user.getEmail(),
                 user.getRole(),
-//                user.getOwnerProfile() != null ? user.getOwnerProfile().getId() : null,
-//                user.getSitterProfile() != null ? user.getSitterProfile().getId() : null,
                 user.getCreatedAt());
     }
 
