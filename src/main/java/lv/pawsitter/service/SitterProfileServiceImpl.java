@@ -5,6 +5,7 @@ import lv.pawsitter.dto.SitterAvailabilityRequest;
 import lv.pawsitter.dto.SitterProfileUpdateDTO;
 import lv.pawsitter.dto.SitterPublishDTO;
 import lv.pawsitter.entity.Booking;
+import lv.pawsitter.entity.BookingStatus;
 import lv.pawsitter.entity.SitterAvailability;
 import lv.pawsitter.entity.SitterProfile;
 import lv.pawsitter.exception.AvailabilityNotFoundException;
@@ -20,6 +21,8 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.time.LocalTime;
+import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
 
@@ -114,13 +117,9 @@ public class SitterProfileServiceImpl implements SitterProfileService
         SitterProfile sitterProfile = getProfileByUserEmail(email);
         LocalDate requestedStartDate = request.startDate();
         LocalDate requestedEndDate = request.endDate();
-        LocalDate mergedStartDate = request.startDate();
-        LocalDate mergedEndDate = request.endDate();
-
         List<SitterAvailability> availabilityRanges = sitterAvailabilityRepository.findBySitterProfileId(sitterProfile.getId());
 
-
-        //if this dates already exists throw err
+        //If dates are already in Availability calendar
         boolean alreadyCovered = availabilityRanges.stream()
                 .anyMatch(availability ->
                         !requestedStartDate.isBefore(availability.getStartDate())
@@ -132,35 +131,25 @@ public class SitterProfileServiceImpl implements SitterProfileService
             throw new InvalidSitterOperationException("These dates are already included in your availability");
         }
 
-        List<SitterAvailability> rangesToMerge = availabilityRanges.stream()
-                .filter(availability -> overlapsOrTouches(availability, requestedStartDate, requestedEndDate))
-                .toList();
+        //are requested dates already booked or requested to book , then do not allow to add
+        boolean overlapsActiveBooking =
+                bookingRepository.existsOverlappingBooking(
+                        sitterProfile.getId(),
+                        requestedStartDate.atStartOfDay(),
+                        requestedEndDate.atTime(LocalTime.MAX),
+                        EnumSet.of(
+                                BookingStatus.REQUESTED,
+                                BookingStatus.ACCEPTED
+                        )
+                );
 
-        SitterAvailability availability = rangesToMerge.isEmpty() ? new SitterAvailability() : rangesToMerge.getFirst();
-
-        for (SitterAvailability range : rangesToMerge)
+        if (overlapsActiveBooking)
         {
-            if (range.getStartDate().isBefore(mergedStartDate))
-            {
-                mergedStartDate = range.getStartDate();
-            }
-
-            if (range.getEndDate().isAfter(mergedEndDate))
-            {
-                mergedEndDate = range.getEndDate();
-            }
+            throw new InvalidSitterOperationException("These dates overlap an active booking");
         }
 
-        if (rangesToMerge.size() > 1)
-        {
-            sitterAvailabilityRepository.deleteAll(rangesToMerge.subList(1, rangesToMerge.size()));
-        }
-
-        availability.setSitterProfile(sitterProfile);
-        availability.setStartDate(mergedStartDate);
-        availability.setEndDate(mergedEndDate);
-
-        sitterAvailabilityRepository.save(availability);
+        //Add new dates or merge with existing ones
+        addOrMergeAvailability(sitterProfile, requestedStartDate, requestedEndDate);
     }
 
     //Get Available Dates From Db
@@ -360,5 +349,62 @@ public class SitterProfileServiceImpl implements SitterProfileService
 
         BigDecimal price = sitter.getPricePerDay();
         return price != null && price.compareTo(maxPrice) <= 0;
+    }
+
+
+    //Add new availability dates or merge with existing ones
+    private void addOrMergeAvailability(SitterProfile sitterProfile, LocalDate requestedStartDate, LocalDate requestedEndDate)
+    {
+        //init dates
+        LocalDate mergedStartDate = requestedStartDate;
+        LocalDate mergedEndDate = requestedEndDate;
+
+        //get already available dates from calendar
+        List<SitterAvailability> availabilityRanges = sitterAvailabilityRepository.findBySitterProfileId(sitterProfile.getId());
+
+        //find are dates in calendar touching or overlap with new added ones return list if so( if ranges are new this filter will find nothing)
+        List<SitterAvailability> rangesToMerge = availabilityRanges.stream()
+                .filter(availability ->
+                        overlapsOrTouches(availability, requestedStartDate, requestedEndDate))
+                .toList();
+
+        // if there are no overlap dates -> create new SitterAvailability, else reuses the first existing range
+        SitterAvailability availability = rangesToMerge.isEmpty() ? new SitterAvailability() : rangesToMerge.getFirst();
+
+        for (SitterAvailability range : rangesToMerge)
+        {
+            //so if new date is before original -> it's become new start
+            if (range.getStartDate().isBefore(mergedStartDate))
+            {
+                mergedStartDate = range.getStartDate();
+            }
+
+            //so if new date is after original end-> it's become new end
+            if (range.getEndDate().isAfter(mergedEndDate))
+            {
+                mergedEndDate = range.getEndDate();
+            }
+        }
+
+        //cleans up the extra database rows after merging
+        if (rangesToMerge.size() > 1)
+        {
+            sitterAvailabilityRepository.deleteAll(rangesToMerge.subList(1, rangesToMerge.size()));
+        }
+
+        //Fills  final availability object with  correct sitter and merged dates, then save it.
+        availability.setSitterProfile(sitterProfile);
+        availability.setStartDate(mergedStartDate);
+        availability.setEndDate(mergedEndDate);
+
+        sitterAvailabilityRepository.save(availability);
+    }
+
+    //basically Helper function to restore available dates if booking was canceled we call it from booking service
+    @Override
+    @Transactional
+    public void restoreAvailability(SitterProfile sitterProfile, LocalDate startDate, LocalDate endDate)
+    {
+        addOrMergeAvailability(sitterProfile, startDate, endDate);
     }
 }

@@ -73,4 +73,7 @@ public class Booking {
         this.createdAt = LocalDateTime.now();
     }
 
+    //payment status
+    @Column(nullable = false)
+    private boolean paid = false;
 }

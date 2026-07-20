@@ -6,6 +6,7 @@ import lv.pawsitter.dto.SitterAvailabilityRequest;
 import lv.pawsitter.dto.SitterProfileUpdateDTO;
 import lv.pawsitter.entity.SitterProfile;
 import lv.pawsitter.exception.InvalidSitterOperationException;
+import lv.pawsitter.service.BookingService;
 import lv.pawsitter.service.SitterProfileService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -22,7 +23,7 @@ public class SitterProfileController
 {
 //************* VAR
     private final SitterProfileService sitterProfileService;
-
+    private final BookingService bookingService;
 
 //************ GETTERS
     //SITTER PROFILE PAGE GETTER
@@ -32,9 +33,9 @@ public class SitterProfileController
         SitterProfile sitterProfile = sitterProfileService.getProfileByUserEmail(authentication.getName());
 
         model.addAttribute("sitter", sitterProfile);
-        model.addAttribute("availabilityRequest", new SitterAvailabilityRequest(null, null));
-        model.addAttribute("availabilityRanges", sitterProfileService.getAvailability(authentication.getName()));
-
+        model.addAttribute("availabilityRequest", new SitterAvailabilityRequest(null, null)); //an empty DTO for the availability form.
+        model.addAttribute("availabilityRanges", sitterProfileService.getAvailability(authentication.getName()));  // gets and sends availability dates
+        model.addAttribute("reservedBookings", bookingService.getActiveSitterBookings(authentication.getName())); // add pre-booked dates which sitter can't select
         return "sitter/sitterProfile";
     }
 
@@ -90,15 +91,17 @@ public class SitterProfileController
             BindingResult bindingResult,
             Model model)
     {
+        String email = authentication.getName();
+
         if (bindingResult.hasErrors())
         {
-            SitterProfile sitterProfile = sitterProfileService.getProfileByUserEmail(authentication.getName());
+            SitterProfile sitterProfile = sitterProfileService.getProfileByUserEmail(email);
             model.addAttribute("sitter", sitterProfile);
-            model.addAttribute("availabilityRanges", sitterProfileService.getAvailability(authentication.getName()));
+            model.addAttribute("availabilityRanges", sitterProfileService.getAvailability(email));
+            model.addAttribute("reservedBookings", bookingService.getActiveSitterBookings(email));
             return "sitter/sitterProfile";
         }
 
-        String email = authentication.getName();
         try
         {
             sitterProfileService.addAvailability(email, availabilityRequest);
@@ -110,6 +113,7 @@ public class SitterProfileController
             model.addAttribute("sitter", sitterProfile);
             model.addAttribute("availabilityRanges", sitterProfileService.getAvailability(email));
             model.addAttribute("availabilityError", exception.getMessage());
+            model.addAttribute("reservedBookings", bookingService.getActiveSitterBookings(email));
 
             return "sitter/sitterProfile";
         }
@@ -137,10 +141,12 @@ public class SitterProfileController
         }
         catch (InvalidSitterOperationException exception)
         {
-            SitterProfile sitterProfile = sitterProfileService.getProfileByUserEmail(authentication.getName());
+            String email = authentication.getName();
+            SitterProfile sitterProfile = sitterProfileService.getProfileByUserEmail(email);
             model.addAttribute("sitter", sitterProfile);
             model.addAttribute("availabilityRequest", new SitterAvailabilityRequest(null, null));
-            model.addAttribute("availabilityRanges", sitterProfileService.getAvailability(authentication.getName()));
+            model.addAttribute("availabilityRanges", sitterProfileService.getAvailability(email));
+            model.addAttribute("reservedBookings", bookingService.getActiveSitterBookings(email));
             model.addAttribute("publishError", exception.getMessage());
 
             return "sitter/sitterProfile";
