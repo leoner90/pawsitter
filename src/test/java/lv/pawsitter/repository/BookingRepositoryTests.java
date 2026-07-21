@@ -41,11 +41,11 @@ class BookingRepositoryTests {
     booking(otherOwner, sitter, BookingStatus.REQUESTED, START.plusDays(3), END.plusDays(3));
     flushAndClear();
 
-    List<Booking> bookings = bookingRepository.findByOwnerId(owner.getId());
+    List<Booking> bookings = bookingRepository.findByOwnerIdOrderByStartDateAsc(owner.getId());
 
     assertThat(bookings)
-        .extracting(Booking::getId)
-        .containsExactly(ownerBooking.getId());
+            .extracting(Booking::getId)
+            .containsExactly(ownerBooking.getId());
   }
 
   @Test
@@ -57,11 +57,11 @@ class BookingRepositoryTests {
     booking(owner, otherSitter, BookingStatus.REQUESTED, START.plusDays(3), END.plusDays(3));
     flushAndClear();
 
-    List<Booking> bookings = bookingRepository.findBySitterId(sitter.getId());
+    List<Booking> bookings = bookingRepository.findBySitterIdOrderByStartDateAsc(sitter.getId());
 
     assertThat(bookings)
-        .extracting(Booking::getId)
-        .containsExactly(sitterBooking.getId());
+            .extracting(Booking::getId)
+            .containsExactly(sitterBooking.getId());
   }
 
   @Test
@@ -74,11 +74,11 @@ class BookingRepositoryTests {
     booking(otherOwner, sitter, BookingStatus.ACCEPTED, START.plusDays(6), END.plusDays(6));
     flushAndClear();
 
-    List<Booking> bookings = bookingRepository.findByOwnerIdAndStatus(owner.getId(), BookingStatus.ACCEPTED);
+    List<Booking> bookings = bookingRepository.findByOwnerIdAndStatusOrderByStartDateAsc(owner.getId(), BookingStatus.ACCEPTED);
 
     assertThat(bookings)
-        .extracting(Booking::getId)
-        .containsExactly(acceptedBooking.getId());
+            .extracting(Booking::getId)
+            .containsExactly(acceptedBooking.getId());
   }
 
   @Test
@@ -91,19 +91,51 @@ class BookingRepositoryTests {
     booking(owner, otherSitter, BookingStatus.ACCEPTED, START.plusDays(6), END.plusDays(6));
     flushAndClear();
 
-    List<Booking> bookings = bookingRepository.findBySitterIdAndStatus(sitter.getId(), BookingStatus.ACCEPTED);
+    List<Booking> bookings = bookingRepository.findBySitterIdAndStatusOrderByStartDateAsc(sitter.getId(), BookingStatus.ACCEPTED);
 
     assertThat(bookings)
-        .extracting(Booking::getId)
-        .containsExactly(acceptedBooking.getId());
+            .extracting(Booking::getId)
+            .containsExactly(acceptedBooking.getId());
+  }
+
+  @Test
+  void findByOwnerIdOrderByStartDateAscReturnsBookingsSortedByStartDateAscending() {
+    OwnerProfile owner = owner("owner@example.com");
+    SitterProfile sitter = sitter("sitter@example.com");
+    Booking later = booking(owner, sitter, BookingStatus.REQUESTED, START.plusDays(10), END.plusDays(10));
+    Booking earliest = booking(owner, sitter, BookingStatus.REQUESTED, START, END);
+    Booking middle = booking(owner, sitter, BookingStatus.REQUESTED, START.plusDays(5), END.plusDays(5));
+    flushAndClear();
+
+    List<Booking> bookings = bookingRepository.findByOwnerIdOrderByStartDateAsc(owner.getId());
+
+    assertThat(bookings)
+            .extracting(Booking::getId)
+            .containsExactly(earliest.getId(), middle.getId(), later.getId());
+  }
+
+  @Test
+  void findBySitterIdOrderByStartDateAscReturnsBookingsSortedByStartDateAscending() {
+    OwnerProfile owner = owner("owner@example.com");
+    SitterProfile sitter = sitter("sitter@example.com");
+    Booking later = booking(owner, sitter, BookingStatus.REQUESTED, START.plusDays(10), END.plusDays(10));
+    Booking earliest = booking(owner, sitter, BookingStatus.REQUESTED, START, END);
+    Booking middle = booking(owner, sitter, BookingStatus.REQUESTED, START.plusDays(5), END.plusDays(5));
+    flushAndClear();
+
+    List<Booking> bookings = bookingRepository.findBySitterIdOrderByStartDateAsc(sitter.getId());
+
+    assertThat(bookings)
+            .extracting(Booking::getId)
+            .containsExactly(earliest.getId(), middle.getId(), later.getId());
   }
 
   @ParameterizedTest
   @MethodSource("overlapDateRanges")
   void existsBySitterIdAndStatusAndStartDateLessThanAndEndDateGreaterThanDetectsOverlaps(
-      LocalDateTime requestedStart,
-      LocalDateTime requestedEnd,
-      boolean expectedOverlap
+          LocalDateTime requestedStart,
+          LocalDateTime requestedEnd,
+          boolean expectedOverlap
   ) {
     OwnerProfile owner = owner("owner@example.com");
     SitterProfile sitter = sitter("sitter@example.com");
@@ -111,10 +143,10 @@ class BookingRepositoryTests {
     flushAndClear();
 
     boolean overlaps = bookingRepository.existsBySitterIdAndStatusAndStartDateLessThanAndEndDateGreaterThan(
-        sitter.getId(),
-        BookingStatus.ACCEPTED,
-        requestedEnd,
-        requestedStart
+            sitter.getId(),
+            BookingStatus.ACCEPTED,
+            requestedEnd,
+            requestedStart
     );
 
     assertThat(overlaps).isEqualTo(expectedOverlap);
@@ -128,10 +160,10 @@ class BookingRepositoryTests {
     flushAndClear();
 
     boolean overlaps = bookingRepository.existsBySitterIdAndStatusAndStartDateLessThanAndEndDateGreaterThan(
-        sitter.getId(),
-        BookingStatus.ACCEPTED,
-        START.plusDays(1),
-        START.minusDays(1)
+            sitter.getId(),
+            BookingStatus.ACCEPTED,
+            START.plusDays(1),
+            START.minusDays(1)
     );
 
     assertThat(overlaps).isFalse();
@@ -139,20 +171,20 @@ class BookingRepositoryTests {
 
   private static Stream<Arguments> overlapDateRanges() {
     return Stream.of(
-        Arguments.of(START.minusDays(1), START, false),
-        Arguments.of(END, END.plusDays(1), false),
-        Arguments.of(START.minusHours(1), START.plusHours(1), true),
-        Arguments.of(START.plusHours(1), END.minusHours(1), true),
-        Arguments.of(END.minusHours(1), END.plusHours(1), true)
+            Arguments.of(START.minusDays(1), START, false),
+            Arguments.of(END, END.plusDays(1), false),
+            Arguments.of(START.minusHours(1), START.plusHours(1), true),
+            Arguments.of(START.plusHours(1), END.minusHours(1), true),
+            Arguments.of(END.minusHours(1), END.plusHours(1), true)
     );
   }
 
   private Booking booking(
-      OwnerProfile owner,
-      SitterProfile sitter,
-      BookingStatus status,
-      LocalDateTime startDate,
-      LocalDateTime endDate
+          OwnerProfile owner,
+          SitterProfile sitter,
+          BookingStatus status,
+          LocalDateTime startDate,
+          LocalDateTime endDate
   ) {
     Booking booking = new Booking();
     booking.setOwner(owner);

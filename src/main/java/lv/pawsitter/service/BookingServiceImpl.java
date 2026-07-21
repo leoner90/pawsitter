@@ -1,6 +1,7 @@
 package lv.pawsitter.service;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 import java.util.EnumSet;
 import java.util.List;
 import java.util.Set;
@@ -40,6 +41,10 @@ public class BookingServiceImpl implements BookingService {
   private final PetRepository petRepository;
   private final SitterAvailabilityRepository sitterAvailabilityRepository;
   private final SitterProfileService sitterProfileService;
+
+  private static final Comparator<Booking> BOOKING_DISPLAY_ORDER = Comparator
+          .comparing((Booking booking) -> booking.getEndDate().isBefore(LocalDateTime.now()))
+          .thenComparing(Booking::getStartDate);
 
   @Override
   @Transactional
@@ -139,33 +144,36 @@ public class BookingServiceImpl implements BookingService {
       return BookingResponse.toResponse(bookingRepository.save(booking));
     }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<BookingResponse> getOwnerBookings(String ownerEmail, BookingStatus status) {
-      OwnerProfile owner = getOwnerByEmail(ownerEmail);
+  @Override
+  @Transactional(readOnly = true)
+  public List<BookingResponse> getOwnerBookings(String ownerEmail, BookingStatus status) {
+    OwnerProfile owner = getOwnerByEmail(ownerEmail);
 
-      List<Booking> bookings = status == null
-          ? bookingRepository.findByOwnerId(owner.getId())
-          : bookingRepository.findByOwnerIdAndStatus(owner.getId(), status);
+    List<Booking> bookings = status == null
+            ? bookingRepository.findByOwnerIdOrderByStartDateAsc(owner.getId())
+            : bookingRepository.findByOwnerIdAndStatusOrderByStartDateAsc(owner.getId(), status);
 
-      return bookings.stream()
-          .map(BookingResponse::toResponse)
-          .collect(Collectors.toList());
-    }
+    return bookings.stream()
+            .sorted(BOOKING_DISPLAY_ORDER)
+            .map(BookingResponse::toResponse)
+            .collect(Collectors.toList());
+  }
 
-    @Override
-    @Transactional(readOnly = true)
-    public List<BookingResponse> getSitterBookings(String sitterEmail, BookingStatus status) {
-      SitterProfile sitter = getSitterByEmail(sitterEmail);
 
-      List<Booking> bookings = status == null
-          ? bookingRepository.findBySitterId(sitter.getId())
-          : bookingRepository.findBySitterIdAndStatus(sitter.getId(), status);
+  @Override
+  @Transactional(readOnly = true)
+  public List<BookingResponse> getSitterBookings(String sitterEmail, BookingStatus status) {
+    SitterProfile sitter = getSitterByEmail(sitterEmail);
 
-      return bookings.stream()
-          .map(BookingResponse::toResponse)
-          .collect(Collectors.toList());
-    }
+    List<Booking> bookings = status == null
+            ? bookingRepository.findBySitterIdOrderByStartDateAsc(sitter.getId())
+            : bookingRepository.findBySitterIdAndStatusOrderByStartDateAsc(sitter.getId(), status);
+
+    return bookings.stream()
+            .sorted(BOOKING_DISPLAY_ORDER)
+            .map(BookingResponse::toResponse)
+            .collect(Collectors.toList());
+  }
 
     @Override
     @Transactional
@@ -499,7 +507,7 @@ public class BookingServiceImpl implements BookingService {
   {
     SitterProfile sitter = getSitterByEmail(sitterEmail);
 
-    return bookingRepository.findBySitterId(sitter.getId())
+    return bookingRepository.findBySitterIdOrderByStartDateAsc(sitter.getId())
             .stream()
             .filter(booking ->
                     booking.getStatus() == BookingStatus.REQUESTED
