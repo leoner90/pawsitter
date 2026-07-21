@@ -154,7 +154,7 @@ public class UserControllerUnitTests {
     @WithMockUser
     void getUserById_returnsNotFound_whenUserDoesNotExist() throws Exception {
         stubMasking();
-        when(userService.findById(999L)).thenThrow(new UserNotFoundException("User with id 999 is not found."));
+        when(userService.findById(999L)).thenThrow(new UserNotFoundException(999L));
 
         mockMvc.perform(get("/users/999"))
                 .andExpect(status().isNotFound())
