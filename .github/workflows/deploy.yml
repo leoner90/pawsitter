@@ -27,6 +27,7 @@ jobs:
           DB_PASSWORD=${{ secrets.DB_PASSWORD }}
           JWT_SECRET=${{ secrets.JWT_SECRET }}
           MAILERSEND_TOKEN=${{ secrets.MAILERSEND_TOKEN }}
+          FRONTEND_BASE_URL: ${FRONTEND_BASE_URL}
           EOF
 
         #secrets are hidden from Actions log:

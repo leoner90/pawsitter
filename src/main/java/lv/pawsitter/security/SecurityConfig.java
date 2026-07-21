@@ -63,7 +63,7 @@ public class SecurityConfig {
                                 "/js/**",
                                 "/images/**",
                                 "/fragments/**",
-                                "/recovery/**"
+                                "/recovery/**",
                                 "/sitters/search"
                         ).permitAll()
 
