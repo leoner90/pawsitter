@@ -2,7 +2,7 @@ package lv.pawsitter.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
-import lv.pawsitter.dto.PasswordUpdateRequest;
+import lv.pawsitter.dto.RecoveryRequestDTO;
 import lv.pawsitter.service.recoveryservice.RecoveryService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -32,15 +32,15 @@ public class RecoveryController {
     @GetMapping("/recovery/updatePassword")
     public String updatePasswordPage(@RequestParam String recoveryToken, Model model) {
         model.addAttribute("recoveryToken", recoveryToken);
-        model.addAttribute("passwordUpdateRequest",
-                new PasswordUpdateRequest("", ""));
+        model.addAttribute("recoveryRequestDTO",
+                new RecoveryRequestDTO("", ""));
         return "recovery/updatePassword";
     }
 
     @PostMapping("/recovery/updatePassword")
     public String updatePassword(
             @RequestParam String recoveryToken,
-            @Valid @ModelAttribute PasswordUpdateRequest request,
+            @Valid @ModelAttribute RecoveryRequestDTO request,
             BindingResult result
     ) {
         if (result.hasErrors()) {
