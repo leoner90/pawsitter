@@ -1,4 +1,4 @@
-package lv.pawsitter.dto;
+package lv.pawsitter.dto.userdto;
 
 import jakarta.validation.constraints.*;
 import lv.pawsitter.model.RoleType;
@@ -17,6 +17,7 @@ import lv.pawsitter.model.RoleType;
  * encoded later in the service layer before persistence.</p>
  */
 public record UserCreateDTO(
+
                 /**
                  * First name of the user.
                  * <p>Must contain only alphabetic characters and be between 2 and 50 characters long.</p>
@@ -25,6 +26,7 @@ public record UserCreateDTO(
                 @Size(min = 2, max = 50)
                 @Pattern(regexp = "^[A-Za-zÀ-ž\\s'-]+$", message = "Must contain only letters")
                 String firstName,
+
                 /**
                  * Last name of the user.
                  * <p>Must contain only alphabetic characters and be between 2 and 50 characters long.</p>
@@ -33,6 +35,7 @@ public record UserCreateDTO(
                 @Size(min = 2, max = 50)
                 @Pattern(regexp = "^[A-Za-zÀ-ž\\s'-]+$", message = "Must contain only letters")
                 String lastName,
+
                 /**
                  * Phone number provided during registration.
                  * <p>Must follow a valid international format (E.164-like), allowing optional leading '+'
@@ -44,6 +47,7 @@ public record UserCreateDTO(
                         message = "Phone number must be valid international format"
                 )
                 String phoneNumber,
+
                 /**
                  * Primary email address of the new user.
                  * <p>Must be a valid email format, cannot be blank, and must not exceed 100 characters.</p>
@@ -53,6 +57,7 @@ public record UserCreateDTO(
                 @Email
                 @Size(max = 100)
                 String email,
+
                 /**
                  * Confirmation of the primary email address.
                  * <p>Must match the {@code email} field. Validation of equality is performed
@@ -62,6 +67,7 @@ public record UserCreateDTO(
                 @Email
                 @Size(max = 100)
                 String confirmEmail,
+
                 /**
                  * Raw password provided during registration.
                  * <p>Must be between 6 and 100 characters long. Additional password strength
@@ -71,6 +77,7 @@ public record UserCreateDTO(
                 @NotBlank
                 @Size(min = 6, max = 100)
                 String password,
+
                 /**
                  * Confirmation of the raw password.
                  * <p>Must match the {@code password} field. Equality validation is performed
@@ -79,6 +86,7 @@ public record UserCreateDTO(
                 @NotBlank
                 @Size(min = 6, max = 100)
                 String confirmPassword,
+
                 /**
                  * Role assigned to the user during registration.
                  * <p>Defines the type of account being created (e.g., USER, SITTER, ADMIN).

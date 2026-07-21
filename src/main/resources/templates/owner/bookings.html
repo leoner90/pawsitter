@@ -68,6 +68,7 @@
 
                             <span class="status-badge" th:text="${booking.status()}">REQUESTED</span>
                         </div>
+                        <hr>
 
                         <dl class="booking-details">
                             <div>
@@ -109,7 +110,8 @@
                             </a>
 
                             <form
-                                    th:if="${booking.status().name() == 'REQUESTED' || booking.status().name() == 'ACCEPTED'}"
+                                    th:if="${booking.status().name() == 'REQUESTED' || booking.status().name() == 'ACCEPTED'
+                                    && !booking.paid()}"
                                     th:action="@{/owner/bookings/{id}/cancel(id=${booking.id()})}"
                                     method="post"
                             >

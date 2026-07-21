@@ -4,6 +4,7 @@ import java.util.List;
 import lv.pawsitter.dto.BookingResponse;
 import lv.pawsitter.dto.CreateBookingRequest;
 import lv.pawsitter.dto.UpdateBookingRequest;
+import lv.pawsitter.entity.Booking;
 import lv.pawsitter.entity.BookingStatus;
 
 public interface BookingService
@@ -25,4 +26,12 @@ public interface BookingService
   BookingResponse reject(Long bookingId, String sitterEmail);
 
   BookingResponse complete(Long bookingId, String sitterEmail);
+
+  Booking getBookingForSitter(Long bookingId, String sitterEmail);
+
+  //change payment status after stripe confirmation
+  void confirmPayment(Long bookingId, String stripeSessionId);
+
+  //returns only booked availability dates
+  List<BookingResponse> getActiveSitterBookings(String sitterEmail);
 }

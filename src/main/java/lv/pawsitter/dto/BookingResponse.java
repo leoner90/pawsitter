@@ -21,7 +21,8 @@ public record BookingResponse(
         String note,
         BigDecimal pricePerDaySnapshot,
         List<Long> petIds,
-        boolean reviewed
+        boolean reviewed,
+        boolean paid
 )
 {
     public static BookingResponse toResponse(Booking booking)
@@ -41,7 +42,8 @@ public record BookingResponse(
                 booking.getPets().stream()
                         .map(Pet::getId)
                         .collect(Collectors.toList()),
-                booking.getReviews() != null && !booking.getReviews().isEmpty()
+                booking.getReviews() != null && !booking.getReviews().isEmpty(),
+                booking.isPaid()
         );
     }
 

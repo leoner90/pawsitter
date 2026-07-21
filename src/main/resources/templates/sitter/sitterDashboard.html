@@ -1,0 +1,98 @@
+<!DOCTYPE html>
+<html lang="en" xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>PawSitter | Dashboard</title>
+
+    <link rel="stylesheet" th:href="@{/css/landingPageStyle.css}">
+    <link rel="icon" type="image/x-icon" th:href="@{/images/favicon.ico}">
+</head>
+<body>
+<div th:replace="~{fragments/navbar :: navbar}"></div>
+
+<main class="page-content">
+    <section class="hero-section">
+        <div class="hero-content">
+            <h2 th:text="'Welcome back, ' + ${firstName} + '!'">Welcome back!</h2>
+            <p th:if="${published}">Your profile is live, owners can find and book you right now.</p>
+            <p th:unless="${published}">Your profile isn't published yet, owners can't find you until you publish it.</p>
+            <div class="hero-buttons">
+                <a th:href="@{/sitter/profile}" class="button primary-button">Manage Availability</a>
+                <a th:href="@{/sitter/bookings}" class="button secondary-button">My Bookings</a>
+            </div>
+        </div>
+
+        <div class="hero-image-wrapper">
+            <img th:src="@{/images/landingPageImages/landingPageImage1.jpg}"
+                 class="hero-image"
+                 alt="Pet sitter with a happy dog">
+        </div>
+    </section>
+
+    <hr class="landingHr">
+
+    <section class="profile-section">
+        <div class="how-it-works-title">
+            <h1>Your Summary</h1>
+        </div>
+
+        <div class="service-list">
+            <div class="service-card">
+                <h3>Profile Status</h3>
+                <p th:if="${published}">Published, visible to owners</p>
+                <p th:unless="${published}">Not published yet</p>
+                <a th:href="@{/sitter/profile}">Manage profile →</a>
+            </div>
+
+            <div class="service-card">
+                <h3>Your Rate</h3>
+                <p th:text="'€' + ${pricePerDay} + ' / day'">€0.00 / day</p>
+                <a th:href="@{/sitter/profile/edit}">Update price →</a>
+            </div>
+
+            <div class="service-card">
+                <h3>Availability</h3>
+                <p th:if="${availabilityCount > 0}" th:text="${availabilityCount} + ' date range(s) set'">0 date ranges set</p>
+                <p th:unless="${availabilityCount > 0}">No availability added yet</p>
+                <a th:href="@{/sitter/profile}">Set availability →</a>
+            </div>
+        </div>
+    </section>
+
+    <hr class="landingHr">
+
+    <section class="how-it-works-section">
+        <div class="how-it-works-title">
+            <h1>Quick Links</h1>
+        </div>
+        <div class="how-it-works-grid">
+
+            <div class="how-it-works-card">
+                <img th:src="@{/images/landingPageImages/careIcon.png}" class="how-it-works-icon" alt="Profile icon">
+                <h4><a th:href="@{/sitter/profile}" class="how-it-works-link">My Profile</a></h4>
+            </div>
+
+            <div class="how-it-works-card">
+                <img th:src="@{/images/landingPageImages/bookIcon.png}" class="how-it-works-icon" alt="Bookings icon">
+                <h4><a th:href="@{/sitter/bookings}" class="how-it-works-link">My Bookings</a></h4>
+            </div>
+
+            <div class="how-it-works-card">
+                <img th:src="@{/images/landingPageImages/searchIcon.png}" class="how-it-works-icon" alt="Availability icon">
+                <h4><a th:href="@{/sitter/profile}" class="how-it-works-link">Set Availability</a></h4>
+            </div>
+
+            <div class="how-it-works-card">
+                <img th:src="@{/images/landingPageImages/reviewIcon.png}" class="how-it-works-icon" alt="Reviews icon">
+                <h4><a th:href="@{/sitter/profile}" class="how-it-works-link">My Reviews</a></h4>
+            </div>
+
+        </div>
+    </section>
+</main>
+
+<div th:replace="~{fragments/footer :: footer}"></div>
+</body>
+</html>

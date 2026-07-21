@@ -1,4 +1,4 @@
-package lv.pawsitter.security;
+package lv.pawsitter.security.sessionless;
 
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.Size;

@@ -1,7 +1,7 @@
-package lv.pawsitter.service;
+package lv.pawsitter.service.userservice;
 
-import lv.pawsitter.dto.UserCreateDTO;
-import lv.pawsitter.dto.UserDTO;
+import lv.pawsitter.dto.userdto.UserCreateDTO;
+import lv.pawsitter.dto.userdto.UserDTO;
 import lv.pawsitter.entity.User;
 import lv.pawsitter.model.RoleType;
 
@@ -21,5 +21,5 @@ public interface UserService {
 
     UserDTO findByEmail(String email);
 
-    User getCurrentUser();
+    User getAuthenicatedCurrentUser();
 }

@@ -1,13 +1,16 @@
 package lv.pawsitter.service;
 
 import jakarta.transaction.Transactional;
+import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import lv.pawsitter.dto.PetRequestDto;
 import lv.pawsitter.dto.PetResponseDto;
+import lv.pawsitter.entity.BookingStatus;
 import lv.pawsitter.entity.OwnerProfile;
 import lv.pawsitter.entity.Pet;
 import lv.pawsitter.exception.PetNotFoundException;
 import lv.pawsitter.exception.UserNotFoundException;
+import lv.pawsitter.repository.BookingRepository;
 import lv.pawsitter.repository.OwnerProfileRepository;
 import lv.pawsitter.repository.PetRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,14 +22,12 @@ import java.util.stream.Collectors;
 
 @Service
 @Slf4j
+@RequiredArgsConstructor
 public class PetServiceImpl implements PetService{
-
-    @Autowired
-    PetRepository petRepository;
-    @Autowired
-    OwnerProfileRepository ownerProfileRepository;
-    @Autowired
-    ImageStorageService imageStorageService;
+    private final PetRepository petRepository;
+    private final OwnerProfileRepository ownerProfileRepository;
+    private final ImageStorageService imageStorageService;
+    private final BookingRepository bookingRepository;
 
     @Override
     public List<PetResponseDto> getAllPets() {
@@ -85,7 +86,7 @@ public class PetServiceImpl implements PetService{
         return toResponseDto(savedPet);
     }
 
-    //not sure we need this isn't it unsafe?
+    //todo delete part of clean up
     @Override
     @Transactional
     public void deletePet(Long id) {
@@ -105,10 +106,30 @@ public class PetServiceImpl implements PetService{
         Pet pet = petRepository.findByIdAndOwnerProfileId(petId, ownerProfile.getId())
                 .orElseThrow(() -> new PetNotFoundException("Pet not found"));
 
+        //bug fix can not delete pet if it has active booking
+        boolean hasActiveBooking =
+                bookingRepository.existsByPetsIdAndStatusIn(petId, List.of(BookingStatus.REQUESTED, BookingStatus.ACCEPTED));
+
+
+        //if hasActiveBooking active return with error
+        if (hasActiveBooking)
+        {
+            throw new IllegalStateException("This pet cannot be deleted because it has an active booking");
+        }
+
+        //if ever have been used in booking instead of deleting we will set status false
+        if (bookingRepository.existsByPetsId(petId))
+        {
+            pet.setActive(false);
+            petRepository.save(pet);
+            return;
+        }
+
+        // A pet with no booking history can be deleted.
         imageStorageService.deletePetImage(pet.getImageUrl());
         petRepository.delete(pet);
-
         log.info("Deleted pet with id: {}, for user {}", petId, email);
+
     }
 
     @Override
@@ -199,5 +220,16 @@ public class PetServiceImpl implements PetService{
         }
 
         return toResponseDto(petRepository.save(pet));
+    }
+
+
+    @Override
+    public List<PetResponseDto> getActivePetsByOwnerId(Long ownerProfileId)
+    {
+        return petRepository
+                .findByOwnerProfileIdAndActiveTrue(ownerProfileId)
+                .stream()
+                .map(this::toResponseDto)
+                .toList();
     }
 }

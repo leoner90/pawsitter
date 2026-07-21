@@ -1,0 +1,67 @@
+name: Show Docker Logs
+
+on:
+  workflow_dispatch:
+
+jobs:
+  logs:
+    runs-on: self-hosted
+
+    steps:
+      - name: Show running containers
+        run: |
+          echo "===== RUNNING CONTAINERS ====="
+          timeout 20s docker ps \
+            --format 'table {{.Names}}\t{{.Image}}\t{{.Status}}' \
+            || echo "docker ps timed out"
+
+      - name: Show PawSitter application logs
+        continue-on-error: true
+        run: |
+          echo "===== PAWSITTER APP LOGS ====="
+          timeout 30s docker logs \
+            --timestamps \
+            --tail 300 \
+            pawsitter-app \
+            || echo "Could not read pawsitter-app logs"
+
+      - name: Show PawSitter MySQL logs
+        continue-on-error: true
+        run: |
+          echo "===== PAWSITTER MYSQL LOGS ====="
+          timeout 30s docker logs \
+            --timestamps \
+            --tail 300 \
+            pawsitter-mysql \
+            || echo "Could not read pawsitter-mysql logs"
+
+      - name: Show recent logs from every container
+        if: always()
+        continue-on-error: true
+        run: |
+          echo "===== ALL CONTAINER LOGS ====="
+
+          CONTAINERS=$(timeout 20s docker ps -aq || true)
+
+          if [ -z "$CONTAINERS" ]; then
+            echo "No containers found, or container listing timed out"
+            exit 0
+          fi
+
+          for container in $CONTAINERS; do
+            NAME=$(timeout 10s docker inspect \
+              --format='{{.Name}}' "$container" 2>/dev/null \
+              | sed 's#^/##')
+
+            echo
+            echo "========================================"
+            echo "Container: ${NAME:-$container}"
+            echo "========================================"
+
+            timeout 30s docker logs \
+              --timestamps \
+              --tail 100 \
+              "$container" \
+              2>&1 \
+              || echo "Could not read logs"
+          done
