@@ -30,6 +30,7 @@ jobs:
           STRIPE_SECRET_KEY=${{ secrets.STRIPE_SECRET_KEY }}
           STRIPE_WEBHOOK_SECRET=${{ secrets.STRIPE_WEBHOOK_SECRET }}
           APP_BASE_URL=${{ secrets.APP_BASE_URL }}
+          FRONTEND_BASE_URL: ${FRONTEND_BASE_URL}
           EOF
 
         #secrets are hidden from Actions log:
