@@ -75,5 +75,5 @@ public class Booking {
 
     //payment status
     @Column(nullable = false)
-    private boolean paid = false;
+    private boolean paid = true;
 }

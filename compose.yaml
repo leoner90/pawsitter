@@ -10,8 +10,8 @@ services:
       MYSQL_PASSWORD: ${MYSQL_PASSWORD}
       MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
 
-#    ports:
-#      - "3306:3306"
+    ports:
+      - "3306:3306"
 
     volumes:
       - pawsitter-mysql-data:/var/lib/mysql
