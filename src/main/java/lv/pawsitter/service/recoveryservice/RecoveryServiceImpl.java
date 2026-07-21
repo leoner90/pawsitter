@@ -44,6 +44,7 @@ public class RecoveryServiceImpl implements RecoveryService {
     private String frontendBaseUrl;
 
     @Override
+    @Transactional
     public void generateAndEmail(String email) {
         log.info("Starting password recovery process for email={}", maskingUtil.maskEmail(email));
 
