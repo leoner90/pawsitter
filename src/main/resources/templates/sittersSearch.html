@@ -15,77 +15,116 @@
         <main class="page-content">
             <section class="sitters-section">
                 <div class="section-heading">
-                    <div>
+                    <div class="search-page-heading">
                         <h2>Available pet sitters</h2>
                         <p>Find someone trustworthy to care for your pet.</p>
                     </div>
                 </div>
 
-                <!--  Search -->
-                <p class="form-error" th:if="${searchError}" th:text="${searchError}"></p>
+                <!--  Search Filters-->
+                <div class="search-section-panel">
+                    <div class="search-page-layout">
+                        <aside class="search-sidebar">
+                            <p class="form-error" th:if="${searchError}" th:text="${searchError}"></p>
+                            <form th:action="@{/sitters/search}" method="get" class="sitter-search-form">
+                                <div>
+                                    <label for="startDate">From</label>
+                                    <input id="startDate" name="startDate" type="date" th:value="${startDate}" th:min="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}" >
+                                </div>
 
-                <form th:action="@{/sitters/search}" method="get" class="sitter-search-form">
-                    <div>
-                        <label for="startDate">From</label>
-                        <input id="startDate" name="startDate" type="date" th:value="${startDate}" th:min="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}" required>
+                                <div>
+                                    <label for="endDate">To</label>
+                                    <input id="endDate" name="endDate" type="date" th:value="${endDate}" th:min="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}" >
+                                </div>
+
+                                <div class="partial-search-option">
+                                    <input id="includePartial" name="includePartial" type="checkbox" value="true" th:checked="${includePartial}">
+                                    <label for="includePartial">Show partial availability</label>
+                                </div>
+
+                                <!--   city  search-->
+                                <div>
+                                    <label for="city">City</label>
+                                    <select id="city" name="city">
+                                        <option value="">All cities</option>
+                                        <option value="Riga" th:selected="${selectedCity == 'Riga'}">Riga</option>
+                                        <option value="Jurmala" th:selected="${selectedCity == 'Jurmala'}">Jurmala</option>
+                                        <option value="Jelgava" th:selected="${selectedCity == 'Jelgava'}">Jelgava</option>
+                                        <option value="Liepaja" th:selected="${selectedCity == 'Liepaja'}">Liepaja</option>
+                                        <option value="Ventspils" th:selected="${selectedCity == 'Ventspils'}">Ventspils</option>
+                                        <option value="Daugavpils" th:selected="${selectedCity == 'Daugavpils'}">Daugavpils</option>
+                                    </select>
+                                </div>
+
+                                <!--   max price  search-->
+                                <div>
+                                    <label for="maxPrice">Maximum price</label>
+                                    <input id="maxPrice" name="maxPrice" type="number" min="0" step="0.01" th:value="${maxPrice}" placeholder="-">
+                                </div>
+                                <button type="submit" class="button primary-button">Search</button>
+
+                                <!--just navigates back to same page and  clears filters :))))-->
+                                <a th:href="@{/sittersSearch}" class="button secondary-button">
+                                    Clear Filters
+                                </a>
+                            </form>
+                        </aside>
+
+                        <!--****************      Search Result       ****************-->
+                        <section class="search-results">
+                            <div class="search-results-header">
+                                <h3>Search results</h3>
+                                <p class="search-results-count"
+                                   th:if="${sitters != null}">
+                                    <span th:text="${#lists.size(sitters)}">0</span>
+                                    sitters found
+                                </p>
+                            </div>
+
+                            <!--  Search Body-->
+                            <div class="sitter-grid" th:if="${!#lists.isEmpty(sitters)}">
+                                <article class="sitter-card" th:each="sitter : ${sitters}">
+                                    <img th:src="${sitter.imageUrl != null && !sitter.imageUrl.isBlank()
+                                        ?  sitter.imageUrl
+                                        : '/images/sittersImages/default-sitter.png'}"
+                                            alt="Sitter profile"
+                                            class="sitter-card-image"
+                                    >
+
+                                    <div class="sitter-card-content">
+                                        <h3 th:text="${sitter.user.firstName + ' ' + sitter.user.lastName}">
+                                            Sitter name
+                                        </h3>
+                                        <p>
+                                            <strong>Location:</strong>
+                                            <span th:text="${sitter.location}">Default location</span>
+                                        </p>
+
+                                        <p class="sitter-description" th:text="${sitter.description}">
+                                            Sitter description
+                                        </p>
+
+                                        <p class="sitter-price">
+                                            From
+                                            <strong>
+                                                €<span th:text="${sitter.pricePerDay}">0.00</span>
+                                            </strong>
+                                            per day
+                                        </p>
+
+                                        <a th:href="@{/sitters/{id}(id=${sitter.id})}" class="button primary-button">
+                                            View profile
+                                        </a>
+                                    </div>
+                                </article>
+                            </div>
+
+                            <div class="empty-state" th:if="${#lists.isEmpty(sitters)}">
+                                <h3>No sitters available yet</h3>
+                                <p>New sitter profiles will appear here.</p>
+                            </div>
+                        </section>
                     </div>
-
-                    <div>
-                        <label for="endDate">To</label>
-                        <input id="endDate" name="endDate" type="date" th:value="${endDate}" th:min="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}" required>
-                    </div>
-
-                    <div class="partial-search-option">
-                        <input id="includePartial" name="includePartial" type="checkbox" value="true" th:checked="${includePartial}">
-                        <label for="includePartial">Include partially available sitters</label>
-                    </div>
-
-
-                    <button type="submit" class="button primary-button">Search</button>
-                </form>
-
-                <div class="sitter-grid" th:if="${!#lists.isEmpty(sitters)}">
-                    <article class="sitter-card" th:each="sitter : ${sitters}">
-
-                        <img th:src="${sitter.imageUrl != null && !sitter.imageUrl.isBlank()
-                            ?  sitter.imageUrl
-                            : '/images/sittersImages/default-sitter.png'}"
-                                alt="Sitter profile"
-                                class="sitter-card-image"
-                        >
-
-                        <div class="sitter-card-content">
-                            <h3 th:text="${sitter.user.firstName + ' ' + sitter.user.lastName}">
-                                Sitter name
-                            </h3>
-
-                            <p>
-                                <strong>Location:</strong>
-                                <span th:text="${sitter.location}">Default location</span>
-                            </p>
-
-                            <p class="sitter-description" th:text="${sitter.description}">
-                                Sitter description
-                            </p>
-
-                            <p class="sitter-price">
-                                From
-                                <strong>
-                                    €<span th:text="${sitter.pricePerDay}">0.00</span>
-                                </strong>
-                                per day
-                            </p>
-
-                            <a th:href="@{/sitters/{id}(id=${sitter.id})}" class="button primary-button">
-                                View profile
-                            </a>
-                        </div>
-                    </article>
-                </div>
-
-                <div class="empty-state" th:if="${#lists.isEmpty(sitters)}">
-                    <h3>No sitters available yet</h3>
-                    <p>New sitter profiles will appear here.</p>
                 </div>
             </section>
         </main>

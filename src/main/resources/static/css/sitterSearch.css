@@ -1,26 +1,206 @@
+.search-section-panel {
+    margin-top: 24px;
+    padding: 28px;
+    background: #fbf7f7;
+    border: 1px solid #eadede;
+    border-radius: 20px;
+    box-shadow: 0 6px 22px rgba(60, 36, 36, 0.06);
+}
+
+.search-page-layout {
+    display: grid;
+    grid-template-columns: 280px minmax(0, 1fr);
+    gap: 28px;
+    align-items: start;
+}
+
+.search-sidebar {
+    position: sticky;
+    top: 92px;
+}
+
 .sitter-search-form {
     display: flex;
-    align-items: end;
+    flex-direction: column;
     gap: 16px;
-    flex-wrap: wrap;
-    margin: 20px 0;
+    padding: 24px;
+    background: white;
+    border: 1px solid #eadede;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(0, 0, 0, 0.07);
 }
 
-.sitter-search-form > div {
+.search-form-title {
+    margin: 0 0 4px;
+}
+
+.search-field {
     display: flex;
     flex-direction: column;
-    gap: 5px;
+    gap: 6px;
 }
 
-.sitter-search-form input[type="date"] {
-    padding: 8px 10px;
+.sitter-search-form label {
+    font-weight: 600;
 }
 
-.sitter-search-form input[type="checkbox"] {
-    margin-right: 6px;
+.sitter-search-form input[type="date"],
+.sitter-search-form input[type="number"],
+.sitter-search-form select {
+    width: 100%;
+    padding: 11px 12px;
+    border: 1px solid #c9b6b6;
+    border-radius: 8px;
+    background: white;
+    color: #352323;
+    font: inherit;
 }
 
-.form-error {
-    color: red;
-    margin-bottom: 10px;
+.sitter-search-form input:focus,
+.sitter-search-form select:focus {
+    outline: 2px solid rgba(127, 84, 84, 0.2);
+    border-color: #7f5454;
+}
+
+.partial-search-option {
+    display: flex;
+    flex-direction: row;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.partial-search-option input {
+    margin-top: 3px;
+}
+
+.search-form-actions {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+}
+
+.search-form-actions .button {
+    width: 100%;
+    text-align: center;
+}
+
+.search-results {
+    min-width: 0;
+    padding: 4px;
+}
+
+.search-results-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 18px;
+}
+
+.search-results-header h3 {
+    margin: 0;
+}
+
+.search-results-count {
+    margin: 0;
+    color: #7a6262;
+    font-size: 0.95rem;
+}
+
+.search-results .sitter-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    margin-top: 0;
+}
+
+.search-results .sitter-card {
+    border: 1px solid #eadede;
+    box-shadow: 0 6px 18px rgba(60, 36, 36, 0.09);
+    transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.search-results .sitter-card:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 10px 24px rgba(60, 36, 36, 0.13);
+}
+
+.search-results .empty-state {
+    margin-top: 0;
+    border: 1px solid #eadede;
+}
+
+@media (max-width: 900px) {
+
+    .search-section-panel {
+        padding: 22px;
+    }
+
+    .search-page-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .search-sidebar {
+        position: static;
+    }
+
+    .sitter-search-form {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .search-form-title,
+    .partial-search-option,
+    .search-form-actions {
+        grid-column: 1 / -1;
+    }
+
+    .search-form-actions {
+        flex-direction: row;
+    }
+}
+
+@media (max-width: 620px) {
+
+    .search-section-panel {
+        padding: 14px;
+        border-radius: 14px;
+    }
+
+    .sitter-search-form {
+        display: flex;
+        flex-direction: column;
+        padding: 18px;
+    }
+
+    .search-form-actions {
+        flex-direction: column;
+    }
+
+    .search-results-header {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .search-results .sitter-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
+.search-page-heading h2 {
+    margin: 0 0 8px;
+    font-size: 2rem;
+    color: #3c2424;
+}
+
+.search-page-heading p {
+    margin: 0;
+    color: #7a6262;
+    font-size: 1.05rem;
+    line-height: 1.5;
+}
+
+.search-page-heading {
+    margin-bottom: 24px;
+    padding-left: 16px;
+    border-left: 4px solid #7f5454;
+    font-style: italic;
 }

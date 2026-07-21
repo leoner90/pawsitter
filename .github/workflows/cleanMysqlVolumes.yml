@@ -1,0 +1,29 @@
+name: Delete Mysql Volumes
+
+on:
+  workflow_dispatch:
+
+jobs:
+  cleanup:
+    runs-on: self-hosted
+
+    steps:
+      - name: Show target volumes
+        run: |
+          docker volume ls --format '{{.Name}}' \
+            | grep -E '^(pawsitter_pawsitter-mysql-data|testdeploy5_pawsitter-mysql-data)$' \
+            || true
+
+      - name: Remove target volumes
+        run: |
+          docker volume rm -f \
+          pawsitter_pawsitter-mysql-data \
+          testdeploy5_pawsitter-mysql-data
+
+      - name: Verify remaining target volumes
+        if: always()
+        run: |
+          echo "Remaining target volumes:"
+          docker volume ls --format '{{.Name}}' \
+            | grep -E '^(pawsitter_pawsitter-mysql-data|testdeploy5_pawsitter-mysql-data)$' \
+            || echo "None"

@@ -4,42 +4,24 @@
     <section class="profile-section">
         <h2>Availability</h2>
 
-        <form th:action="@{/sitter/profile/availability}"
-              th:object="${availabilityRequest}"
-              method="post">
+        <form th:action="@{/sitter/profile/availability}" th:object="${availabilityRequest}" method="post"  class="availability-form">
 
-            <label for="startDate">Available from</label>
+            <div class="availability-field">
+                <label for="startDate">Available from</label>
+                <input id="startDate" type="date" th:field="*{startDate}"  th:min="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}">
+                <p th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}" class="form-error"></p>
+            </div>
 
-            <input id="startDate"
-                   type="date"
-                   th:field="*{startDate}">
+            <div class="availability-field">
+                <label for="endDate">Available until</label>
+                <input id="endDate" type="date" th:field="*{endDate}" th:min="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}">
+                <p th:if="${#fields.hasErrors('endDate')}" th:errors="*{endDate}" class="form-error"></p>
+                <p th:if="${#fields.hasErrors('dateRangeValid')}" th:errors="*{dateRangeValid}" class="form-error"></p>
+            </div>
 
-            <p th:if="${#fields.hasErrors('startDate')}"
-               th:errors="*{startDate}"
-               class="form-error">
-            </p>
-
-            <label for="endDate">Available until</label>
-
-            <input id="endDate"
-                   type="date"
-                   th:field="*{endDate}">
-
-            <p th:if="${#fields.hasErrors('endDate')}"
-               th:errors="*{endDate}"
-               class="form-error">
-            </p>
-
-            <p th:if="${#fields.hasErrors('dateRangeValid')}"
-               th:errors="*{dateRangeValid}"
-               class="form-error">
-            </p>
-
-            <button type="submit"
-                    class="button primary-button">
-                Add availability
-            </button>
-
+            <div class="availability-field">
+                <button type="submit" class="button primary-button">Add availability </button>
+            </div>
         </form>
     </section>
 

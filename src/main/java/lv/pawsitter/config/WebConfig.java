@@ -10,20 +10,15 @@ public class WebConfig implements WebMvcConfigurer
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry)
     {
+        //we need this to automatically reload images on change, so sitter changed page and immediately sees this
         registry
                 .addResourceHandler("/images/sittersImages/**")
-                .addResourceLocations(
-                        "file:src/main/resources/static/images/sittersImages/"
-                );
+                .addResourceLocations("file:src/main/resources/static/images/sittersImages/");
         registry
                 .addResourceHandler("/images/ownersImages/**")
-                .addResourceLocations(
-                        "file:src/main/resources/static/images/ownersImages/"
-                );
+                .addResourceLocations("file:src/main/resources/static/images/ownersImages/");
         registry
                 .addResourceHandler("/images/petsImages/**")
-                .addResourceLocations(
-                        "file:src/main/resources/static/images/petsImages/"
-                );
+                .addResourceLocations("file:src/main/resources/static/images/petsImages/");
     }
 }
