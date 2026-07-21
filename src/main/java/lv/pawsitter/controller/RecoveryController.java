@@ -40,11 +40,16 @@ public class RecoveryController {
     @PostMapping("/recovery/updatePassword")
     public String updatePassword(
             @RequestParam String recoveryToken,
-            @Valid @ModelAttribute RecoveryRequestDTO request,
-            BindingResult result
+            @Valid @ModelAttribute("recoveryRequestDTO") RecoveryRequestDTO request,
+            BindingResult result,
+            Model model
     ) {
         if (result.hasErrors()) {
-            return "recovery/updatePassword"; // show form again
+
+            model.addAttribute("recoveryToken", recoveryToken);
+            model.addAttribute("recoveryRequestDTO", request);
+
+            return "recovery/updatePassword";
         }
 
         recoveryService.changePassword(
