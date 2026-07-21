@@ -5,10 +5,7 @@ import lv.pawsitter.dto.SitterAvailabilityRequest;
 import lv.pawsitter.dto.SitterProfileUpdateDTO;
 import lv.pawsitter.dto.SitterPublishDTO;
 import lv.pawsitter.entity.Booking;
-<<<<<<< HEAD
 import lv.pawsitter.entity.BookingStatus;
-=======
->>>>>>> develop
 import lv.pawsitter.entity.SitterAvailability;
 import lv.pawsitter.entity.SitterProfile;
 import lv.pawsitter.exception.AvailabilityNotFoundException;
@@ -121,7 +118,6 @@ public class SitterProfileServiceImpl implements SitterProfileService
         LocalDate requestedStartDate = request.startDate();
         LocalDate requestedEndDate = request.endDate();
         List<SitterAvailability> availabilityRanges = sitterAvailabilityRepository.findBySitterProfileId(sitterProfile.getId());
-<<<<<<< HEAD
 
         //If dates are already in Availability calendar
         boolean alreadyCovered = availabilityRanges.stream()
@@ -129,27 +125,6 @@ public class SitterProfileServiceImpl implements SitterProfileService
                         !requestedStartDate.isBefore(availability.getStartDate())
                                 && !requestedEndDate.isAfter(availability.getEndDate())
                 );
-=======
-
-
-        //if this dates already exists throw err
-        boolean alreadyCovered = availabilityRanges.stream()
-                .anyMatch(availability ->
-                        !requestedStartDate.isBefore(availability.getStartDate())
-                                && !requestedEndDate.isAfter(availability.getEndDate())
-                );
-
-        if (alreadyCovered)
-        {
-            throw new InvalidSitterOperationException("These dates are already included in your availability");
-        }
-
-        List<SitterAvailability> rangesToMerge = availabilityRanges.stream()
-                .filter(availability -> overlapsOrTouches(availability, requestedStartDate, requestedEndDate))
-                .toList();
-
-        SitterAvailability availability = rangesToMerge.isEmpty() ? new SitterAvailability() : rangesToMerge.getFirst();
->>>>>>> develop
 
         if (alreadyCovered)
         {
