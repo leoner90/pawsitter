@@ -237,6 +237,25 @@
     width: 100%;
 }
 
+.inactive-pet {opacity: 0.35;}
+
+.inactive-pet .pet-image {
+    filter: grayscale(100%);
+}
+
+.inactive-text {
+    font-weight: 600;
+    color: #6b7280;
+}
+
+.inactive-label{
+    color: darkred;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-weight: 600;
+    cursor: default;
+}
+
 @media (max-width: 1360px) {
     .profile-header,
     .pet-profile {
@@ -258,4 +277,222 @@
     {
         flex-direction: column;
     }
+    .availability-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: fit-content;
+        margin: 8px 0;
+        padding: 10px 14px;
+
+        background: #fffafa;
+        border: 1px solid #d9caca;
+        border-radius: 10px;
+
+        box-shadow: 0 3px 10px rgba(60, 36, 36, 0.08);
+    }
+
+    .availability-row span {
+        font-weight: 600;
+        color: #3c2424;
+    }
+
+    .availability-row span:nth-child(2) {
+        color: #8a7373;
+        font-weight: 400;
+    }
+
+    .availability-row form {
+        margin: 0 0 0 6px;
+    }
+
+    .availability-cancel-button {
+        width: 28px;
+        height: 28px;
+        padding: 0;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border: 1px solid #b02a37;
+        border-radius: 50%;
+        background: white;
+        color: #b02a37;
+
+        font-size: 1.2rem;
+        font-weight: bold;
+        line-height: 1;
+        cursor: pointer;
+
+        transition:
+                background-color 0.2s ease,
+                color 0.2s ease,
+                transform 0.2s ease;
+    }
+
+    .availability-cancel-button:hover {
+        background: #b02a37;
+        color: white;
+        transform: scale(1.08);
+    }
+}
+
+.availability-form input[type="date"] {
+    padding: 10px 12px;
+    border: 1px solid #c9b6b6;
+    border-radius: 8px;
+    background: #fffafa;
+    color: #352323;
+    font: inherit;
+    cursor: pointer;
+}
+
+.availability-form input[type="date"]:hover {
+    border-color: #7f5454;
+}
+
+.availability-form input[type="date"]:focus {
+    outline: 2px solid rgba(127, 84, 84, 0.2);
+    border-color: #7f5454;
+}
+
+.availability-form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.availability-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+}
+
+.reserved-bookings {
+    margin-top: 24px;
+    padding: 20px;
+    background-color: #ffe6ec;
+    border: 1px solid #e8c978;
+    border-radius: 12px;
+}
+
+.reserved-bookings h3 {
+    margin-top: 0;
+    margin-bottom: 16px;
+}
+
+.reserved-booking-row {
+    margin-bottom: 10px;
+    padding: 12px;
+    background-color: white;
+    border: 1px solid #eeeeee;
+    border-radius: 8px;
+}
+
+.reserved-booking-row:last-child {
+    margin-bottom: 0;
+}
+
+.reserved-booking-row p {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin: 0;
+}
+
+.reserved-booking-row strong {
+    margin-left: auto;
+    padding: 5px 10px;
+    border-radius: 15px;
+    background-color: #eeeeee;
+    font-size: 0.85rem;
+}
+
+.available-dates {
+    margin-top: 24px;
+    padding: 20px;
+    background-color: #f3fbf5;
+    border: 1px solid #9ecfaa;
+    border-radius: 12px;
+}
+
+.available-dates h3 {
+    margin-top: 0;
+    margin-bottom: 16px;
+}
+
+.availability-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+
+    margin-bottom: 10px;
+    padding: 12px;
+
+    background-color: white;
+    border: 1px solid #eeeeee;
+    border-radius: 8px;
+}
+
+.availability-row:last-child {
+    margin-bottom: 0;
+}
+
+.availability-row form {
+    margin-left: auto;
+}
+
+.availability-cancel-button {
+    width: 30px;
+    height: 30px;
+
+    padding: 0;
+    border: none;
+    border-radius: 50%;
+
+    background-color: #f3d7d7;
+    font-size: 20px;
+    line-height: 30px;
+
+    cursor: pointer;
+}
+
+.availability-cancel-button:hover {
+    background-color: #e9bcbc;
+}
+
+.edit-profile-button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+
+    margin-top: 24px;
+    padding: 10px 18px;
+
+    border: 1px solid #8ca6a0;
+    border-radius: 10px;
+
+    background-color: #eef5f3;
+    color: #2f4f49;
+
+    font-weight: 600;
+    text-decoration: none;
+
+    transition:
+            background-color 0.2s ease,
+            transform 0.2s ease,
+            box-shadow 0.2s ease;
+}
+
+.edit-profile-button:hover {
+    background-color: #dfece8;
+    transform: translateY(-1px);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.08);
+}
+
+.edit-profile-button:active {
+    transform: translateY(0);
+    box-shadow: none;
 }

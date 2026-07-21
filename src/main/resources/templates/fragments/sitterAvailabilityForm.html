@@ -4,43 +4,67 @@
     <section class="profile-section">
         <h2>Availability</h2>
 
-        <form th:action="@{/sitter/profile/availability}"
-              th:object="${availabilityRequest}"
-              method="post">
+        <form th:action="@{/sitter/profile/availability}" th:object="${availabilityRequest}" method="post"  class="availability-form">
 
-            <label for="startDate">Available from</label>
+            <div class="availability-field">
+                <label for="startDate">Available from</label>
+                <input id="startDate" type="date" th:field="*{startDate}"  th:min="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}">
+                <p th:if="${#fields.hasErrors('startDate')}" th:errors="*{startDate}" class="form-error"></p>
+            </div>
 
-            <input id="startDate"
-                   type="date"
-                   th:field="*{startDate}">
-
-            <p th:if="${#fields.hasErrors('startDate')}"
-               th:errors="*{startDate}"
-               class="form-error">
-            </p>
-
-            <label for="endDate">Available until</label>
-
-            <input id="endDate"
-                   type="date"
-                   th:field="*{endDate}">
-
-            <p th:if="${#fields.hasErrors('endDate')}"
-               th:errors="*{endDate}"
-               class="form-error">
-            </p>
-
-            <p th:if="${#fields.hasErrors('dateRangeValid')}"
-               th:errors="*{dateRangeValid}"
-               class="form-error">
-            </p>
-
-            <button type="submit"
-                    class="button primary-button">
-                Add availability
-            </button>
-
+            <div class="availability-field">
+                <label for="endDate">Available until</label>
+                <input id="endDate" type="date" th:field="*{endDate}" th:min="${#temporals.format(#temporals.createToday(), 'yyyy-MM-dd')}">
+                <p th:if="${#fields.hasErrors('endDate')}" th:errors="*{endDate}" class="form-error"></p>
+                <p th:if="${#fields.hasErrors('dateRangeValid')}" th:errors="*{dateRangeValid}" class="form-error"></p>
+            </div>
+            <div class="availability-field">
+                <button type="submit" class="button primary-button">Add availability </button>
+            </div>
         </form>
+
+        <!--            Pre-booked availability dates show for sitter information-->
+        <section class="reserved-bookings">
+            <h3>Reserved booking dates</h3>
+
+            <div th:if="${reservedBookings.isEmpty()}">
+                No reserved dates.
+            </div>
+
+            <div th:each="booking : ${reservedBookings}"  class="reserved-booking-row">
+                <p>
+                    <span th:text="${#temporals.format(booking.startDate(), 'dd MMM yyyy')}"></span>
+                    -
+                    <span th:text="${#temporals.format(booking.endDate(), 'dd MMM yyyy')}"></span>
+
+                    <strong th:text="${booking.status()}"></strong>
+                </p>
+            </div>
+        </section>
+    </section>
+
+
+    <!-- error check availability -->
+    <p class="form-error" th:if="${availabilityError}" th:text="${availabilityError}"></p>
+
+
+    <!--                Already Available Dates-->
+    <section class="available-dates">
+        <h3>Your available dates</h3>
+        <div th:if="${!#lists.isEmpty(availabilityRanges)}">
+            <div th:each="availability : ${availabilityRanges}" class="availability-row">
+                <span th:text="${availability.startDate}">2026-07-20</span>
+                <span>to</span>
+                <span th:text="${availability.endDate}">2026-07-25</span>
+
+                <form th:action="@{/sitter/profile/availability/{id}/delete(id=${availability.id})}" method="post">
+                    <button type="submit" class="availability-cancel-button" aria-label="Cancel availability">×</button>
+                </form>
+            </div>
+        </div>
+        <p th:if="${#lists.isEmpty(availabilityRanges)}">
+            No availability dates added yet.
+        </p>
     </section>
 
 </div>

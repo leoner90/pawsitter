@@ -1,0 +1,42 @@
+name: Inspect Docker Runner
+
+on:
+  workflow_dispatch:
+
+jobs:
+  inspect:
+    runs-on: self-hosted
+
+    steps:
+      - name: Show runner information
+        run: |
+          echo "Runner: $RUNNER_NAME"
+          echo "Host: $(hostname)"
+          echo "User: $(whoami)"
+
+      - name: Check Docker daemon
+        run: |
+          timeout 20s docker version || {
+            echo "Docker daemon did not respond within 20 seconds"
+            exit 1
+          }
+
+      - name: Show all containers
+        run: |
+          echo "===== CONTAINERS ====="
+          timeout 20s docker ps -a || echo "docker ps timed out"
+
+      - name: Show all Docker volumes
+        run: |
+          echo "===== VOLUMES ====="
+          timeout 20s docker volume ls || echo "docker volume ls timed out"
+
+      - name: Show all Docker images
+        run: |
+          echo "===== IMAGES ====="
+          timeout 20s docker image ls || echo "docker image ls timed out"
+
+      - name: Show Docker networks
+        run: |
+          echo "===== NETWORKS ====="
+          timeout 20s docker network ls || echo "docker network ls timed out"

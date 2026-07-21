@@ -75,6 +75,16 @@
                         Back
                     </a>
 
+                    <!-- owner profile link -->
+                    <a th:if="${!ownerView}" th:href="@{/sitter/bookings/{bookingId}/owner( bookingId=${booking.id()})}" class="button secondary-button">
+                        View owner profile
+                    </a>
+
+                    <!-- sitter profile link -->
+                    <a th:if="${ownerView}" th:href="@{/sitters/{id}(id=${booking.sitterId()})}" class="button secondary-button">
+                        View sitter profile
+                    </a>
+
                     <a
                             th:if="${ownerView && booking.status().name() == 'REQUESTED'}"
                             th:href="@{/owner/bookings/{id}/edit(id=${booking.id()})}"
@@ -84,7 +94,9 @@
                     </a>
 
                     <form
-                            th:if="${ownerView && (booking.status().name() == 'REQUESTED' || booking.status().name() == 'ACCEPTED')}"
+                            th:if="${ownerView
+                            && !booking.paid()
+                            && (booking.status().name() == 'REQUESTED' || booking.status().name() == 'ACCEPTED')}"
                             th:action="@{/owner/bookings/{id}/cancel(id=${booking.id()})}"
                             method="post"
                     >
@@ -104,7 +116,7 @@
                     </form>
 
                     <form
-                            th:if="${!ownerView && booking.status().name() == 'REQUESTED'}"
+                            th:if="${!ownerView && booking.status().name() == 'REQUESTED'  && !booking.paid()}"
                             th:action="@{/sitter/bookings/{id}/reject(id=${booking.id()})}"
                             method="post"
                     >
@@ -114,12 +126,22 @@
                     </form>
 
                     <form
-                            th:if="${!ownerView && booking.status().name() == 'ACCEPTED'}"
+                            th:if="${!ownerView && booking.status().name() == 'ACCEPTED' } "
                             th:action="@{/sitter/bookings/{id}/complete(id=${booking.id()})}"
                             method="post"
                     >
                         <button type="submit" class="button primary-button">
                             Complete
+                        </button>
+                    </form>
+
+                    <!--                                Payment Button-->
+                    <form th:if="${ownerView
+                            && booking.status().name() == 'ACCEPTED'  && !booking.paid()}" method="post"
+                          th:action="@{/owner/bookings/{id}/checkout(id=${booking.id()})}"
+                    >
+                        <button type="submit" class="button primary-button">
+                            Pay now
                         </button>
                     </form>
 

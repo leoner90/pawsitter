@@ -48,4 +48,21 @@ public class MaskingUtil {
         if (password == null) return null;
         return password.length() <= 3 ? "***" : password.substring(0, 3) + "***";
     }
+
+    /**
+     * Masks a token by keeping the first 4 and last 4 characters.
+     * If token is too short, masks fully.
+     *
+     * @param token the token to mask
+     * @return masked token
+     */
+    public String maskToken(String token) {
+        if (token == null) return null;
+        if (token.length() <= 8) return "********";
+
+        String start = token.substring(0, 4);
+        String end = token.substring(token.length() - 4);
+
+        return start + "****" + end;
+    }
 }

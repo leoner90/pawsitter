@@ -11,6 +11,7 @@ import lv.pawsitter.dto.PetResponseDto;
 import lv.pawsitter.dto.ReviewRequest;
 import lv.pawsitter.dto.ReviewResponse;
 import lv.pawsitter.dto.UpdateBookingRequest;
+import lv.pawsitter.entity.Booking;
 import lv.pawsitter.entity.BookingStatus;
 import lv.pawsitter.entity.OwnerProfile;
 import lv.pawsitter.service.BookingService;
@@ -53,6 +54,19 @@ public class BookingPageController {
     model.addAttribute("selectedStatus", status);
     model.addAttribute("statuses", BookingStatus.values());
     return "owner/bookings";
+  }
+
+//  SHOW OWNER PROFILE FOR SEATER ON BOOKING PROCESS
+  @GetMapping("/sitter/bookings/{bookingId}/owner")
+  public String viewOwnerProfile(@PathVariable Long bookingId, Authentication authentication, Model model)
+  {
+    Booking booking = bookingService.getBookingForSitter(bookingId, authentication.getName());
+
+    model.addAttribute("owner", booking.getOwner());
+    model.addAttribute("pets", booking.getPets());
+    model.addAttribute("booking", booking);
+
+    return "booking/ownerProfileView";
   }
 
   @GetMapping("/sitter/bookings")
@@ -316,15 +330,10 @@ public class BookingPageController {
     return "redirect:/sitter/bookings";
   }
 
-  private void populateBookingForm(
-      Model model,
-      String ownerEmail,
-      Long sitterId,
-      CreateBookingRequest bookingRequest
-  ) {
+  private void populateBookingForm(Model model, String ownerEmail, Long sitterId, CreateBookingRequest bookingRequest)
+  {
     OwnerProfile ownerProfile = ownerProfileService.getProfileByUserEmail(ownerEmail);
-    List<PetResponseDto> pets = petService.getPetsByOwnerId(ownerProfile.getId());
-
+    List<PetResponseDto> pets = petService.getActivePetsByOwnerId(ownerProfile.getId());
     model.addAttribute("bookingRequest", bookingRequest);
     model.addAttribute("pets", pets);
 
@@ -341,7 +350,7 @@ public class BookingPageController {
       UpdateBookingRequest bookingRequest
   ) {
     OwnerProfile ownerProfile = ownerProfileService.getProfileByUserEmail(ownerEmail);
-    List<PetResponseDto> pets = petService.getPetsByOwnerId(ownerProfile.getId());
+    List<PetResponseDto> pets = petService.getActivePetsByOwnerId(ownerProfile.getId());
 
     model.addAttribute("booking", booking);
     model.addAttribute("bookingRequest", bookingRequest);

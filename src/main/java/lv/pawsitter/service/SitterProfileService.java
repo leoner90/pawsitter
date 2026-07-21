@@ -2,9 +2,11 @@ package lv.pawsitter.service;
 
 import lv.pawsitter.dto.SitterAvailabilityRequest;
 import lv.pawsitter.dto.SitterProfileUpdateDTO;
+import lv.pawsitter.entity.Booking;
 import lv.pawsitter.entity.SitterAvailability;
 import lv.pawsitter.entity.SitterProfile;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 
@@ -24,4 +26,10 @@ public interface SitterProfileService
     void deleteAvailability(String email, Long availabilityId);
     void publishProfile(String email);
     void unpublishProfile(String email);
+
+    //search
+    List<SitterProfile> searchSitters(String city, LocalDate startDate, LocalDate endDate, BigDecimal maxPrice, boolean includePartial);
+
+    //restore available dates on booking cancellation
+    void restoreAvailability(SitterProfile sitterProfile, LocalDate startDate, LocalDate endDate);
 }

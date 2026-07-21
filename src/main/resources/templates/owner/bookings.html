@@ -110,7 +110,8 @@
                             </a>
 
                             <form
-                                    th:if="${booking.status().name() == 'REQUESTED' || booking.status().name() == 'ACCEPTED'}"
+                                    th:if="${booking.status().name() == 'REQUESTED' || booking.status().name() == 'ACCEPTED'
+                                    && !booking.paid()}"
                                     th:action="@{/owner/bookings/{id}/cancel(id=${booking.id()})}"
                                     method="post"
                             >

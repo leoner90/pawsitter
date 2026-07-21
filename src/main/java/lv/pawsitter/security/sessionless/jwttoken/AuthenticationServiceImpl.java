@@ -1,6 +1,7 @@
-package lv.pawsitter.security;
+package lv.pawsitter.security.sessionless.jwttoken;
 
 import lombok.RequiredArgsConstructor;
+import lv.pawsitter.security.sessionless.SignInRequest;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.userdetails.UserDetails;
