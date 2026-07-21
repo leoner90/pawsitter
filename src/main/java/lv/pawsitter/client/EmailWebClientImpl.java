@@ -54,7 +54,6 @@ public class EmailWebClientImpl implements EmailWebClient {
                 subject,
                 text
         );
-
         return webClient.post()
                 .uri("/email")
                 .bodyValue(request)
