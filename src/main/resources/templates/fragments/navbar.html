@@ -3,30 +3,19 @@
         <img th:src="@{/images/mainLogo.png}" alt="PawSitter logo" class="nav-logo">
     </a>
 
-    <!--    for mobile-->
-    <button class="mobile-menu-button" type="button" aria-label="Open navigation menu" aria-expanded="false">
-        ☰
-    </button>
-
-    <!--    main nav bar-->
     <div class="nav-links">
-        <a sec:authorize="isAnonymous()" th:href="@{/}">Home</a>
+        <a th:href="@{/}">Home</a>
         <a sec:authorize="isAuthenticated()" th:href="@{/dashboard}">Dashboard</a>
-        <a th:href="@{/sittersSearch}">Find a Sitter</a>
+        <a th:href="@{/sittersSearch}">Find Sitter</a>
         <a sec:authorize="hasAuthority('USER')" th:href="@{/owner/profile}">My Profile</a>
         <a sec:authorize="hasAuthority('USER')" th:href="@{/owner/bookings}">My Bookings</a>
         <a sec:authorize="hasAuthority('SITTER')" th:href="@{/sitter/profile}">My Profile</a>
         <a sec:authorize="hasAuthority('SITTER')" th:href="@{/sitter/bookings}">My Bookings</a>
-        <a sec:authorize="isAnonymous()" th:href="@{/registration}">Sign In</a>
+        <a sec:authorize="isAnonymous()" th:href="@{/registration}">Register</a>
         <a sec:authorize="isAnonymous()" th:href="@{/login}">Log In</a>
 
         <form sec:authorize="isAuthenticated()" th:action="@{/logout}" method="post" class="logout-form">
             <button type="submit" class="nav-link-button">Log out</button>
         </form>
     </div>
-
-    <!--    JS for mobile design collapse-->
-    <!--    defer - Download Js now, but wait  until the HTML has finished loading. :)-->
-    <script th:src="@{/js/MainJs.js}" defer></script>
-
 </nav>
