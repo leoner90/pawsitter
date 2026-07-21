@@ -449,52 +449,94 @@ class BookingServiceImplTests {
   void getOwnerBookingsUsesUnfilteredRepositoryWhenStatusIsMissing() {
     Booking booking = booking(100L, BookingStatus.REQUESTED);
     when(ownerProfileRepository.findByUserEmail(OWNER_EMAIL)).thenReturn(Optional.of(owner));
-    when(bookingRepository.findByOwnerId(owner.getId())).thenReturn(List.of(booking));
+    when(bookingRepository.findByOwnerIdOrderByStartDateAsc(owner.getId())).thenReturn(List.of(booking));
 
     List<BookingResponse> responses = bookingService.getOwnerBookings(OWNER_EMAIL, null);
 
     assertThat(responses).hasSize(1);
-    verify(bookingRepository).findByOwnerId(owner.getId());
-    verify(bookingRepository, never()).findByOwnerIdAndStatus(any(), any());
+    verify(bookingRepository).findByOwnerIdOrderByStartDateAsc(owner.getId());
+    verify(bookingRepository, never()).findByOwnerIdAndStatusOrderByStartDateAsc(any(), any());
   }
 
   @Test
   void getOwnerBookingsUsesStatusFilterWhenProvided() {
     Booking booking = booking(100L, BookingStatus.ACCEPTED);
     when(ownerProfileRepository.findByUserEmail(OWNER_EMAIL)).thenReturn(Optional.of(owner));
-    when(bookingRepository.findByOwnerIdAndStatus(owner.getId(), BookingStatus.ACCEPTED)).thenReturn(List.of(booking));
+    when(bookingRepository.findByOwnerIdAndStatusOrderByStartDateAsc(owner.getId(), BookingStatus.ACCEPTED)).thenReturn(List.of(booking));
 
     List<BookingResponse> responses = bookingService.getOwnerBookings(OWNER_EMAIL, BookingStatus.ACCEPTED);
 
     assertThat(responses).hasSize(1);
-    verify(bookingRepository).findByOwnerIdAndStatus(owner.getId(), BookingStatus.ACCEPTED);
-    verify(bookingRepository, never()).findByOwnerId(any());
+    verify(bookingRepository).findByOwnerIdAndStatusOrderByStartDateAsc(owner.getId(), BookingStatus.ACCEPTED);
+    verify(bookingRepository, never()).findByOwnerIdOrderByStartDateAsc(any());
   }
 
   @Test
   void getSitterBookingsUsesUnfilteredRepositoryWhenStatusIsMissing() {
     Booking booking = booking(100L, BookingStatus.REQUESTED);
     when(sitterProfileRepository.findByUserEmail(SITTER_EMAIL)).thenReturn(Optional.of(sitter));
-    when(bookingRepository.findBySitterId(sitter.getId())).thenReturn(List.of(booking));
+    when(bookingRepository.findBySitterIdOrderByStartDateAsc(sitter.getId())).thenReturn(List.of(booking));
 
     List<BookingResponse> responses = bookingService.getSitterBookings(SITTER_EMAIL, null);
 
     assertThat(responses).hasSize(1);
-    verify(bookingRepository).findBySitterId(sitter.getId());
-    verify(bookingRepository, never()).findBySitterIdAndStatus(any(), any());
+    verify(bookingRepository).findBySitterIdOrderByStartDateAsc(sitter.getId());
+    verify(bookingRepository, never()).findBySitterIdAndStatusOrderByStartDateAsc(any(), any());
   }
 
   @Test
   void getSitterBookingsUsesStatusFilterWhenProvided() {
     Booking booking = booking(100L, BookingStatus.ACCEPTED);
     when(sitterProfileRepository.findByUserEmail(SITTER_EMAIL)).thenReturn(Optional.of(sitter));
-    when(bookingRepository.findBySitterIdAndStatus(sitter.getId(), BookingStatus.ACCEPTED)).thenReturn(List.of(booking));
+    when(bookingRepository.findBySitterIdAndStatusOrderByStartDateAsc(sitter.getId(), BookingStatus.ACCEPTED)).thenReturn(List.of(booking));
 
     List<BookingResponse> responses = bookingService.getSitterBookings(SITTER_EMAIL, BookingStatus.ACCEPTED);
 
     assertThat(responses).hasSize(1);
-    verify(bookingRepository).findBySitterIdAndStatus(sitter.getId(), BookingStatus.ACCEPTED);
-    verify(bookingRepository, never()).findBySitterId(any());
+    verify(bookingRepository).findBySitterIdAndStatusOrderByStartDateAsc(sitter.getId(), BookingStatus.ACCEPTED);
+    verify(bookingRepository, never()).findBySitterIdOrderByStartDateAsc(any());
+  }
+
+  @Test
+  void getOwnerBookingsShowsUpcomingBookingsBeforePastOnes() {
+    Booking pastBooking = booking(101L, BookingStatus.COMPLETED);
+    pastBooking.setStartDate(LocalDateTime.now().minusDays(5));
+    pastBooking.setEndDate(LocalDateTime.now().minusDays(3));
+
+    Booking upcomingBooking = booking(102L, BookingStatus.ACCEPTED);
+    upcomingBooking.setStartDate(LocalDateTime.now().plusDays(5));
+    upcomingBooking.setEndDate(LocalDateTime.now().plusDays(7));
+
+    when(ownerProfileRepository.findByUserEmail(OWNER_EMAIL)).thenReturn(Optional.of(owner));
+    when(bookingRepository.findByOwnerIdOrderByStartDateAsc(owner.getId()))
+            .thenReturn(List.of(pastBooking, upcomingBooking));
+
+    List<BookingResponse> responses = bookingService.getOwnerBookings(OWNER_EMAIL, null);
+
+    assertThat(responses)
+            .extracting(BookingResponse::id)
+            .containsExactly(upcomingBooking.getId(), pastBooking.getId());
+  }
+
+  @Test
+  void getSitterBookingsShowsUpcomingBookingsBeforePastOnes() {
+    Booking pastBooking = booking(101L, BookingStatus.COMPLETED);
+    pastBooking.setStartDate(LocalDateTime.now().minusDays(5));
+    pastBooking.setEndDate(LocalDateTime.now().minusDays(3));
+
+    Booking upcomingBooking = booking(102L, BookingStatus.ACCEPTED);
+    upcomingBooking.setStartDate(LocalDateTime.now().plusDays(5));
+    upcomingBooking.setEndDate(LocalDateTime.now().plusDays(7));
+
+    when(sitterProfileRepository.findByUserEmail(SITTER_EMAIL)).thenReturn(Optional.of(sitter));
+    when(bookingRepository.findBySitterIdOrderByStartDateAsc(sitter.getId()))
+            .thenReturn(List.of(pastBooking, upcomingBooking));
+
+    List<BookingResponse> responses = bookingService.getSitterBookings(SITTER_EMAIL, null);
+
+    assertThat(responses)
+            .extracting(BookingResponse::id)
+            .containsExactly(upcomingBooking.getId(), pastBooking.getId());
   }
 
   private void saveReturnsBooking() {

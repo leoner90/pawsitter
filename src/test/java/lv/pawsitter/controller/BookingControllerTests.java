@@ -211,7 +211,8 @@ class BookingControllerTests {
         "Please give medicine",
         new BigDecimal("25.00"),
         List.of(30L),
-        false);
+        false,
+            false);
   }
 
   private Authentication authentication() {
