@@ -81,8 +81,9 @@ public class RecoveryServiceImpl implements RecoveryService {
         log.info("Sending recovery email to {}", maskedEmail);
 
         webClient.sendEmail(user.getEmail(), "PawSitter Recovery Email",
-                "Follow this link to change your password:\n" + frontendBaseUrl
-                        + "/recovery/updatePassword?recoveryToken=" + rawToken);
+                        "Follow this link to change your password:\n" + frontendBaseUrl
+                                + "/recovery/updatePassword?recoveryToken=" + rawToken)
+                .subscribe();
 
         log.info("Recovery email successfully sent to {}", maskedEmail);
     }
