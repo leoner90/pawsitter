@@ -29,4 +29,7 @@ public interface SitterProfileService
 
     //search
     List<SitterProfile> searchSitters(String city, LocalDate startDate, LocalDate endDate, BigDecimal maxPrice, boolean includePartial);
+
+    //restore available dates on booking cancellation
+    void restoreAvailability(SitterProfile sitterProfile, LocalDate startDate, LocalDate endDate);
 }

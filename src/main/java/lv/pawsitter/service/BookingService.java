@@ -29,4 +29,9 @@ public interface BookingService
 
   Booking getBookingForSitter(Long bookingId, String sitterEmail);
 
+  //change payment status after stripe confirmation
+  void confirmPayment(Long bookingId, String stripeSessionId);
+
+  //returns only booked availability dates
+  List<BookingResponse> getActiveSitterBookings(String sitterEmail);
 }

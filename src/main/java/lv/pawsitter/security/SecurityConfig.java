@@ -53,6 +53,12 @@ public class SecurityConfig {
                 // .sessionManagement(session -> session
                 //         .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
 
+                // Keep CSRF protection enabled for the application,
+                // but do not require a CSRF token for POST /stripe/webhook,
+                // because Stripe sends the request directly from its server,
+                // not through a Thymeleaf form.
+                .csrf(csrf -> csrf.ignoringRequestMatchers("/stripe/webhook"))
+
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(
                                 "/",
@@ -62,9 +68,11 @@ public class SecurityConfig {
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
+                                "/stripe/**",
                                 "/fragments/**",
-                                "/recovery/**"
+                                "/recovery/**",
                                 "/sitters/search"
+
                         ).permitAll()
 
                         // ❌ REMOVE — these are only needed for JWT API endpoints

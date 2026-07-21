@@ -7,7 +7,7 @@ import org.springframework.data.jpa.repository.JpaRepository;
 import java.util.Optional;
 
 public interface RecoveryRepository extends JpaRepository<Recovery, Integer> {
-    Optional<Recovery> findByToken(String token);
+    Optional<Recovery> findByRecoveryToken(String token);
 
     void deleteByUser(User user);
 }
