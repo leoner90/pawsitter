@@ -5,7 +5,7 @@ import jakarta.validation.constraints.NotNull;
 import jakarta.validation.constraints.Positive;
 import lombok.Getter;
 import lombok.Setter;
-import lv.pawsitter.entity.AnimalTypes;
+import lv.pawsitter.entity.AnimalType;
 import org.springframework.web.multipart.MultipartFile;
 
 @Getter
@@ -20,7 +20,7 @@ public class PetRequestDto {
     private String nickName;
 
     @NotNull
-    private AnimalTypes animalType;
+    private AnimalType animalType;
 
     private String breed;
 

@@ -1,4 +1,4 @@
-package lv.pawsitter.security;
+package lv.pawsitter.security.sessionless.jwttoken;
 
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.ExpiredJwtException;

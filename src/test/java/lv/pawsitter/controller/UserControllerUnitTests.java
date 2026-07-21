@@ -1,16 +1,16 @@
 package lv.pawsitter.controller;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lv.pawsitter.dto.UserCreateDTO;
-import lv.pawsitter.dto.UserDTO;
+import lv.pawsitter.dto.userdto.UserCreateDTO;
+import lv.pawsitter.dto.userdto.UserDTO;
 import lv.pawsitter.exception.EmailNotUniqueException;
 import lv.pawsitter.exception.UserNotFoundException;
 import lv.pawsitter.model.RoleType;
-import lv.pawsitter.security.AuthenticationService;
-import lv.pawsitter.security.JwtAuthenticationResponse;
-import lv.pawsitter.security.JwtService;
-import lv.pawsitter.security.SignInRequest;
-import lv.pawsitter.service.UserService;
+import lv.pawsitter.security.sessionless.jwttoken.AuthenticationService;
+import lv.pawsitter.security.sessionless.jwttoken.JwtAuthenticationResponse;
+import lv.pawsitter.security.sessionless.jwttoken.JwtService;
+import lv.pawsitter.security.sessionless.SignInRequest;
+import lv.pawsitter.service.userservice.UserService;
 import lv.pawsitter.utility.MaskingUtil;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -56,7 +56,7 @@ public class UserControllerUnitTests {
     private UserDetailsService userDetailsService;
 
     private UserDTO buildDto(long id) {
-        return new UserDTO(id, "+37120000001", "jane@example.com", RoleType.USER, LocalDateTime.now());
+        return new UserDTO(id, "Jane", "Doe", "+37120000001", "jane@example.com", RoleType.USER, LocalDateTime.now());
     }
 
     private UserCreateDTO buildCreateDto() {
@@ -118,7 +118,6 @@ public class UserControllerUnitTests {
     }
 
 
-
     @Test
     @WithMockUser(authorities = "ADMIN")
     void getAllUsers_returnsOkWithList() throws Exception {
@@ -138,7 +137,6 @@ public class UserControllerUnitTests {
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$", org.hamcrest.Matchers.hasSize(0)));
     }
-
 
 
     @Test
@@ -173,12 +171,11 @@ public class UserControllerUnitTests {
     }
 
 
-
     @Test
     @WithMockUser(authorities = "ADMIN")
     void setUserRole_returnsOk_whenSuccessful() throws Exception {
         stubMasking();
-        UserDTO updated = new UserDTO(1L, "+37120000001", "jane@example.com", RoleType.ADMIN, LocalDateTime.now());
+        UserDTO updated = new UserDTO(1L, "Jane", "Doe", "+37120000001", "jane@example.com", RoleType.ADMIN, LocalDateTime.now());
         when(userService.update(eq(1L), eq(RoleType.ADMIN))).thenReturn(updated);
 
         mockMvc.perform(patch("/users/1/role").param("newRole", "ADMIN"))
@@ -197,7 +194,6 @@ public class UserControllerUnitTests {
                 .andExpect(status().isNotFound());
     }
 
- 
 
     @Test
     @WithMockUser
@@ -232,7 +228,6 @@ public class UserControllerUnitTests {
                 .andExpect(status().isForbidden());
     }
 
-    
 
     @Test
     @WithMockUser
@@ -265,7 +260,6 @@ public class UserControllerUnitTests {
         verify(userService, never()).findByEmail(anyString());
     }
 
-    
 
     @Test
     @WithMockUser
@@ -294,6 +288,6 @@ public class UserControllerUnitTests {
 
         verify(authenticationService, never()).authenticate(any());
     }
-    
-    
+
+
 }

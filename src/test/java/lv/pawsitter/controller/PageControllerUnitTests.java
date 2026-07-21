@@ -3,7 +3,7 @@ package lv.pawsitter.controller;
 import lv.pawsitter.entity.SitterProfile;
 import lv.pawsitter.entity.User;
 import lv.pawsitter.exception.UserNotFoundException;
-import lv.pawsitter.security.JwtService;
+import lv.pawsitter.security.sessionless.jwttoken.JwtService;
 import lv.pawsitter.service.SitterProfileService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;

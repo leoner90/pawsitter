@@ -2,13 +2,12 @@ package lv.pawsitter.controller;
 
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import lombok.With;
 import lv.pawsitter.dto.PetRequestDto;
 import lv.pawsitter.dto.PetResponseDto;
-import lv.pawsitter.entity.AnimalTypes;
+import lv.pawsitter.entity.AnimalType;
 import lv.pawsitter.exception.PetNotFoundException;
 import lv.pawsitter.exception.UserNotFoundException;
-import lv.pawsitter.security.JwtService;
+import lv.pawsitter.security.sessionless.jwttoken.JwtService;
 import lv.pawsitter.service.PetService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -52,7 +51,7 @@ public class PetControllerUnitTests {
         dto.setFirstName("Moe");
         dto.setLastName("Johnson");
         dto.setNickName("Mo");
-        dto.setAnimalType(AnimalTypes.CAT);
+        dto.setAnimalType(AnimalType.CAT);
         dto.setBreed("Black");
         dto.setAge(4);
         dto.setDescription("Friendly and sleepy cat");
@@ -67,7 +66,7 @@ public class PetControllerUnitTests {
         dto.setFirstName("Moe");
         dto.setLastName("Johnson");
         dto.setNickName("Mo");
-        dto.setAnimalType(AnimalTypes.CAT);
+        dto.setAnimalType(AnimalType.CAT);
         dto.setBreed("Black");
         dto.setAge(4);
         dto.setDescription("Friendly and sleepy cat");

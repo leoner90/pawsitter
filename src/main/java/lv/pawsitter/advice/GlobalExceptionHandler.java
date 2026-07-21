@@ -1,9 +1,10 @@
-package lv.pawsitter.exception;
+package lv.pawsitter.advice;
 
 
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.extern.slf4j.Slf4j;
+import lv.pawsitter.exception.*;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.AccessDeniedException;

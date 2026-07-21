@@ -56,12 +56,14 @@ public class SecurityConfig {
                 .authorizeHttpRequests(request -> request
                         .requestMatchers(
                                 "/",
-                                "/sittersSearch",
-                                "/registration",
                                 "/login",
+                                "/registration",
+                                "/sittersSearch",
                                 "/css/**",
                                 "/js/**",
                                 "/images/**",
+                                "/fragments/**",
+                                "/recovery/**"
                                 "/sitters/search"
                         ).permitAll()
 

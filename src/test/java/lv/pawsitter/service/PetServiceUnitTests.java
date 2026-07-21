@@ -3,10 +3,9 @@ package lv.pawsitter.service;
 import jakarta.annotation.Nonnull;
 import lv.pawsitter.dto.PetRequestDto;
 import lv.pawsitter.dto.PetResponseDto;
-import lv.pawsitter.entity.AnimalTypes;
+import lv.pawsitter.entity.AnimalType;
 import lv.pawsitter.entity.OwnerProfile;
 import lv.pawsitter.entity.Pet;
-import lv.pawsitter.exception.GlobalExceptionHandler;
 import lv.pawsitter.exception.PetNotFoundException;
 import lv.pawsitter.exception.UserNotFoundException;
 import lv.pawsitter.repository.OwnerProfileRepository;
@@ -24,7 +23,6 @@ import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
-import static org.assertj.core.api.AssertionsForClassTypes.assertThatNoException;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.assertj.core.api.AssertionsForInterfaceTypes.assertThat;
 import static org.mockito.ArgumentMatchers.any;
@@ -59,7 +57,7 @@ public class PetServiceUnitTests {
         pet.setFirstName("Moe");
         pet.setLastName("Johnson");
         pet.setNickName("Mo");
-        pet.setAnimalType(AnimalTypes.CAT);
+        pet.setAnimalType(AnimalType.CAT);
         pet.setBreed("Black");
         pet.setAge(4);
         pet.setDescription("Friendly cat who sleeps a lot");
@@ -71,7 +69,7 @@ public class PetServiceUnitTests {
         petRequestDto.setFirstName("Moe");
         petRequestDto.setLastName("Johnson");
         petRequestDto.setNickName("Mo");
-        petRequestDto.setAnimalType(AnimalTypes.CAT);
+        petRequestDto.setAnimalType(AnimalType.CAT);
         petRequestDto.setBreed("Black");
         petRequestDto.setAge(4);
         petRequestDto.setDescription("Friendly cat who sleeps a lot");
@@ -263,7 +261,7 @@ public class PetServiceUnitTests {
         updateDto.setFirstName("Moe");
         updateDto.setLastName("Johnson");
         updateDto.setNickName("Mo");
-        updateDto.setAnimalType(AnimalTypes.CAT);
+        updateDto.setAnimalType(AnimalType.CAT);
         updateDto.setBreed("Black");
         // Updated age
         updateDto.setAge(5);
