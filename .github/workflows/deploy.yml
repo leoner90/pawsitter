@@ -25,10 +25,13 @@ jobs:
           MYSQL_PASSWORD=${{ secrets.MYSQL_PASSWORD }}
           MYSQL_ROOT_PASSWORD=${{ secrets.MYSQL_ROOT_PASSWORD }}
           DB_PASSWORD=${{ secrets.DB_PASSWORD }}
+          JWT_SECRET=${{ secrets.JWT_SECRET }}
+          MAILERSEND_TOKEN=${{ secrets.MAILERSEND_TOKEN }}
           EOF
 
+        #secrets are hidden from Actions log:
       - name: Validate Compose
-        run: docker compose -f compose.yaml config
+        run: docker compose -f compose.yaml config --quiet
 
       - name: Stop old containers
         run: docker compose -f compose.yaml down --remove-orphans
@@ -39,7 +42,8 @@ jobs:
       - name: Check containers
         run: docker compose -f compose.yaml ps
 
+      # || true - log step non-failing if container doesn't exist
       - name: Show application logs
         if: always()
-        run: docker compose -f compose.yaml logs --tail 100 app
+        run: docker compose -f compose.yaml logs --tail 100 app || true
 

@@ -11,6 +11,8 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.context.HttpSessionSecurityContextRepository;
+import org.springframework.security.web.context.SecurityContextRepository;
 
 // If the frontend will be separate (React, Vue, Angular),
 // then you should NOT remove the JWT filter or stateless mode.
@@ -34,6 +36,13 @@ public class SecurityConfig {
         return configuration.getAuthenticationManager();
     }
 
+    //SecurityContext - holds info who is loged in, and It's authority
+    @Bean
+    public SecurityContextRepository securityContextRepository()
+    {
+        return new HttpSessionSecurityContextRepository();
+    }
+
     @Bean
     SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
@@ -55,6 +64,7 @@ public class SecurityConfig {
                                 "/images/**",
                                 "/fragments/**",
                                 "/recovery/**"
+                                "/sitters/search"
                         ).permitAll()
 
                         // ❌ REMOVE — these are only needed for JWT API endpoints
@@ -66,6 +76,7 @@ public class SecurityConfig {
                         .requestMatchers("/sitter/**").hasAuthority("SITTER")
                         .requestMatchers("/admin/**").hasAuthority("ADMIN")
                         .requestMatchers("/sitters/**").authenticated()
+                        .requestMatchers("/dashboard").authenticated()
                         .anyRequest().denyAll()
                 )
 
@@ -77,7 +88,7 @@ public class SecurityConfig {
                         .loginPage("/login")
                         .usernameParameter("email")
                         .passwordParameter("password")
-                        .defaultSuccessUrl("/", true)
+                        .defaultSuccessUrl("/dashboard", true)
                         .failureUrl("/login?error")
                         .permitAll()
                 )

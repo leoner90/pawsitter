@@ -18,7 +18,7 @@
 
                     <img th:src="${owner.imageUrl != null && !owner.imageUrl.isBlank()
                                 ? owner.imageUrl
-                                : '/images/ownersImages/default-owner.png'}"
+                                : '/images/defaultImages/default-owner.png'}"
                             alt="Owner profile"
                             class="profile-image"
                     >
@@ -69,12 +69,16 @@
                     <a th:href="@{/owner/pets/add}" class="button primary-button">Add pet</a>
                 </div>
 
-                <div th:if="${#lists.isEmpty(owner.pets)}" class="empty-state">
+                <div th:if="${#lists.isEmpty(pets)}" class="empty-state">
                     <h3>No pets added yet</h3>
                     <p>Your pet profiles will appear here.</p>
                 </div>
+                <!--                    Error messages-->
+                <div class="form-error" th:if="${petError}" th:text="${petError}"></div>
+                <div class="success-message" th:if="${petSuccess}" th:text="${petSuccess}"></div>
 
-                <div th:if="${!#lists.isEmpty(owner.pets)}" class="pet-grid">
+                <!--                Pet Section-->
+                <div th:if="${!#lists.isEmpty(pets)}" class="pet-grid">
                     <div class="pet-table-header">
                         <span class="pet-image-space"></span>
 
@@ -89,10 +93,12 @@
                         </div>
                     </div>
 
-                    <article class="pet-card" th:each="pet : ${owner.pets}">
+
+
+                    <article class="pet-card" th:each="pet : ${pets}">
                         <img th:src="${pet.imageUrl != null && !pet.imageUrl.isBlank()
             ? pet.imageUrl
-            : '/images/petsImages/default-pet.png'}"
+            : '/images/defaultImages/default-pet.png'}"
                              alt="PetImg" class="pet-image">
                         <div class="pet-info">
                             <h3 class="pet-name" th:text="${pet.firstName + ' ' + pet.lastName}">Pet name</h3>

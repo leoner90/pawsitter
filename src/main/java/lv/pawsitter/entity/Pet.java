@@ -59,4 +59,9 @@ public class Pet
     {
         this.createdAt = LocalDateTime.now();
     }
+
+    //to fix a bug that we cant delete pet if it's used as foreign key somewhere
+    //if so we will mark it as not active but save for history( like check completed booking etc.)
+    @Column(nullable = false)
+    private boolean active = true;
 }

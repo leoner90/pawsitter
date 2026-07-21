@@ -75,6 +75,16 @@
                         Back
                     </a>
 
+                    <!-- owner profile link -->
+                    <a th:if="${!ownerView}" th:href="@{/sitter/bookings/{bookingId}/owner( bookingId=${booking.id()})}" class="button secondary-button">
+                        View owner profile
+                    </a>
+
+                    <!-- sitter profile link -->
+                    <a th:if="${ownerView}" th:href="@{/sitters/{id}(id=${booking.sitterId()})}" class="button secondary-button">
+                        View sitter profile
+                    </a>
+
                     <a
                             th:if="${ownerView && booking.status().name() == 'REQUESTED'}"
                             th:href="@{/owner/bookings/{id}/edit(id=${booking.id()})}"

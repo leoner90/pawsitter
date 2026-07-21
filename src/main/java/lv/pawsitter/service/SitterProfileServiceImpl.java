@@ -4,10 +4,13 @@ import lombok.RequiredArgsConstructor;
 import lv.pawsitter.dto.SitterAvailabilityRequest;
 import lv.pawsitter.dto.SitterProfileUpdateDTO;
 import lv.pawsitter.dto.SitterPublishDTO;
+import lv.pawsitter.entity.Booking;
 import lv.pawsitter.entity.SitterAvailability;
 import lv.pawsitter.entity.SitterProfile;
 import lv.pawsitter.exception.AvailabilityNotFoundException;
+import lv.pawsitter.exception.BookingNotFoundException;
 import lv.pawsitter.exception.InvalidSitterOperationException;
+import lv.pawsitter.repository.BookingRepository;
 import lv.pawsitter.repository.SitterAvailabilityRepository;
 import lv.pawsitter.exception.UserNotFoundException;
 import lv.pawsitter.repository.SitterProfileRepository;
@@ -15,6 +18,7 @@ import org.springframework.security.access.AccessDeniedException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Set;
@@ -30,6 +34,7 @@ public class SitterProfileServiceImpl implements SitterProfileService
     private final ImageStorageService imageStorageService;
     private final SitterAvailabilityRepository sitterAvailabilityRepository;
     private final Validator validator;
+    private final BookingRepository bookingRepository;
 
     @Override
     public List<SitterProfile> getAllSitters()
@@ -113,13 +118,25 @@ public class SitterProfileServiceImpl implements SitterProfileService
         LocalDate mergedEndDate = request.endDate();
 
         List<SitterAvailability> availabilityRanges = sitterAvailabilityRepository.findBySitterProfileId(sitterProfile.getId());
+
+
+        //if this dates already exists throw err
+        boolean alreadyCovered = availabilityRanges.stream()
+                .anyMatch(availability ->
+                        !requestedStartDate.isBefore(availability.getStartDate())
+                                && !requestedEndDate.isAfter(availability.getEndDate())
+                );
+
+        if (alreadyCovered)
+        {
+            throw new InvalidSitterOperationException("These dates are already included in your availability");
+        }
+
         List<SitterAvailability> rangesToMerge = availabilityRanges.stream()
                 .filter(availability -> overlapsOrTouches(availability, requestedStartDate, requestedEndDate))
                 .toList();
 
-        SitterAvailability availability = rangesToMerge.isEmpty()
-                ? new SitterAvailability()
-                : rangesToMerge.getFirst();
+        SitterAvailability availability = rangesToMerge.isEmpty() ? new SitterAvailability() : rangesToMerge.getFirst();
 
         for (SitterAvailability range : rangesToMerge)
         {
@@ -273,5 +290,75 @@ public class SitterProfileServiceImpl implements SitterProfileService
     {
         return !availability.getEndDate().isBefore(startDate.minusDays(1))
                 && !availability.getStartDate().isAfter(endDate.plusDays(1));
+    }
+
+    //new search
+    @Override
+    @Transactional(readOnly = true)
+    public List<SitterProfile> searchSitters(String city, LocalDate startDate, LocalDate endDate, BigDecimal maxPrice, boolean includePartial)
+    {
+        boolean hasCity = city != null && !city.isBlank();
+        boolean hasStartDate = startDate != null;
+        boolean hasEndDate = endDate != null;
+
+        validateSearchFilters(startDate, endDate, maxPrice);
+
+        List<SitterProfile> sitters;
+
+        if (hasStartDate && hasEndDate)
+        {
+            sitters = includePartial ? findPartiallyAvailableSitters(startDate, endDate) : findFullyAvailableSitters(startDate, endDate);
+        }
+        else
+        {
+            sitters = getPublishedSitters();
+        }
+
+        return sitters.stream()
+                .filter(sitter -> !hasCity || cityMatches(sitter, city))
+                .filter(sitter -> priceMatches(sitter, maxPrice))
+                .toList();
+    }
+
+
+    private void validateSearchFilters(LocalDate startDate, LocalDate endDate, BigDecimal maxPrice)
+    {
+        boolean hasStartDate = startDate != null;
+        boolean hasEndDate = endDate != null;
+
+        if (hasStartDate != hasEndDate)
+        {
+            //just a note if sitter select only one DATE sitters will be return as empty list, so no sitters shown to focus that the was error in search condition!
+            throw new IllegalArgumentException("Both start date and end date must be selected");
+        }
+
+        if (hasStartDate && startDate.isBefore(LocalDate.now()))
+        {
+            throw new IllegalArgumentException("Start date cannot be in the past");
+        }
+
+        if (hasStartDate && endDate.isBefore(startDate))
+        {
+            throw new IllegalArgumentException("End date cannot be before start date");
+        }
+
+        //no need leading zero check like 00050000 browser and spring will deal with that(BigDecimal)
+        if (maxPrice != null && maxPrice.compareTo(BigDecimal.ZERO) <= 0)
+        {
+            throw new IllegalArgumentException("Maximum price must be greater than zero");
+        }
+    }
+
+    private boolean cityMatches(SitterProfile sitter, String city)
+    {
+        return sitter.getLocation() != null && sitter.getLocation().equalsIgnoreCase(city.trim());
+    }
+
+    private boolean priceMatches(SitterProfile sitter, BigDecimal maxPrice)
+    {
+        if (maxPrice == null) {return true;}
+
+        BigDecimal price = sitter.getPricePerDay();
+        return price != null && price.compareTo(maxPrice) <= 0;
     }
 }

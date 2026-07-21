@@ -237,6 +237,25 @@
     width: 100%;
 }
 
+.inactive-pet {opacity: 0.35;}
+
+.inactive-pet .pet-image {
+    filter: grayscale(100%);
+}
+
+.inactive-text {
+    font-weight: 600;
+    color: #6b7280;
+}
+
+.inactive-label{
+    color: darkred;
+    writing-mode: vertical-rl;
+    text-orientation: mixed;
+    font-weight: 600;
+    cursor: default;
+}
+
 @media (max-width: 1360px) {
     .profile-header,
     .pet-profile {
@@ -258,4 +277,95 @@
     {
         flex-direction: column;
     }
+    .availability-row {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: fit-content;
+        margin: 8px 0;
+        padding: 10px 14px;
+
+        background: #fffafa;
+        border: 1px solid #d9caca;
+        border-radius: 10px;
+
+        box-shadow: 0 3px 10px rgba(60, 36, 36, 0.08);
+    }
+
+    .availability-row span {
+        font-weight: 600;
+        color: #3c2424;
+    }
+
+    .availability-row span:nth-child(2) {
+        color: #8a7373;
+        font-weight: 400;
+    }
+
+    .availability-row form {
+        margin: 0 0 0 6px;
+    }
+
+    .availability-cancel-button {
+        width: 28px;
+        height: 28px;
+        padding: 0;
+
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border: 1px solid #b02a37;
+        border-radius: 50%;
+        background: white;
+        color: #b02a37;
+
+        font-size: 1.2rem;
+        font-weight: bold;
+        line-height: 1;
+        cursor: pointer;
+
+        transition:
+                background-color 0.2s ease,
+                color 0.2s ease,
+                transform 0.2s ease;
+    }
+
+    .availability-cancel-button:hover {
+        background: #b02a37;
+        color: white;
+        transform: scale(1.08);
+    }
+}
+
+.availability-form input[type="date"] {
+    padding: 10px 12px;
+    border: 1px solid #c9b6b6;
+    border-radius: 8px;
+    background: #fffafa;
+    color: #352323;
+    font: inherit;
+    cursor: pointer;
+}
+
+.availability-form input[type="date"]:hover {
+    border-color: #7f5454;
+}
+
+.availability-form input[type="date"]:focus {
+    outline: 2px solid rgba(127, 84, 84, 0.2);
+    border-color: #7f5454;
+}
+
+.availability-form {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 8px;
+}
+
+.availability-field {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
 }
