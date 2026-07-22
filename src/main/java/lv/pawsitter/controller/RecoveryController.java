@@ -3,6 +3,10 @@ package lv.pawsitter.controller;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import lv.pawsitter.dto.RecoveryRequestDTO;
+import lv.pawsitter.exception.PasswordMismatchException;
+import lv.pawsitter.exception.UserNotFoundException;
+import lv.pawsitter.exception.recoveryexception.RecoveryExpiredException;
+import lv.pawsitter.exception.recoveryexception.RecoveryNotFoundException;
 import lv.pawsitter.service.recoveryservice.RecoveryService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -24,8 +28,21 @@ public class RecoveryController {
     }
 
     @PostMapping("/recovery")
-    public String sendRecoveryEmail(@RequestParam String email) {
-        recoveryService.generateAndEmail(email);
+    public String sendRecoveryEmail(
+            @RequestParam String email,
+            Model model
+    ) {
+        try {
+            recoveryService.generateAndEmail(email);
+        } catch (UserNotFoundException exception) {
+            model.addAttribute(
+                    "recoveryError",
+                    "No account was found with this email address."
+            );
+
+            return "recovery/getRecoveryToken";
+        }
+
         return "recovery/emailSent";
     }
 
@@ -44,19 +61,35 @@ public class RecoveryController {
             BindingResult result,
             Model model
     ) {
+        model.addAttribute("recoveryToken", recoveryToken);
+
         if (result.hasErrors()) {
-
-            model.addAttribute("recoveryToken", recoveryToken);
-            model.addAttribute("recoveryRequestDTO", request);
-
             return "recovery/updatePassword";
         }
 
-        recoveryService.changePassword(
-                recoveryToken,
-                request.newPassword(),
-                request.confirmNewPassword()
+        try {
+            recoveryService.changePassword(
+                    recoveryToken,
+                    request.newPassword(),
+                    request.confirmNewPassword()
+            );
+        } catch (PasswordMismatchException exception) {
+            result.rejectValue(
+                    "confirmNewPassword",
+                    "password.mismatch",
+                    exception.getMessage()
+            );
+
+            return "recovery/updatePassword";
+
+        } catch (RecoveryExpiredException | RecoveryNotFoundException exception) {
+        model.addAttribute(
+                "recoveryError",
+                "This recovery link is invalid or expired. Please request a new one."
         );
+
+            return "recovery/updatePassword";
+        }
 
         return "redirect:/authentication/login";
     }
