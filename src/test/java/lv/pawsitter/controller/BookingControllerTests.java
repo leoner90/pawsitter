@@ -23,7 +23,6 @@ import lv.pawsitter.dto.BookingResponse;
 import lv.pawsitter.dto.CreateBookingRequest;
 import lv.pawsitter.dto.UpdateBookingRequest;
 import lv.pawsitter.entity.BookingStatus;
-import lv.pawsitter.security.sessionless.jwttoken.JwtAuthenticationFilter;
 import lv.pawsitter.service.BookingService;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -53,9 +52,6 @@ class BookingControllerTests {
 
   @MockitoBean
   private BookingService bookingService;
-
-  @MockitoBean
-  private JwtAuthenticationFilter jwtAuthenticationFilter;
 
   @Test
   void createBookingReturnsCreatedAndPassesAuthenticatedUserToService() throws Exception {

@@ -5,7 +5,6 @@ import lv.pawsitter.dto.userdto.UserDTO;
 import lv.pawsitter.exception.EmailNotUniqueException;
 import lv.pawsitter.model.RoleType;
 import lv.pawsitter.security.SecurityConfig;
-import lv.pawsitter.security.sessionless.jwttoken.JwtService;
 import lv.pawsitter.service.userservice.UserService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -46,9 +45,6 @@ public class AuthenticationControllerUnitTests {
 
     @MockitoBean
     private SecurityContextRepository securityContextRepository;
-
-    @MockitoBean
-    private JwtService jwtService;
 
     @MockitoBean
     private UserDetailsService userDetailsService;

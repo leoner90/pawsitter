@@ -23,3 +23,4 @@ create bookings, make payments, and view booking history. Sitters can manage the
 - Requested dates are removed from sitter availability immediately and restored after cancellation. This means a user could temporarily block a large date range. Reserving dates only after payment would require a larger redesign of booking statuses, pet associations, cancellation history, and payment expiration.
 - Cancelled bookings remain stored with the `CANCELLED` status so users can view their booking history.
 - Pets linked to previous bookings should not be permanently deleted. A future version could use an `active` flag to hide inactive pets from new bookings while preserving historical booking data.
+- Technically, an owner can book all of a sitter’s available dates, which automatically unpublishes the sitter’s profile. If the booking is later cancelled, the dates are restored, but the profile remains unpublished and must be published again manually.

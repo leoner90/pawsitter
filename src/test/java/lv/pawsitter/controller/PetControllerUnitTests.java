@@ -7,7 +7,6 @@ import lv.pawsitter.dto.PetResponseDto;
 import lv.pawsitter.entity.AnimalType;
 import lv.pawsitter.exception.PetNotFoundException;
 import lv.pawsitter.exception.UserNotFoundException;
-import lv.pawsitter.security.sessionless.jwttoken.JwtService;
 import lv.pawsitter.service.PetService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -39,8 +38,6 @@ public class PetControllerUnitTests {
     @MockitoBean
     private PetService petService;
 
-    @MockitoBean
-    private JwtService jwtService;
     @MockitoBean
     private UserDetailsService userDetailsService;
 
