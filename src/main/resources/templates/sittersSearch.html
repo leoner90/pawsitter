@@ -86,7 +86,7 @@
                                 <article class="sitter-card" th:each="sitter : ${sitters}">
                                     <img th:src="${sitter.imageUrl != null && !sitter.imageUrl.isBlank()
                                         ?  sitter.imageUrl
-                                        : '/images/sittersImages/default-sitter.png'}"
+                                        : 'images/defaultImages/default-sitter.png'}"
                                             alt="Sitter profile"
                                             class="sitter-card-image"
                                     >
