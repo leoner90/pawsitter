@@ -1,10 +1,14 @@
 package lv.pawsitter.controller;
 
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import lv.pawsitter.dto.RecoveryRequestDTO;
 import lv.pawsitter.service.recoveryservice.RecoveryService;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 
@@ -28,16 +32,32 @@ public class RecoveryController {
     @GetMapping("/recovery/updatePassword")
     public String updatePasswordPage(@RequestParam String recoveryToken, Model model) {
         model.addAttribute("recoveryToken", recoveryToken);
+        model.addAttribute("recoveryRequestDTO",
+                new RecoveryRequestDTO("", ""));
         return "recovery/updatePassword";
     }
 
     @PostMapping("/recovery/updatePassword")
     public String updatePassword(
             @RequestParam String recoveryToken,
-            @RequestParam String newPassword,
-            @RequestParam String confirmNewPassword
+            @Valid @ModelAttribute("recoveryRequestDTO") RecoveryRequestDTO request,
+            BindingResult result,
+            Model model
     ) {
-        recoveryService.changePassword(recoveryToken, newPassword, confirmNewPassword);
+        if (result.hasErrors()) {
+
+            model.addAttribute("recoveryToken", recoveryToken);
+            model.addAttribute("recoveryRequestDTO", request);
+
+            return "recovery/updatePassword";
+        }
+
+        recoveryService.changePassword(
+                recoveryToken,
+                request.newPassword(),
+                request.confirmNewPassword()
+        );
+
         return "redirect:/authentication/login";
     }
 }
