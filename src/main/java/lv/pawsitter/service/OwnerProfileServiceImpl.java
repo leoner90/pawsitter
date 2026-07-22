@@ -24,12 +24,16 @@ public class OwnerProfileServiceImpl implements OwnerProfileService
     public OwnerProfile getProfileByUserEmail(String email)
     {
         return ownerProfileRepository.findByUserEmail(email.trim().toLowerCase())
-                .orElseThrow(() -> new UserNotFoundException("Owner profile not found"));
+                .orElseThrow(() -> {
+                    log.warn("Owner profile not found for email: {}", email);
+                    return new UserNotFoundException("Owner profile not found");
+                });
     }
 
     @Override
     @Transactional
     public OwnerProfile updateProfile(String email, OwnerProfileUpdateDTO dto){
+        log.info("Updating owner profile for email: {}", email);
         OwnerProfile ownerProfile = getProfileByUserEmail(email);
         User user = ownerProfile.getUser();
 
@@ -43,6 +47,7 @@ public class OwnerProfileServiceImpl implements OwnerProfileService
 
         if (dto.image() != null && !dto.image().isEmpty())
         {
+            log.info("Replacing profile image for owner with email: {}", email);
             String oldImageUrl = ownerProfile.getImageUrl();
             String newImageUrl = imageStorageService.saveOwnerImage(dto.image());
             imageStorageService.deleteOwnerImage(oldImageUrl);
