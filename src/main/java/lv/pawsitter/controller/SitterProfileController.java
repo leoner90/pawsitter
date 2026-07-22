@@ -102,6 +102,7 @@ public class SitterProfileController
             model.addAttribute("sitter", sitterProfile);
             model.addAttribute("availabilityRanges", sitterProfileService.getAvailability(email));
             model.addAttribute("reservedBookings", bookingService.getActiveSitterBookings(email));
+            model.addAttribute("reviewSummary", reviewService.getReviewSummaryForUser(sitterProfile.getUser().getId()));
             return "sitter/sitterProfile";
         }
 
@@ -117,6 +118,7 @@ public class SitterProfileController
             model.addAttribute("availabilityRanges", sitterProfileService.getAvailability(email));
             model.addAttribute("availabilityError", exception.getMessage());
             model.addAttribute("reservedBookings", bookingService.getActiveSitterBookings(email));
+            model.addAttribute("reviewSummary", reviewService.getReviewSummaryForUser(sitterProfile.getUser().getId()));
 
             return "sitter/sitterProfile";
         }
@@ -151,6 +153,7 @@ public class SitterProfileController
             model.addAttribute("availabilityRanges", sitterProfileService.getAvailability(email));
             model.addAttribute("reservedBookings", bookingService.getActiveSitterBookings(email));
             model.addAttribute("publishError", exception.getMessage());
+            model.addAttribute("reviewSummary", reviewService.getReviewSummaryForUser(sitterProfile.getUser().getId()));
 
             return "sitter/sitterProfile";
         }
