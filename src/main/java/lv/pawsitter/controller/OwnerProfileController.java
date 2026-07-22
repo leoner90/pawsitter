@@ -7,6 +7,7 @@ import lv.pawsitter.dto.PetResponseDto;
 import lv.pawsitter.entity.OwnerProfile;
 import lv.pawsitter.service.OwnerProfileService;
 import lv.pawsitter.service.PetService;
+import lv.pawsitter.service.ReviewService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -22,6 +23,7 @@ public class OwnerProfileController
 //******** VAR
     private final OwnerProfileService ownerProfileService;
     private final PetService petService;
+    private final ReviewService reviewService;
 
 
 //******** GETTERS
@@ -34,6 +36,7 @@ public class OwnerProfileController
         List<PetResponseDto> activePets = petService.getActivePetsByOwnerId(ownerProfile.getId());
         model.addAttribute("owner", ownerProfile);
         model.addAttribute("pets", activePets);
+        model.addAttribute("reviewSummary", reviewService.getReviewSummaryForUser(ownerProfile.getUser().getId()));
 
         return "owner/ownerProfile";
     }
