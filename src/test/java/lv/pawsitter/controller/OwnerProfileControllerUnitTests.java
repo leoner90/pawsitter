@@ -8,6 +8,7 @@ import lv.pawsitter.entity.User;
 import lv.pawsitter.exception.PetNotFoundException;
 import lv.pawsitter.service.OwnerProfileService;
 import lv.pawsitter.service.PetService;
+import lv.pawsitter.service.ReviewService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -17,10 +18,7 @@ import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 
 
-import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.ArgumentMatchers.anyLong;
-import static org.mockito.ArgumentMatchers.anyString;
-import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -48,6 +46,9 @@ public class OwnerProfileControllerUnitTests {
 
     @MockitoBean
     private UserDetailsService userDetailsService;
+
+    @MockitoBean
+    private ReviewService reviewService;
 
     private OwnerProfile buildOwnerProfile() {
         User user = new User();
@@ -81,6 +82,8 @@ public class OwnerProfileControllerUnitTests {
     @Test
     void ownerProfilePage_returnsProfileView_withOwnerModelAttribute() throws Exception {
         when(ownerProfileService.getProfileByUserEmail("jane@example.com")).thenReturn(buildOwnerProfile());
+        // Returns an empty review summary so the template does not receive null during the test
+        when(reviewService.getReviewSummaryForUser(nullable(Long.class))).thenReturn(new ReviewService.ReviewSummary(0.0, 0));
 
         mockMvc.perform(get("/owner/profile").with(user("jane@example.com")))
                 .andExpect(status().isOk())

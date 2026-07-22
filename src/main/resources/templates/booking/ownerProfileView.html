@@ -56,6 +56,15 @@
                     </span>
                 </p>
 
+                <p>
+                    <strong class="profile-descriptor-strong">Rating:</strong>
+                    <span th:if="${reviewSummary.reviewCount() > 0}">
+                    <span th:text="${#numbers.formatDecimal(reviewSummary.averageRating(), 1, 1)}">4.5</span>/5
+                    (<span th:text="${reviewSummary.reviewCount()}">12</span>
+                    review<span th:if="${reviewSummary.reviewCount() != 1}">s</span>)
+                    </span>
+                    <span th:unless="${reviewSummary.reviewCount() > 0}">No reviews yet</span>
+                </p>
             </div>
         </div>
 
