@@ -33,6 +33,7 @@ import lv.pawsitter.repository.SitterProfileRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.provider.EnumSource;
 import org.junit.jupiter.params.provider.MethodSource;
 import org.mockito.InjectMocks;
@@ -64,6 +65,10 @@ class BookingServiceImplTests {
 
   @Mock
   private SitterAvailabilityRepository sitterAvailabilityRepository;
+
+  @Mock
+  private SitterProfileService sitterProfileService;
+
 
   @InjectMocks
   private BookingServiceImpl bookingService;
@@ -425,7 +430,7 @@ class BookingServiceImplTests {
   @ParameterizedTest
   @MethodSource("validStatusTransitions")
   void statusActionsApplyAllowedTransitions(StatusTransition transition) {
-    Booking booking = booking(100L, transition.initialStatus());
+    Booking booking = booking(100L, transition.initialStatus(), transition.paid());
     when(bookingRepository.findById(booking.getId())).thenReturn(Optional.of(booking));
     saveReturnsBooking();
 
@@ -437,7 +442,7 @@ class BookingServiceImplTests {
   @ParameterizedTest
   @MethodSource("invalidStatusTransitions")
   void statusActionsRejectInvalidTransitions(StatusTransition transition) {
-    Booking booking = booking(100L, transition.initialStatus());
+    Booking booking = booking(100L, transition.initialStatus(), transition.paid());
     when(bookingRepository.findById(booking.getId())).thenReturn(Optional.of(booking));
 
     assertThatThrownBy(() -> transition.execute(bookingService, booking.getId()))
@@ -581,6 +586,10 @@ class BookingServiceImplTests {
   }
 
   private Booking booking(Long id, BookingStatus status) {
+    return booking(id, status, false);
+  }
+
+  private Booking booking(Long id, BookingStatus status, boolean paid) {
     Booking booking = new Booking();
     booking.setId(id);
     booking.setOwner(owner);
@@ -592,6 +601,7 @@ class BookingServiceImplTests {
     booking.setNote("Existing note");
     booking.setPricePerDaySnapshot(sitter.getPricePerDay());
     booking.setPets(List.of(pet));
+    booking.setPaid(paid);
     return booking;
   }
 
@@ -632,7 +642,7 @@ class BookingServiceImplTests {
     return Stream.of(OWNER_EMAIL, SITTER_EMAIL);
   }
 
-  private static Stream<org.junit.jupiter.params.provider.Arguments> invalidDateRanges() {
+  private static Stream<Arguments> invalidDateRanges() {
     return Stream.of(
         org.junit.jupiter.params.provider.Arguments.of(START_DATE, START_DATE),
         org.junit.jupiter.params.provider.Arguments.of(END_DATE, START_DATE));
@@ -640,37 +650,80 @@ class BookingServiceImplTests {
 
   private static Stream<StatusTransition> validStatusTransitions() {
     return Stream.of(
-        new StatusTransition("cancel requested", BookingStatus.REQUESTED, BookingStatus.CANCELLED,
-            "Only requested or accepted bookings can be cancelled",
-            (service, id) -> service.cancel(id, OWNER_EMAIL)),
-        new StatusTransition("cancel accepted", BookingStatus.ACCEPTED, BookingStatus.CANCELLED,
-            "Only requested or accepted bookings can be cancelled",
-            (service, id) -> service.cancel(id, OWNER_EMAIL)),
-        new StatusTransition("reject requested", BookingStatus.REQUESTED, BookingStatus.DECLINED,
-            "Only requested bookings can be declined",
-            (service, id) -> service.reject(id, SITTER_EMAIL)),
-        new StatusTransition("complete accepted", BookingStatus.ACCEPTED, BookingStatus.COMPLETED,
-            "Only accepted bookings can be completed",
-            (service, id) -> service.complete(id, SITTER_EMAIL)));
+            new StatusTransition(
+                    "cancel requested",
+                    BookingStatus.REQUESTED,
+                    BookingStatus.CANCELLED,
+                    false,
+                    "",
+                    (service, id) -> service.cancel(id, OWNER_EMAIL)
+            ),
+
+            new StatusTransition(
+                    "cancel accepted",
+                    BookingStatus.ACCEPTED,
+                    BookingStatus.CANCELLED,
+                    false,
+                    "",
+                    (service, id) -> service.cancel(id, OWNER_EMAIL)
+            ),
+
+            new StatusTransition(
+                    "reject requested",
+                    BookingStatus.REQUESTED,
+                    BookingStatus.DECLINED,
+                    false,
+                    "",
+                    (service, id) -> service.reject(id, SITTER_EMAIL)
+            ),
+
+            new StatusTransition(
+                    "complete accepted",
+                    BookingStatus.ACCEPTED,
+                    BookingStatus.COMPLETED,
+                    true,
+                    "",
+                    (service, id) -> service.complete(id, SITTER_EMAIL)
+            )
+    );
   }
 
   private static Stream<StatusTransition> invalidStatusTransitions() {
     return Stream.of(
-        new StatusTransition("cancel completed", BookingStatus.COMPLETED, BookingStatus.CANCELLED,
-            "Only requested or accepted bookings can be cancelled",
-            (service, id) -> service.cancel(id, OWNER_EMAIL)),
-        new StatusTransition("reject accepted", BookingStatus.ACCEPTED, BookingStatus.DECLINED,
-            "Only requested bookings can be declined",
-            (service, id) -> service.reject(id, SITTER_EMAIL)),
-        new StatusTransition("complete requested", BookingStatus.REQUESTED, BookingStatus.COMPLETED,
-            "Only accepted bookings can be completed",
-            (service, id) -> service.complete(id, SITTER_EMAIL)));
+            new StatusTransition(
+                    "cancel completed",
+                    BookingStatus.COMPLETED,
+                    BookingStatus.CANCELLED,
+                    true,
+                    "A paid booking cannot be cancelled",
+                    (service, id) -> service.cancel(id, OWNER_EMAIL)
+            ),
+
+            new StatusTransition(
+                    "reject accepted",
+                    BookingStatus.ACCEPTED,
+                    BookingStatus.DECLINED,
+                    true,
+                    "A paid booking cannot be rejected",
+                    (service, id) -> service.reject(id, SITTER_EMAIL)
+            ),
+
+            new StatusTransition(
+                    "complete requested",
+                    BookingStatus.REQUESTED,
+                    BookingStatus.COMPLETED,
+                    true,
+                    "Only accepted bookings can be completed",
+                    (service, id) -> service.complete(id, SITTER_EMAIL)
+            )
+    );
   }
 
   private record StatusTransition(
       String name,
       BookingStatus initialStatus,
       BookingStatus expectedStatus,
+      boolean paid,
       String errorMessage,
       StatusAction action) {
     BookingResponse execute(BookingService service, Long bookingId) {

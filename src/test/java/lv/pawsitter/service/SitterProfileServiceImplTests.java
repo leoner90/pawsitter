@@ -22,6 +22,7 @@ import lv.pawsitter.entity.User;
 import lv.pawsitter.exception.AvailabilityNotFoundException;
 import lv.pawsitter.exception.InvalidSitterOperationException;
 import lv.pawsitter.exception.UserNotFoundException;
+import lv.pawsitter.repository.BookingRepository;
 import lv.pawsitter.repository.SitterAvailabilityRepository;
 import lv.pawsitter.repository.SitterProfileRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -48,6 +49,9 @@ class SitterProfileServiceImplTests {
 
     @Mock
     private SitterAvailabilityRepository sitterAvailabilityRepository;
+
+    @Mock
+    private BookingRepository bookingRepository;
 
     @Mock
     private Validator validator;
@@ -90,7 +94,7 @@ class SitterProfileServiceImplTests {
 
         assertThatThrownBy(() -> sitterProfileService.getSitterById(999L))
                 .isInstanceOf(UserNotFoundException.class)
-                .hasMessage("Sitter profile not found");
+                .hasMessage("User with id 999 is not found.");
     }
 
     @Test
@@ -108,7 +112,7 @@ class SitterProfileServiceImplTests {
 
         assertThatThrownBy(() -> sitterProfileService.getProfileByUserEmail("missing@example.com"))
                 .isInstanceOf(UserNotFoundException.class)
-                .hasMessage("Sitter profile not found");
+                .hasMessage("User with email missing@example.com is not found.");
     }
 
     @Test
