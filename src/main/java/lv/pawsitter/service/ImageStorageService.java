@@ -1,5 +1,6 @@
 package lv.pawsitter.service;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -11,6 +12,7 @@ import java.util.Set;
 import java.util.UUID;
 
 //base image security
+@Slf4j
 @Service
 public class ImageStorageService
 {
@@ -53,25 +55,39 @@ public class ImageStorageService
         {
             case "image/jpeg" -> ".jpg";
             case "image/png" -> ".png";
-            default -> throw new IllegalArgumentException("Unsupported image type");
-        };
+            default -> {
+                log.warn("Rejected image with unsupported content type: {}", contentType);
+                throw new IllegalArgumentException("Unsupported image type");
+            }        };
     }
 
 //delete old image logic
     private void deleteImage(String imageUrl, Path uploadDirectory, String defaultImage)
     {
-        if (imageUrl == null || imageUrl.isBlank()) { return; }
-        if (imageUrl.endsWith(defaultImage)) { return; }
+        if (imageUrl == null || imageUrl.isBlank()) {
+            log.info("Skipping image delete: no image URL provided");
+            return;
+        }
+        if (imageUrl.endsWith(defaultImage)) {
+            log.info("Skipping image delete: {} is the default image", imageUrl);
+            return;
+        }
 
         String fileName = Path.of(imageUrl).getFileName().toString();
         Path filePath = uploadDirectory.resolve(fileName);
 
         try
         {
-            Files.deleteIfExists(filePath);
+            boolean deleted = Files.deleteIfExists(filePath);
+            if (deleted) {
+                log.info("Deleted image file: {}", filePath);
+            } else {
+                log.warn("Image file not found for deletion: {}", filePath);
+            }
         }
         catch (IOException exception)
         {
+            log.error("Failed to delete image file: {}", filePath, exception);
             throw new IllegalStateException("Failed to delete old profile image", exception);
         }
     }
@@ -81,16 +97,19 @@ public class ImageStorageService
     {
         if (image == null || image.isEmpty())
         {
+            log.info("No image provided to save, skipping upload");
             return null;
         }
 
         if (image.getSize() > MAX_FILE_SIZE)
         {
+            log.warn("Rejected image upload: size {} bytes exceeds limit of {} bytes", image.getSize(), MAX_FILE_SIZE);
             throw new IllegalArgumentException("Image cannot be larger than 5 MB");
         }
 
         if (!ALLOWED_CONTENT_TYPES.contains(image.getContentType()))
         {
+            log.warn("Rejected image upload: unsupported content type {}", image.getContentType());
             throw new IllegalArgumentException("Only JPEG and PNG images are allowed");
         }
 
@@ -101,13 +120,13 @@ public class ImageStorageService
             String fileName = UUID.randomUUID() + extension;
             Path filePath = uploadDirectory.resolve(fileName);
             Files.copy(image.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
+            log.info("Saved image file: {}", filePath);
             return imageUrl + fileName;
         }
         catch (IOException exception)
         {
+            log.error("Failed to save image to directory: {}", uploadDirectory, exception);
             throw new IllegalStateException("Failed to save image", exception);
         }
     }
-
-
 }
