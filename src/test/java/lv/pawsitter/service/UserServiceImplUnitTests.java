@@ -10,7 +10,7 @@ import lv.pawsitter.exception.UserNotFoundException;
 import lv.pawsitter.mapper.Converter;
 import lv.pawsitter.model.RoleType;
 import lv.pawsitter.repository.UserRepository;
-import lv.pawsitter.service.userservice.UserServiceImplementation;
+import lv.pawsitter.service.userservice.UserServiceImpl;
 import lv.pawsitter.utility.MaskingUtil;
 import lv.pawsitter.utility.ValidationUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -40,7 +40,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class UserServiceImplementationUnitTests {
+public class UserServiceImplUnitTests {
     @Mock
     private UserRepository userRepository;
 
@@ -54,7 +54,7 @@ public class UserServiceImplementationUnitTests {
 
     private ValidationUtil validationUtil;
 
-    private UserServiceImplementation userService;
+    private UserServiceImpl userService;
 
     private User user;
 
@@ -66,7 +66,7 @@ public class UserServiceImplementationUnitTests {
 
         validationUtil = new ValidationUtil();
 
-        userService = new UserServiceImplementation(
+        userService = new UserServiceImpl(
                 userRepository,
                 passwordEncoder,
                 converter,
