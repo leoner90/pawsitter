@@ -285,6 +285,28 @@ public class ReviewServiceUnitTests {
                 () -> reviewService.deleteReview(500L, "jane@example.com"));
     }
 
+    @Test
+    void getReviewSummaryForUser_returnsAverageAndCountWhenReviewsExist() {
+        when(reviewRepository.findAverageRatingByRevieweeId(2L)).thenReturn(Optional.of(4.25));
+        when(reviewRepository.countByRevieweeId(2L)).thenReturn(4L);
+
+        ReviewService.ReviewSummary summary = reviewService.getReviewSummaryForUser(2L);
+
+        assertEquals(4.25, summary.averageRating(), 0.001);
+        assertEquals(4L, summary.reviewCount());
+    }
+
+    @Test
+    void getReviewSummaryForUser_returnsZeroAverageWhenNoReviewsExist() {
+        when(reviewRepository.findAverageRatingByRevieweeId(2L)).thenReturn(Optional.empty());
+        when(reviewRepository.countByRevieweeId(2L)).thenReturn(0L);
+
+        ReviewService.ReviewSummary summary = reviewService.getReviewSummaryForUser(2L);
+
+        assertEquals(0.0, summary.averageRating(), 0.001);
+        assertEquals(0L, summary.reviewCount());
+    }
+
     private Review buildReview(Long id, User reviewer, User reviewee, int rating) {
         Review review = new Review();
         review.setId(id);
