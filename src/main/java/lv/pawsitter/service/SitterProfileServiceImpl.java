@@ -48,7 +48,7 @@ public class SitterProfileServiceImpl implements SitterProfileService
     @Override
     public SitterProfile getSitterById(Long id)
     {
-        return sitterProfileRepository.findById(id).orElseThrow(() -> new UserNotFoundException("Sitter profile not found"));
+        return sitterProfileRepository.findById(id).orElseThrow(() -> new UserNotFoundException(id));
     }
 
     //Get profile By Email
