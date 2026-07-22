@@ -28,7 +28,7 @@ import java.util.UUID;
 @RequiredArgsConstructor
 @Slf4j
 public class RecoveryServiceImpl implements RecoveryService {
-    private final RecoveryRepository repository;
+    private final RecoveryRepository recoveryRepository;
 
     private final UserRepository userRepository;
 
@@ -44,6 +44,7 @@ public class RecoveryServiceImpl implements RecoveryService {
     private String frontendBaseUrl;
 
     @Override
+    @Transactional
     public void generateAndEmail(String email) {
         log.info("Starting password recovery process for email={}", maskingUtil.maskEmail(email));
 
@@ -63,10 +64,13 @@ public class RecoveryServiceImpl implements RecoveryService {
 
         log.info("User found: id={}, email={}", maskedId, maskedEmail);
 
-        log.debug("Deleting old recovery tokens for user id={}", maskedId);
+        log.debug("Loading existing  recovery tokens for user id={}", maskedId);
 
-        repository.deleteByUser(user);
-        Recovery recovery = new Recovery();
+        // if a recovery row for this user already exists, reuse that same row
+        // if no row exists, create a new Recovery object
+        Recovery recovery = recoveryRepository.findByUser(user)
+                .orElseGet(Recovery::new);
+
         String rawToken = UUID.randomUUID().toString();
         String hashedToken = encoder.encode(rawToken);
 
@@ -74,15 +78,18 @@ public class RecoveryServiceImpl implements RecoveryService {
 
         recovery.setRecoveryToken(hashedToken);
         recovery.setUser(user);
-        repository.save(recovery);
+        // Reset the expiry time when the same user requests another recovery email.
+        recovery.setEndOfLifeCycle(LocalDateTime.now().plusMinutes(15));
+        recoveryRepository.save(recovery);
 
         log.info("Saved new recovery token for user id={}", maskedId);
 
         log.info("Sending recovery email to {}", maskedEmail);
 
         webClient.sendEmail(user.getEmail(), "PawSitter Recovery Email",
-                "Follow this link to change your password:\n" + frontendBaseUrl
-                        + "/recovery/updatePassword?recoveryToken=" + rawToken);
+                        "Follow this link to change your password:\n" + frontendBaseUrl
+                                + "/recovery/updatePassword?recoveryToken=" + rawToken)
+                .subscribe();
 
         log.info("Recovery email successfully sent to {}", maskedEmail);
     }
@@ -93,7 +100,7 @@ public class RecoveryServiceImpl implements RecoveryService {
         String maskedToken = maskingUtil.maskToken(rawToken);
         log.info("Starting password change using recovery token={}", maskedToken);
 
-        List<Recovery> recoveries = repository.findAll();
+        List<Recovery> recoveries = recoveryRepository.findAll();
 
         log.debug("Loaded {} recovery entries from database", recoveries.size());
         Recovery recovery = recoveries.stream()
@@ -138,7 +145,7 @@ public class RecoveryServiceImpl implements RecoveryService {
 
         log.info("Password successfully updated for user id={}", maskedId);
 
-        repository.delete(recovery);
+        recoveryRepository.delete(recovery);
         log.debug("Deleted used recovery token for user id={}", maskedId);
     }
 }

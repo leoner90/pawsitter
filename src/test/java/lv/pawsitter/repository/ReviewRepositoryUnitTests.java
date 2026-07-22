@@ -13,7 +13,7 @@ import java.util.Optional;
 import static org.junit.jupiter.api.Assertions.*;
 
 @DataJpaTest
-@AutoConfigureTestDatabase(replace= AutoConfigureTestDatabase.Replace.NONE)
+
 public class ReviewRepositoryUnitTests {
 
     @Autowired
@@ -51,6 +51,28 @@ public class ReviewRepositoryUnitTests {
         sitterProfile.setUser(sitter);
         sitterProfile = sitterProfileRepository.save(sitterProfile);
 
+        Booking booking = new Booking();
+        booking.setOwner(ownerProfile);
+        booking.setSitter(sitterProfile);
+        booking.setStartDate(LocalDateTime.now());
+        booking.setEndDate(LocalDateTime.now().plusDays(2));
+        booking.setStatus(BookingStatus.COMPLETED);
+        return bookingRepository.save(booking);
+    }
+
+    private OwnerProfile persistOwnerProfile(User user) {
+        OwnerProfile ownerProfile = new OwnerProfile();
+        ownerProfile.setUser(user);
+        return ownerProfileRepository.save(ownerProfile);
+    }
+
+    private SitterProfile persistSitterProfile(User user) {
+        SitterProfile sitterProfile = new SitterProfile();
+        sitterProfile.setUser(user);
+        return sitterProfileRepository.save(sitterProfile);
+    }
+
+    private Booking persistCompletedBooking(OwnerProfile ownerProfile, SitterProfile sitterProfile) {
         Booking booking = new Booking();
         booking.setOwner(ownerProfile);
         booking.setSitter(sitterProfile);
@@ -179,5 +201,121 @@ public class ReviewRepositoryUnitTests {
 
         assertEquals(1, written.size());
         assertEquals(owner.getId(), written.get(0).getReviewer().getId());
+    }
+
+    @Test
+    void findAverageRatingByRevieweeId_returnsAverageAcrossAllReviewsForThatUser() {
+        User ownerA = persistUser("Jane", "jane7@example.com");
+        User ownerB = persistUser("Alice", "alice7@example.com");
+        User sitter = persistUser("John", "john7@example.com");
+
+        OwnerProfile ownerProfileA = persistOwnerProfile(ownerA);
+        OwnerProfile ownerProfileB = persistOwnerProfile(ownerB);
+        SitterProfile sitterProfile = persistSitterProfile(sitter);
+
+        Booking bookingA = persistCompletedBooking(ownerProfileA, sitterProfile);
+        Booking bookingB = persistCompletedBooking(ownerProfileB, sitterProfile);
+
+        Review reviewA = new Review();
+        reviewA.setBooking(bookingA);
+        reviewA.setReviewer(ownerA);
+        reviewA.setReviewee(sitter);
+        reviewA.setRating(5);
+        reviewRepository.save(reviewA);
+
+        Review reviewB = new Review();
+        reviewB.setBooking(bookingB);
+        reviewB.setReviewer(ownerB);
+        reviewB.setReviewee(sitter);
+        reviewB.setRating(3);
+        reviewRepository.save(reviewB);
+
+        Optional<Double> average = reviewRepository.findAverageRatingByRevieweeId(sitter.getId());
+
+        assertTrue(average.isPresent());
+        assertEquals(4.0, average.get(), 0.001);
+    }
+
+    @Test
+    void findAverageRatingByRevieweeId_returnsEmptyWhenUserHasNoReviews() {
+        User sitter = persistUser("John", "john8@example.com");
+
+        Optional<Double> average = reviewRepository.findAverageRatingByRevieweeId(sitter.getId());
+
+        assertTrue(average.isEmpty());
+    }
+
+    @Test
+    void findAverageRatingByRevieweeId_onlyCountsReviewsForThatSpecificUser() {
+        User owner = persistUser("Jane", "jane9@example.com");
+        User sitter = persistUser("John", "john9@example.com");
+        User otherSitter = persistUser("Mark", "mark9@example.com");
+
+        OwnerProfile ownerProfile = persistOwnerProfile(owner);
+        SitterProfile sitterProfile = persistSitterProfile(sitter);
+        SitterProfile otherSitterProfile = persistSitterProfile(otherSitter);
+
+        Booking booking = persistCompletedBooking(ownerProfile, sitterProfile);
+        Booking otherBooking = persistCompletedBooking(ownerProfile, otherSitterProfile);
+
+        Review review = new Review();
+        review.setBooking(booking);
+        review.setReviewer(owner);
+        review.setReviewee(sitter);
+        review.setRating(5);
+        reviewRepository.save(review);
+
+        Review otherReview = new Review();
+        otherReview.setBooking(otherBooking);
+        otherReview.setReviewer(owner);
+        otherReview.setReviewee(otherSitter);
+        otherReview.setRating(1);
+        reviewRepository.save(otherReview);
+
+        Optional<Double> average = reviewRepository.findAverageRatingByRevieweeId(sitter.getId());
+
+        assertTrue(average.isPresent());
+        assertEquals(5.0, average.get(), 0.001);
+    }
+
+    @Test
+    void countByRevieweeId_returnsNumberOfReviewsReceivedByThatUser() {
+        User ownerA = persistUser("Jane", "jane10@example.com");
+        User ownerB = persistUser("Alice", "alice10@example.com");
+        User sitter = persistUser("John", "john10@example.com");
+
+        OwnerProfile ownerProfileA = persistOwnerProfile(ownerA);
+        OwnerProfile ownerProfileB = persistOwnerProfile(ownerB);
+        SitterProfile sitterProfile = persistSitterProfile(sitter);
+
+        Booking bookingA = persistCompletedBooking(ownerProfileA, sitterProfile);
+        Booking bookingB = persistCompletedBooking(ownerProfileB, sitterProfile);
+
+        Review reviewA = new Review();
+        reviewA.setBooking(bookingA);
+        reviewA.setReviewer(ownerA);
+        reviewA.setReviewee(sitter);
+        reviewA.setRating(4);
+        reviewRepository.save(reviewA);
+
+        Review reviewB = new Review();
+        reviewB.setBooking(bookingB);
+        reviewB.setReviewer(ownerB);
+        reviewB.setReviewee(sitter);
+        reviewB.setRating(2);
+        reviewRepository.save(reviewB);
+
+        long count = reviewRepository.countByRevieweeId(sitter.getId());
+
+        assertEquals(2, count);
+    }
+
+    @Test
+    void countByRevieweeId_returnsZeroWhenUserHasNoReviews() {
+        User sitter = persistUser("John", "john11@example.com");
+
+        long count = reviewRepository.countByRevieweeId(sitter.getId());
+
+        assertEquals(0, count);
     }
 }

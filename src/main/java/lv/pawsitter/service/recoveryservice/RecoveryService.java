@@ -2,28 +2,29 @@ package lv.pawsitter.service.recoveryservice;
 
 /**
  * Service responsible for handling the full password recovery flow.
- * <p>
- * Provides functionality for:
+ *
+ * <p>This service provides two main operations:</p>
  * <ul>
- *     <li>Generating a password recovery token and sending it to the user's email.</li>
- *     <li>Validating the recovery token and updating the user's password.</li>
+ *     <li>Generating a password recovery token and emailing a recovery link to the user.</li>
+ *     <li>Validating a recovery token and updating the user's password.</li>
  * </ul>
- * <p>
- * This service does not perform any HTTP or UI logic. It is used by
- * the MVC controller layer and throws domain-specific exceptions
- * handled by {@code @ControllerAdvice}.
+ *
+ * <p>This service contains no HTTP or UI logic. It is intended to be used by
+ * MVC controllers and throws domain‑specific exceptions handled by
+ * {@code lv.pawsitter.advice.RecoveryExceptionHandler}.</p>
  */
 public interface RecoveryService {
 
     /**
      * Generates a password recovery token for the user with the given email
      * and sends a recovery link to that email address.
-     * <p>
-     * The method performs the following steps:
+     *
+     * <p>Processing steps:</p>
      * <ol>
-     *     <li>Validates that a user with the provided email exists.</li>
-     *     <li>Generates a recovery token (raw UUID).</li>
-     *     <li>Hashes and stores the token together with an expiration timestamp.</li>
+     *     <li>Normalizes and validates the email format.</li>
+     *     <li>Ensures a user with the provided email exists.</li>
+     *     <li>Generates a raw UUID token and stores its hashed form.</li>
+     *     <li>Sets a 15‑minute expiration time for the token.</li>
      *     <li>Sends an email containing a recovery link with the raw token.</li>
      * </ol>
      *
@@ -39,14 +40,14 @@ public interface RecoveryService {
 
     /**
      * Validates the provided recovery token and updates the user's password.
-     * <p>
-     * The method performs the following steps:
+     *
+     * <p>Processing steps:</p>
      * <ol>
-     *     <li>Validates that the recovery token exists.</li>
+     *     <li>Locates a recovery entry whose hashed token matches the raw token.</li>
      *     <li>Checks that the token has not expired.</li>
-     *     <li>Compares the raw token with the stored hashed token.</li>
-     *     <li>Validates that the new password and confirmation match.</li>
-     *     <li>Updates the user's password and invalidates the recovery token.</li>
+     *     <li>Normalizes and validates the new password values.</li>
+     *     <li>Ensures the new password and confirmation match.</li>
+     *     <li>Updates the user's password and deletes the used recovery entry.</li>
      * </ol>
      *
      * @param rawToken the raw recovery token extracted from the URL
@@ -54,7 +55,7 @@ public interface RecoveryService {
      * @param confirmNewPassword confirmation of the new password
      *
      * @throws lv.pawsitter.exception.recoveryexception.RecoveryNotFoundException
-     *         if the token does not exist or does not match any recovery entry
+     *         if the token does not match any stored recovery entry
      *
      * @throws lv.pawsitter.exception.recoveryexception.RecoveryExpiredException
      *         if the token has expired
@@ -63,7 +64,7 @@ public interface RecoveryService {
      *         if {@code newPassword} and {@code confirmNewPassword} do not match
      *
      * @throws IllegalArgumentException
-     *         if any of the provided values are invalid
+     *         if any provided values are invalid
      */
     void changePassword(String rawToken, String newPassword, String confirmNewPassword);
 }

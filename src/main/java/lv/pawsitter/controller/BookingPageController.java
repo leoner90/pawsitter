@@ -65,6 +65,7 @@ public class BookingPageController {
     model.addAttribute("owner", booking.getOwner());
     model.addAttribute("pets", booking.getPets());
     model.addAttribute("booking", booking);
+    model.addAttribute("reviewSummary", reviewService.getReviewSummaryForUser(booking.getOwner().getUser().getId()));
 
     return "booking/ownerProfileView";
   }

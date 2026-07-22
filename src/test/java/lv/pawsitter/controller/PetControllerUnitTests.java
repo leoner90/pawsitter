@@ -131,13 +131,13 @@ public class PetControllerUnitTests {
     void createPet_returnsNotFound_whenOwnerDoesNotExist() throws Exception {
         PetRequestDto requestDto = buildRequestDto();
         when(petService.createPet(anyLong(), any(PetRequestDto.class)))
-                .thenThrow(new UserNotFoundException("Owner not found with the id: 9999"));
+                .thenThrow(new UserNotFoundException(9999L));
 
         mockMvc.perform(post("/api/pet/owner/9999")
                         .contentType("application/json")
                         .content(objectMapper.writeValueAsString(requestDto)))
                 .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.message").value("Owner not found with the id: 9999"));
+                .andExpect(jsonPath("$.message").value("User with id 9999 is not found."));
     }
 
     @Test

@@ -25,6 +25,9 @@
             <button type="submit" class="button primary-button">Send recovery email</button>
         </form>
 
+        <p th:if="${recoveryError}" class="form-error" th:text="${recoveryError}"></p>
+
+
         <p>
             Remember your password?
             <a th:href="@{/login}">Log in</a>

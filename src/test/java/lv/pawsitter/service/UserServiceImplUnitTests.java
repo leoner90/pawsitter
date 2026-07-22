@@ -3,12 +3,14 @@ package lv.pawsitter.service;
 import lv.pawsitter.dto.userdto.UserCreateDTO;
 import lv.pawsitter.dto.userdto.UserDTO;
 import lv.pawsitter.entity.User;
+import lv.pawsitter.exception.EmailMismatchException;
 import lv.pawsitter.exception.EmailNotUniqueException;
+import lv.pawsitter.exception.PasswordMismatchException;
 import lv.pawsitter.exception.UserNotFoundException;
 import lv.pawsitter.mapper.Converter;
 import lv.pawsitter.model.RoleType;
 import lv.pawsitter.repository.UserRepository;
-import lv.pawsitter.service.userservice.UserServiceImplementation;
+import lv.pawsitter.service.userservice.UserServiceImpl;
 import lv.pawsitter.utility.MaskingUtil;
 import lv.pawsitter.utility.ValidationUtil;
 import org.junit.jupiter.api.AfterEach;
@@ -38,7 +40,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
-public class UserServiceImplementationUnitTests {
+public class UserServiceImplUnitTests {
     @Mock
     private UserRepository userRepository;
 
@@ -52,15 +54,26 @@ public class UserServiceImplementationUnitTests {
 
     private ValidationUtil validationUtil;
 
-    private UserServiceImplementation userService;
+    private UserServiceImpl userService;
 
     private User user;
+
     private UserCreateDTO userCreateDTO;
 
     @BeforeEach
     void setUp() {
         maskingUtil = new MaskingUtil();
-        userService = new UserServiceImplementation(userRepository, passwordEncoder, converter, maskingUtil, validationUtil);
+
+        validationUtil = new ValidationUtil();
+
+        userService = new UserServiceImpl(
+                userRepository,
+                passwordEncoder,
+                converter,
+                maskingUtil,
+                validationUtil);
+
+
 
         user = new User();
         user.setId(1L);
@@ -109,7 +122,7 @@ public class UserServiceImplementationUnitTests {
 
 
     @Test
-    void create_savesAndReturnsDto_forOwnerRole() {
+    void create_savesAndReturnsDto_whenRoleIsUser() {
         when(userRepository.findByEmail("jane@example.com")).thenReturn(Optional.empty());
         when(converter.dtoToEntity(userCreateDTO)).thenReturn(new User());
         when(passwordEncoder.encode("password123")).thenReturn("encodedPassword");
@@ -173,28 +186,28 @@ public class UserServiceImplementationUnitTests {
                 "password123", "password123", RoleType.USER);
 
         assertThatThrownBy(() -> userService.create(mismatched))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(EmailMismatchException.class)
                 .hasMessageContaining("Emails do not match");
 
         verify(userRepository, never()).save(any());
     }
 
     @Test
-    void create_throwsIllegalArgumentException_whenPasswordsDoNotMatch() {
+    void create_throwsPasswordMismatchException_whenPasswordsDoNotMatch() {
         UserCreateDTO mismatched = new UserCreateDTO(
                 "Jane", "Doe", "+37120000001",
                 "jane@example.com", "jane@example.com",
                 "password123", "otherPassword", RoleType.USER);
 
         assertThatThrownBy(() -> userService.create(mismatched))
-                .isInstanceOf(IllegalArgumentException.class)
+                .isInstanceOf(PasswordMismatchException.class)
                 .hasMessageContaining("Passwords do not match");
 
         verify(userRepository, never()).save(any());
     }
 
     @Test
-    void create_throwsIllegalArgumentException_whenEmailFormatIsInvalid() {
+    void create_throwsEmailMismatchException_whenEmailFormatIsInvalid() {
         UserCreateDTO invalidEmail = new UserCreateDTO(
                 "Jane", "Doe", "+37120000001",
                 "not-an-email", "not-an-email",
@@ -313,12 +326,21 @@ public class UserServiceImplementationUnitTests {
     void update_throwsNullPointerException_whenRoleIsNull() {
         assertThatThrownBy(() -> userService.update(1L, null))
                 .isInstanceOf(NullPointerException.class);
+
+        verify(userRepository, never()).findById(any());
+        verify(userRepository, never()).save(any());
     }
 
     @Test
     void update_throwsIllegalArgumentException_whenIdIsNotPositive() {
         assertThatThrownBy(() -> userService.update(0, RoleType.ADMIN))
                 .isInstanceOf(IllegalArgumentException.class);
+
+        assertThatThrownBy(() -> userService.update(-1L, RoleType.ADMIN))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        verify(userRepository, never()).findById(any());
+        verify(userRepository, never()).save(any());
     }
 
 
@@ -381,6 +403,12 @@ public class UserServiceImplementationUnitTests {
     void delete_throwsIllegalArgumentException_whenIdIsNotPositive() {
         assertThatThrownBy(() -> userService.delete(0))
                 .isInstanceOf(IllegalArgumentException.class);
+
+        assertThatThrownBy(() -> userService.delete(-1L))
+                .isInstanceOf(IllegalArgumentException.class);
+
+        verify(userRepository, never()).findById(any());
+        verify(userRepository, never()).delete(any());
     }
 
 

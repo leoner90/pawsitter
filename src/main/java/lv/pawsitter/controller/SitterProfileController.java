@@ -7,6 +7,7 @@ import lv.pawsitter.dto.SitterProfileUpdateDTO;
 import lv.pawsitter.entity.SitterProfile;
 import lv.pawsitter.exception.InvalidSitterOperationException;
 import lv.pawsitter.service.BookingService;
+import lv.pawsitter.service.ReviewService;
 import lv.pawsitter.service.SitterProfileService;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
@@ -24,6 +25,7 @@ public class SitterProfileController
 //************* VAR
     private final SitterProfileService sitterProfileService;
     private final BookingService bookingService;
+    private final ReviewService reviewService;
 
 //************ GETTERS
     //SITTER PROFILE PAGE GETTER
@@ -36,6 +38,7 @@ public class SitterProfileController
         model.addAttribute("availabilityRequest", new SitterAvailabilityRequest(null, null)); //an empty DTO for the availability form.
         model.addAttribute("availabilityRanges", sitterProfileService.getAvailability(authentication.getName()));  // gets and sends availability dates
         model.addAttribute("reservedBookings", bookingService.getActiveSitterBookings(authentication.getName())); // add pre-booked dates which sitter can't select
+        model.addAttribute("reviewSummary", reviewService.getReviewSummaryForUser(sitterProfile.getUser().getId()));
         return "sitter/sitterProfile";
     }
 

@@ -124,8 +124,15 @@ public class ReviewService {
 
         }
         reviewRepository.delete(review);
-
     }
+
+    public ReviewSummary getReviewSummaryForUser(Long userId) {
+        double average = reviewRepository.findAverageRatingByRevieweeId(userId).orElse(0.0);
+        long count = reviewRepository.countByRevieweeId(userId);
+        return new ReviewSummary(average, count);
+    }
+
+    public record ReviewSummary(double averageRating, long reviewCount) {}
 
     private ReviewResponse mapToResponse(Review review) {
         return new ReviewResponse(
