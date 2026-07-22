@@ -4,6 +4,8 @@ import lv.pawsitter.entity.SitterProfile;
 import lv.pawsitter.entity.User;
 import lv.pawsitter.exception.UserNotFoundException;
 import lv.pawsitter.security.sessionless.jwttoken.JwtService;
+import lv.pawsitter.service.BookingService;
+import lv.pawsitter.service.OwnerProfileService;
 import lv.pawsitter.service.SitterProfileService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,6 +37,12 @@ public class PageControllerUnitTests {
 
     @MockitoBean
     private UserDetailsService userDetailsService;
+
+    @MockitoBean
+    private OwnerProfileService ownerProfileService;
+
+    @MockitoBean
+    private BookingService bookingService;
 
     private SitterProfile buildSitterProfile(Long id) {
         User user = new User();
