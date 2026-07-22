@@ -4,7 +4,6 @@ import lv.pawsitter.exception.PasswordMismatchException;
 import lv.pawsitter.exception.UserNotFoundException;
 import lv.pawsitter.exception.recoveryexception.RecoveryExpiredException;
 import lv.pawsitter.exception.recoveryexception.RecoveryNotFoundException;
-import lv.pawsitter.security.sessionless.jwttoken.JwtService;
 import lv.pawsitter.service.recoveryservice.RecoveryService;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,9 +30,6 @@ public class RecoveryControllerUnitTests {
 
     @MockitoBean
     private RecoveryService recoveryService;
-
-    @MockitoBean
-    private JwtService jwtService;
 
     @MockitoBean
     private UserDetailsService userDetailsService;

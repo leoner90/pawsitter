@@ -4,7 +4,6 @@ import lv.pawsitter.entity.OwnerProfile;
 import lv.pawsitter.entity.Pet;
 import lv.pawsitter.entity.SitterProfile;
 import lv.pawsitter.entity.User;
-import lv.pawsitter.security.sessionless.jwttoken.JwtService;
 import lv.pawsitter.service.BookingService;
 import lv.pawsitter.service.OwnerProfileService;
 import lv.pawsitter.service.SitterProfileService;
@@ -41,9 +40,6 @@ public class DashboardControllerUnitTests {
 
     @MockitoBean
     private BookingService bookingService;
-
-    @MockitoBean
-    private JwtService jwtService;
 
     @MockitoBean
     private UserDetailsService userDetailsService;

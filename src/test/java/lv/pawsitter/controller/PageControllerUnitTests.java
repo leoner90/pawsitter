@@ -40,12 +40,6 @@ public class PageControllerUnitTests {
     @MockitoBean
     private BookingService bookingService;
 
-    @MockitoBean
-    private OwnerProfileService ownerProfileService;
-
-    @MockitoBean
-    private BookingService bookingService;
-
     private SitterProfile buildSitterProfile(Long id) {
         User user = new User();
         user.setFirstName("Sitter");
