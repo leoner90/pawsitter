@@ -6,7 +6,6 @@ import lv.pawsitter.dto.PetResponseDto;
 import lv.pawsitter.entity.OwnerProfile;
 import lv.pawsitter.entity.User;
 import lv.pawsitter.exception.PetNotFoundException;
-import lv.pawsitter.security.sessionless.jwttoken.JwtService;
 import lv.pawsitter.service.OwnerProfileService;
 import lv.pawsitter.service.PetService;
 import lv.pawsitter.service.ReviewService;
@@ -44,9 +43,6 @@ public class OwnerProfileControllerUnitTests {
 
     @MockitoBean
     private PetService petService;
-
-    @MockitoBean
-    private JwtService jwtService;
 
     @MockitoBean
     private UserDetailsService userDetailsService;

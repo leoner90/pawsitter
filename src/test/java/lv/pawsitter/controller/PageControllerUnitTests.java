@@ -3,7 +3,6 @@ package lv.pawsitter.controller;
 import lv.pawsitter.entity.SitterProfile;
 import lv.pawsitter.entity.User;
 import lv.pawsitter.exception.UserNotFoundException;
-import lv.pawsitter.security.sessionless.jwttoken.JwtService;
 import lv.pawsitter.service.BookingService;
 import lv.pawsitter.service.OwnerProfileService;
 import lv.pawsitter.service.SitterProfileService;
@@ -33,10 +32,13 @@ public class PageControllerUnitTests {
     private SitterProfileService sitterProfileService;
 
     @MockitoBean
-    private JwtService jwtService;
+    private UserDetailsService userDetailsService;
 
     @MockitoBean
-    private UserDetailsService userDetailsService;
+    private OwnerProfileService ownerProfileService;
+
+    @MockitoBean
+    private BookingService bookingService;
 
     @MockitoBean
     private OwnerProfileService ownerProfileService;
